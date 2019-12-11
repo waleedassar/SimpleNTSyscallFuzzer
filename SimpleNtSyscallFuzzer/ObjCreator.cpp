@@ -1002,12 +1002,14 @@ int InitKernelObjects()
 	if(!hWinsta)
 	{
 		printf("Error creating WindowStation object\r\n");
-		return -1;
+		//return -1; //For fuzzing under "NT Authority\SYSTEM"
 	}
-	printf("hWInsta: %I64X\r\n",hWinsta);
-	AllKernelObject[AllKernelObjectsUsed] = (ulonglong)hWinsta;
-	AllKernelObjectsUsed++;
-
+	else
+	{
+		printf("hWInsta: %I64X\r\n",hWinsta);
+		AllKernelObject[AllKernelObjectsUsed] = (ulonglong)hWinsta;
+		AllKernelObjectsUsed++;
+	}
 
 	
 	return 0;

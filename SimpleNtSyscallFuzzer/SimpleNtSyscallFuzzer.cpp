@@ -841,9 +841,10 @@ int _tmain(int argc, _TCHAR* argv[])
 	ulong NumProcessors = SysInfo.dwNumberOfProcessors;
 	printf("Number of processors: %X\r\n",NumProcessors);
 	bool bManyCpus = (NumProcessors > 8)?true:false;
+	if(!bManyCpus) bSetAffinity = false;
 	//----------------------------------------------------------
 	
-	if(bSetAffinity && !bManyCpus)
+	if(bSetAffinity)
 	{
 		//-----------------Specific to my machine-------------------
 		if(!SetThreadAffinityMask(GetCurrentThread(),0x1))
@@ -1063,7 +1064,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	}
 	else
 	{
-		if(bSetAffinity && !bManyCpus)
+		if(bSetAffinity)
 		{
 			//-----------------Specific to my machine-------------------
 			if(!SetThreadAffinityMask(hThread_r,0x2))
@@ -1374,7 +1375,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	}
 	else
 	{
-		if(bSetAffinity && !bManyCpus)
+		if(bSetAffinity)
 		{
 			//-----------------Specific to my machine-------------------
 			if(!SetThreadAffinityMask(hThread_Apc,0x4))

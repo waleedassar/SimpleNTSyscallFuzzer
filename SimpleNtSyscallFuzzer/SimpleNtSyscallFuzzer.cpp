@@ -834,11 +834,16 @@ int _tmain(int argc, _TCHAR* argv[])
 	printf("CountZZ: %X\r\n",CountZZ);//remove later
 	printf("bDefer: %X\r\n",bDefer);//remove later
 
+	//----------------------------------------------------------
+	SYSTEM_INFO SysInfo={0};
+	GetSystemInfo(&SysInfo);
 
-	
+	ulong NumProcessors = SysInfo.dwNumberOfProcessors;
+	printf("Number of processors: %X\r\n",NumProcessors);
+	bool bManyCpus = (NumProcessors > 8)?true:false;
 	//----------------------------------------------------------
 	
-	if(bSetAffinity)
+	if(bSetAffinity && !bManyCpus)
 	{
 		//-----------------Specific to my machine-------------------
 		if(!SetThreadAffinityMask(GetCurrentThread(),0x1))
@@ -1058,7 +1063,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	}
 	else
 	{
-		if(bSetAffinity)
+		if(bSetAffinity && !bManyCpus)
 		{
 			//-----------------Specific to my machine-------------------
 			if(!SetThreadAffinityMask(hThread_r,0x2))
@@ -1369,7 +1374,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	}
 	else
 	{
-		if(bSetAffinity)
+		if(bSetAffinity && !bManyCpus)
 		{
 			//-----------------Specific to my machine-------------------
 			if(!SetThreadAffinityMask(hThread_Apc,0x4))

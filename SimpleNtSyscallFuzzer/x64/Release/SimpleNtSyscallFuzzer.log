@@ -1,10 +1,49 @@
-﻿Build started 12/13/2019 8:59:47 PM.
+﻿Build started 12/13/2019 9:55:08 PM.
      1>Project "F:\kernel\Projects\SimpleNtSyscallFuzzer\SimpleNtSyscallFuzzer\SimpleNtSyscallFuzzer.vcxproj" on node 2 (Build target(s)).
      1>ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\x86_amd64\CL.exe /c /Zi /nologo /W3 /WX- /O2 /Oi /GL /D WIN32 /D NDEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Yu"stdafx.h" /Fp"x64\Release\SimpleNtSyscallFuzzer.pch" /Fo"x64\Release\\" /Fd"x64\Release\vc110.pdb" /Gd /TP /errorReport:prompt Skip.cpp
-     1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V110\Microsoft.CppCommon.targets(347,5): error MSB6006: "CL.exe" exited with code -1073741515.
-     1>Done Building Project "F:\kernel\Projects\SimpleNtSyscallFuzzer\SimpleNtSyscallFuzzer\SimpleNtSyscallFuzzer.vcxproj" (Build target(s)) -- FAILED.
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\x86_amd64\CL.exe /c /Zi /nologo /W3 /WX- /O2 /Oi /GL /D WIN32 /D NDEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Yu"stdafx.h" /Fp"x64\Release\SimpleNtSyscallFuzzer.pch" /Fo"x64\Release\\" /Fd"x64\Release\vc110.pdb" /Gd /TP /errorReport:prompt SimpleNtSyscallFuzzer.cpp Skip.cpp
+         SimpleNtSyscallFuzzer.cpp
+     1>f:\kernel\projects\simplentsyscallfuzzer\simplentsyscallfuzzer\Header.h(7): warning C4005: 'RAND_MAX' : macro redefinition
+                 C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\stdlib.h(154) : see previous definition of 'RAND_MAX'
+     1>SimpleNtSyscallFuzzer.cpp(85): warning C4267: 'initializing' : conversion from 'size_t' to 'unsigned long', possible loss of data
+     1>SimpleNtSyscallFuzzer.cpp(89): warning C4018: '<' : signed/unsigned mismatch
+     1>SimpleNtSyscallFuzzer.cpp(110): warning C4267: 'initializing' : conversion from 'size_t' to 'unsigned long', possible loss of data
+     1>SimpleNtSyscallFuzzer.cpp(164): warning C4267: 'argument' : conversion from 'size_t' to 'DWORD', possible loss of data
+     1>SimpleNtSyscallFuzzer.cpp(180): warning C4267: 'argument' : conversion from 'size_t' to 'DWORD', possible loss of data
+     1>SimpleNtSyscallFuzzer.cpp(200): warning C4267: 'argument' : conversion from 'size_t' to 'DWORD', possible loss of data
+     1>SimpleNtSyscallFuzzer.cpp(231): warning C4305: '=' : truncation from 'unsigned __int64' to 'char'
+     1>SimpleNtSyscallFuzzer.cpp(231): warning C4309: '=' : truncation of constant value
+     1>SimpleNtSyscallFuzzer.cpp(274): warning C4018: '<' : signed/unsigned mismatch
+     1>SimpleNtSyscallFuzzer.cpp(294): warning C4018: '<' : signed/unsigned mismatch
+     1>SimpleNtSyscallFuzzer.cpp(382): warning C4018: '<' : signed/unsigned mismatch
+     1>SimpleNtSyscallFuzzer.cpp(639): warning C4244: 'initializing' : conversion from '__int64' to 'int', possible loss of data
+     1>SimpleNtSyscallFuzzer.cpp(795): warning C4018: '<' : signed/unsigned mismatch
+     1>SimpleNtSyscallFuzzer.cpp(820): warning C4018: '<' : signed/unsigned mismatch
+     1>SimpleNtSyscallFuzzer.cpp(873): warning C4244: 'argument' : conversion from 'time_t' to 'unsigned int', possible loss of data
+     1>SimpleNtSyscallFuzzer.cpp(1437): warning C4018: '<' : signed/unsigned mismatch
+     1>SimpleNtSyscallFuzzer.cpp(1589): warning C4800: 'unsigned long' : forcing value to bool 'true' or 'false' (performance warning)
+     1>SimpleNtSyscallFuzzer.cpp(1637): warning C4800: 'unsigned long' : forcing value to bool 'true' or 'false' (performance warning)
+         Skip.cpp
+     1>f:\kernel\projects\simplentsyscallfuzzer\simplentsyscallfuzzer\Header.h(7): warning C4005: 'RAND_MAX' : macro redefinition
+                 C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\stdlib.h(154) : see previous definition of 'RAND_MAX'
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"F:\kernel\Projects\SimpleNtSyscallFuzzer\x64\Release\SimpleNtSyscallFuzzer.exe" /INCREMENTAL:NO /NOLOGO ntdll.lib Ktmw32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"F:\kernel\Projects\SimpleNtSyscallFuzzer\x64\Release\SimpleNtSyscallFuzzer.pdb" /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"F:\kernel\Projects\SimpleNtSyscallFuzzer\x64\Release\SimpleNtSyscallFuzzer.lib" /MACHINE:X64 x64\Release\APC.obj
+         x64\Release\Destroy.obj
+         x64\Release\FuncTable.obj
+         x64\Release\HexDump.obj
+         x64\Release\LeakChecker.obj
+         x64\Release\Modify.obj
+         x64\Release\ObjCreator.obj
+         x64\Release\Pre.obj
+         x64\Release\Random.obj
+         x64\Release\SimpleNtSyscallFuzzer.obj
+         x64\Release\Skip.obj
+         x64\Release\stdafx.obj
+         Generating code
+         Finished generating code
+         SimpleNtSyscallFuzzer.vcxproj -> F:\kernel\Projects\SimpleNtSyscallFuzzer\x64\Release\SimpleNtSyscallFuzzer.exe
+     1>Done Building Project "F:\kernel\Projects\SimpleNtSyscallFuzzer\SimpleNtSyscallFuzzer\SimpleNtSyscallFuzzer.vcxproj" (Build target(s)).
 
-Build FAILED.
+Build succeeded.
 
-Time Elapsed 00:00:00.08
+Time Elapsed 00:00:01.73

@@ -1272,7 +1272,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 
 
-	HANDLE hEvent = CreateEvent(0,TRUE,FALSE,L"APC");
+	HANDLE hEvent = CreateEvent(0,TRUE,FALSE,0);
 	if(hEvent == INVALID_HANDLE_VALUE)
 	{
 		printf("Error creating kernel event for APC\r\n");

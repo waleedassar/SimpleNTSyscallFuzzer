@@ -812,6 +812,11 @@ int _tmain(int argc, _TCHAR* argv[])
 				bVerbose = 1;
 				//printf("Yes\r\n");
 			}
+			else if( wcsstr(Cmdline_X,L"/leakcheck") )
+			{
+				bMode = 1;
+				//printf("Yes\r\n");
+			}
 			else if( wcsstr(Cmdline_X,L"/nodefer") )
 			{
 				bDefer = false;
@@ -835,7 +840,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	printf("bVerbose: %X\r\n",bVerbose);//remove later
 	printf("CountZZ: %X\r\n",CountZZ);//remove later
 	printf("bDefer: %X\r\n",bDefer);//remove later
-
+	printf("bMode: %X\r\n",bDefer);//remove later
 	//----------------------------------------------------------
 	SYSTEM_INFO SysInfo={0};
 	GetSystemInfo(&SysInfo);

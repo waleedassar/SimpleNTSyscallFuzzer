@@ -436,6 +436,10 @@ bool Scan(void* pMem,ulong Size,ulong OSVer)
 }
 
 
+
+//--------------------------------------------
+//--------------------------------------------
+//--------------------------------------------
 //bMode ==> 0 High and Low Dwords
 //bMode ==> 1 only High Dword
 bool ScanRegister_7(ulonglong Register,bool bMode)
@@ -574,5 +578,43 @@ bool ScanRegister(ulonglong Register,bool bMode,ulong OSVer)
 	if(OSVer==0) return ScanRegister_7(Register,bMode);
 	else if(OSVer==1) return ScanRegister_10(Register,bMode);
 
+	return false;
+}
+
+//--------------------------------------------
+//--------------------------------------------
+//--------------------------------------------
+
+bool IsCanonicalKernelAddress(ulonglong Address)
+{
+	if( (Address >> 43) & 1)
+	{
+		if(Address >> 44 == 0xfffff)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+
+bool ScanCanonical(void* pMem,ulonglong Size)
+{
+	if(pMem && Size)
+	{
+		ulonglong NumQ = Size / 8;
+		ulonglong* pMemX = (ulonglong*)pMem;
+
+		for(ulonglong i=0;i<NumQ;i++)
+		{
+			if( (pMemX[i]!=-1)  && (  (pMemX[i]>>32) != 0xFFFFFFFF   ))
+			{
+				if(IsCanonicalKernelAddress(pMemX[i])==true)
+				{
+					return true;
+				}
+			}
+		}
+	}
 	return false;
 }

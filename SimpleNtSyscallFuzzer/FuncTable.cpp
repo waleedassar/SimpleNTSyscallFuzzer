@@ -112,7 +112,8 @@ void DummyPost(unsigned long SysCall,
 		{
 			if(pPool[i])
 			{
-				bRet0 = Scan((void*)(pPool[i]),RANDOM_PAGE_SIZE,OSVer);
+				//bRet0 = Scan((void*)(pPool[i]),RANDOM_PAGE_SIZE,OSVer);
+				bRet0 = ScanCanonical((void*)(pPool[i]),RANDOM_PAGE_SIZE);
 				if(bRet0)
 				{
 					printf("Kernel Address leak found, Syscall: %X, Arg# %X\r\n",SysCall,i);
@@ -120,7 +121,7 @@ void DummyPost(unsigned long SysCall,
 					PrintAllArgs(Args);
 					printf("Press any key to continue\r\n");
 					getchar();
-					FillRandomData((void*)(pPool[i]),RANDOM_PAGE_SIZE);
+					FillClassicRandomData((void*)(pPool[i]),RANDOM_PAGE_SIZE,0);
 				}
 			}
 
@@ -134,7 +135,7 @@ void DummyPost(unsigned long SysCall,
 					PrintAllArgs(Args);
 					printf("Press any key to continue\r\n");
 					getchar();
-					FillRandomData((void*)(pSecondLevelPool[i]),RANDOM_PAGE_SIZE);
+					FillClassicRandomData((void*)(pSecondLevelPool[i]),RANDOM_PAGE_SIZE,0);
 				}
 			}
 		}
@@ -145,12 +146,12 @@ void DummyPost(unsigned long SysCall,
 		{
 			if(pPool[i])
 			{
-				FillRandomData((void*)(pPool[i]),RANDOM_PAGE_SIZE);
+				FillClassicRandomData((void*)(pPool[i]),RANDOM_PAGE_SIZE,0);
 			}
 
 			if(pSecondLevelPool[i])
 			{
-				FillRandomData((void*)(pSecondLevelPool[i]),RANDOM_PAGE_SIZE);
+				FillClassicRandomData((void*)(pSecondLevelPool[i]),RANDOM_PAGE_SIZE,0);
 			}
 		}
 	}

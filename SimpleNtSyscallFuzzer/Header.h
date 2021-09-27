@@ -382,6 +382,9 @@ void RandomizeTebStuff();
 ulonglong GetClassicRandomValue();
 void FillClassicRandomData(void* pMem,ulong Size,bool bMode);
 
+bool ScanCanonical(void* pMem,ulonglong Size);
+
+
 unsigned long GetSyscallCount(bool bWin32k);
 unsigned long GetSyscallCount_i(MYFUNC pFunc,bool bWin32k);
 

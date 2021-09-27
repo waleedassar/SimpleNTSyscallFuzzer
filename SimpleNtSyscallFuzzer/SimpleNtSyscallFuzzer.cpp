@@ -358,7 +358,7 @@ int BruteDeferred(unsigned long Count,unsigned long* pSkippedList,ulong NumArgs,
 			
 			unsigned long Syscall = pSkippedList[c];
 			char* SyscallName = NtosCalls[Syscall];
-			printf("Now  fuzzing deferred syscall: %X (%s)\r\n",Syscall,SyscallName);
+			printf("Now fuzzing deferred syscall: %X (%s)\r\n",Syscall,SyscallName);
 
 			if( CallHasBugs(Syscall,false)) continue;
 
@@ -384,7 +384,7 @@ int BruteDeferred(unsigned long Count,unsigned long* pSkippedList,ulong NumArgs,
 						//ulonglong R = GetRandomValue();
 						//wprintf(L"Random value: %I64X\r\n",R);
 						//Args[i]=R;
-						Args[i] = GetRandomValue();
+						Args[i] = GetClassicRandomValue();
 					}
 
 					if(bMode)
@@ -691,7 +691,7 @@ unsigned long GetSyscallCount(bool bWin32k)
 	if(bWin10)
 	{
 		if(bWin32k) return 0x4CA;
-		else return 0x1BC;
+		else return 0x1D7;
 	}
 
 	return 0;
@@ -764,6 +764,8 @@ void InitOsInfo()
 	{
 		OSVer = -1;
 	}
+
+	printf("OS: %X\r\n",OSVer);
 }
 
 
@@ -871,7 +873,6 @@ int _tmain(int argc, _TCHAR* argv[])
 
 
 	srand(time(NULL)); 
-
 	//--------------------------------------------------------------------------------
 	ulong SyscallCount_t = GetSyscallCount(false);
 
@@ -1436,7 +1437,7 @@ int _tmain(int argc, _TCHAR* argv[])
 						int i;
 						for(i =0; i < NumArgs;i++)
 						{
-							Args[i] = GetRandomValue();
+							Args[i] = GetClassicRandomValue();
 						}
 
 						if(bMode)

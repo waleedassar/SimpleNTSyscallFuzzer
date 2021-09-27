@@ -112,139 +112,169 @@ bool CallHasBugs_10(unsigned long SysCall,bool bPrint)
 {
 		char* SyscallName = NtosCalls[SysCall];
 
-		if(SysCall== 0x157) //NtReleaseKeyedEvent
+		if(SysCall== macr_NtReleaseKeyedEvent) //NtReleaseKeyedEvent
 		{
 			if(bPrint)  printf("Ignoring Syscall: %X NtReleaseKeyedEvent (%s)\r\n",SysCall,SyscallName);
 			return true;
 		}
-		else if(SysCall== 0x4) //NtWaitForSingleObject
+		else if(SysCall== macr_NtWaitForSingleObject) //NtWaitForSingleObject
 		{
 			if(bPrint) printf("Ignoring Syscall: %X NtWaitForSingleObject (%s)\r\n",SysCall,SyscallName);
 			return true;
 		}
-		else if(SysCall== 0x1B8) //NtWaitForKeyedEvent
+		else if(SysCall== macr_NtWaitForKeyedEvent) //NtWaitForKeyedEvent
 		{
 			if(bPrint) printf("Ignoring Syscall: %X NtWaitForKeyedEvent (%s)\r\n",SysCall,SyscallName);
 			return true;
 		}
-		else if(SysCall== 0x43) //NtContinue
+		else if(SysCall== macr_NtContinue) //NtContinue
 		{
 			if(bPrint) printf("Ignoring Syscall: %X NtContinue (%s)\r\n",SysCall,SyscallName);
 			return true;
 		}
-		else if(SysCall== 0x34) //NtDelayExecution
+		else if(SysCall== macr_NtContinueEx) //NtContinueEx
+		{
+			if(bPrint) printf("Ignoring Syscall: %X NtContinueEx (%s)\r\n",SysCall,SyscallName);
+			return true;
+		}
+		else if(SysCall== macr_NtNotifyChangeKey) //NtNotifyChangeKey
+		{
+			if(bPrint) printf("Ignoring Syscall: %X NtNotifyChangeKey (%s)\r\n",SysCall,SyscallName);
+			return true;
+		}
+		else if(SysCall== macr_NtDelayExecution) //NtDelayExecution
 		{
 			if(bPrint) printf("Ignoring Syscall: %X NtDelayExecution (%s)\r\n",SysCall,SyscallName);
 			return true;
 		}
-		else if(SysCall== 0x1A2) //NtSuspendProcess
+		else if(SysCall== macr_NtSuspendProcess) //NtSuspendProcess
 		{
 			if(bPrint) printf("Ignoring Syscall: %X NtSuspendProcess (%s)\r\n",SysCall,SyscallName);
 			return true;
 		}
-		else if(SysCall== 0x1A3) //NtSuspendThread
+		else if(SysCall== macr_NtSuspendThread) //NtSuspendThread
 		{
 			if(bPrint) printf("Ignoring Syscall: %X NtSuspendThread (%s)\r\n",SysCall,SyscallName);
 			return true;
 		}
-		else if(SysCall== 0x172) //NtSetContextThread
+		else if(SysCall== macr_NtSetContextThread) //NtSetContextThread
 		{
 			if(bPrint) printf("Ignoring Syscall: %X NtSetContextThread (%s)\r\n",SysCall,SyscallName);
 			return true;
 		}
-		else if(SysCall== 0x1A6) //NtTestAlert
+		else if(SysCall== macr_NtTestAlert) //NtTestAlert
 		{
 			if(bPrint) printf("Ignoring Syscall: %X NtTestAlert (%s)\r\n",SysCall,SyscallName);
 			return true;
 		}
-		else if(SysCall== 0x19D) //NtSignalAndWaitForSingleObject
+		else if(SysCall== macr_NtSignalAndWaitForSingleObject) //NtSignalAndWaitForSingleObject
 		{
 			if(bPrint) printf("Ignoring Syscall: %X NtSignalAndWaitForSingleObject (%s)\r\n",SysCall,SyscallName);
 			return true;
 		}
-		else if(SysCall== 0xF6) //NtListenPort
+		else if(SysCall== macr_NtListenPort) //NtListenPort
 		{
 			if(bPrint) printf("Ignoring Syscall: %X NtListenPort (%s)\r\n",SysCall,SyscallName);
 			return true;
 		}
-		else if(SysCall== 0x150) //NtRaiseHardError
+		else if(SysCall== macr_NtRaiseHardError) //NtRaiseHardError
 		{
 			if(bPrint) printf("Ignoring Syscall: %X NtRaiseHardError (%s)\r\n",SysCall,SyscallName);
 			return true;
 		}
-		else if(SysCall== 0x88) //NtAlpcSendWaitReceivePort
+		else if(SysCall== macr_NtAlpcSendWaitReceivePort) //NtAlpcSendWaitReceivePort
 		{
 			if(bPrint) printf("Ignoring Syscall: %X NtAlpcSendWaitReceivePort (%s)\r\n",SysCall,SyscallName);
 			return true;
 		}
-		else if(SysCall== 0xB) //NtReplyWaitReceivePort
+		else if(SysCall== macr_NtReplyWaitReceivePort) //NtReplyWaitReceivePort
 		{
 			if(bPrint) printf("Ignoring Syscall: %X NtReplyWaitReceivePort (%s)\r\n",SysCall,SyscallName);
 			return true;
 		}
-		else if(SysCall== 0x2B) //NtReplyWaitReceivePortEx
+		else if(SysCall== macr_NtReplyWaitReceivePortEx) //NtReplyWaitReceivePortEx
 		{
 			if(bPrint) printf("Ignoring Syscall: %X NtReplyWaitReceivePortEx (%s)\r\n",SysCall,SyscallName);
 			return true;
 		}
-		else if(SysCall == 0x1B6) //NtWaitForAlertByThreadId
+		else if(SysCall == macr_NtWaitForAlertByThreadId) //NtWaitForAlertByThreadId
 		{
 			if(bPrint) printf("Ignoring Syscall: %X NtWaitForAlertByThreadId (%s)\r\n",SysCall,SyscallName);
 			return true;
 		}
-		else if(SysCall == 0x1B5) //NtWaitLowEventPair
+		else if(SysCall == macr_NtWaitLowEventPair) //NtWaitLowEventPair
 		{
 			if(bPrint) printf("Ignoring Syscall: %X NtWaitLowEventPair (%s)\r\n",SysCall,SyscallName);
 			return true;
 		}
-		else if(SysCall == 0x1BA) //NtWaitLowEventPair
+		else if(SysCall == macr_NtWaitLowEventPair) //NtWaitLowEventPair
 		{
 			if(bPrint) printf("Ignoring Syscall: %X NtWaitLowEventPair (%s)\r\n",SysCall,SyscallName);
 			return true;
 		}
-		else if(SysCall == 0x18B) //NtWaitLowEventPair
+		else if(SysCall == macr_NtWaitLowEventPair) //NtWaitLowEventPair
 		{
 			if(bPrint) printf("Ignoring Syscall: %X NtWaitLowEventPair (%s)\r\n",SysCall,SyscallName);
 			return true;
 		}
-		else if(SysCall == 0x168) //NtRollbackTransaction
+		else if(SysCall == macr_NtRollbackTransaction) //NtRollbackTransaction
 		{
 			if(bPrint) printf("Ignoring Syscall: %X NtRollbackTransaction (%s)\r\n",SysCall,SyscallName);
 			return true;
 		}
-		else if(SysCall == 0x9) //NtRemoveIoCompletion
+		else if(SysCall == macr_NtRemoveIoCompletion) //NtRemoveIoCompletion
 		{
 			if(bPrint) printf("Ignoring Syscall: %X NtRemoveIoCompletion (%s)\r\n",SysCall,SyscallName);
 			return true;
 		}
-		else if(SysCall == 0x1B0) //NtUnlockFile
+		else if(SysCall == macr_NtUnlockFile) //NtUnlockFile
 		{
 			if(bPrint) printf("Ignoring Syscall: %X NtUnlockFile (%s)\r\n",SysCall,SyscallName);
 			return true;
 		}
-		else if(SysCall == 0xFF) //NtLockVirtualMemory
+		else if(SysCall == macr_NtLockVirtualMemory) //NtLockVirtualMemory
 		{
 			if(bPrint) printf("Ignoring Syscall: %X NtLockVirtualMemory (%s)\r\n",SysCall,SyscallName);
 			return true;
 		}
-		else if(SysCall == 0x1B9) //NtWaitForWorkViaWorkerFactory
+		else if(SysCall == macr_NtWaitForWorkViaWorkerFactory) //NtWaitForWorkViaWorkerFactory
 		{
 			if(bPrint) printf("Ignoring Syscall: %X NtWaitForWorkViaWorkerFactory (%s)\r\n",SysCall,SyscallName);
 			return true;
 		}
-		else if(SysCall == 0x161) //NtResetEvent
+		else if(SysCall == macr_NtResetEvent) //NtResetEvent
 		{
 			if(bPrint) printf("Ignoring Syscall: %X NtResetEvent (%s)\r\n",SysCall,SyscallName);
 			return true;
 		}
-		else if(SysCall == 0x15F) //NtReplyWaitReplyPort
+		else if(SysCall == macr_NtReplyWaitReplyPort) //NtReplyWaitReplyPort
 		{
 			if(bPrint) printf("Ignoring Syscall: %X NtReplyWaitReplyPort (%s)\r\n",SysCall,SyscallName);
 			return true;
 		}
-		else if(SysCall == 0x8A) //NtAlpcSendWaitReceivePort
+		else if(SysCall == macr_NtAlpcSendWaitReceivePort) //NtAlpcSendWaitReceivePort
 		{
 			if(bPrint) printf("Ignoring Syscall: %X NtAlpcSendWaitReceivePort (%s)\r\n",SysCall,SyscallName);
+			return true;
+		}
+		else if(SysCall == macr_NtSetDefaultLocale) //NtSetDefaultLocale
+		{
+			if(bPrint) printf("Ignoring Syscall: %X NtSetDefaultLocale (%s)\r\n",SysCall,SyscallName);
+			return true;
+		}
+		else if(SysCall == macr_NtQueueApcThreadEx) //NtQueueApcThreadEx
+		{
+			if(bPrint) printf("Ignoring Syscall: %X NtQueueApcThreadEx (%s)\r\n",SysCall,SyscallName);
+			return true;
+		}
+		else if(SysCall == macr_NtWaitForDebugEvent) //NtWaitForDebugEvent
+		{
+			if(bPrint) printf("Ignoring Syscall: %X NtWaitForDebugEvent (%s)\r\n",SysCall,SyscallName);
+			return true;
+		}
+		else if(SysCall == macr_NtTerminateJobObject) //NtTerminateJobObject
+		{
+			if(bPrint) printf("Ignoring Syscall: %X NtTerminateJobObject (%s)\r\n",SysCall,SyscallName);
 			return true;
 		}
 		return false;
@@ -405,22 +435,22 @@ bool ShouldDeferSyscall_10(unsigned long SysCall,bool bPrint)
 {
 		char* SyscallName = NtosCalls[SysCall];
 
-		if(SysCall== 0xF) //NtClose
+		if(SysCall== macr_NtClose) //NtClose
 		{
 			if(bPrint) printf("Deferring Syscall: %X NtClose, (%s)\r\n",SysCall,SyscallName);
 			return true;
 		}
-		else if(SysCall== 0x2C) //NtTerminateProcess
+		else if(SysCall== macr_NtTerminateProcess) //NtTerminateProcess
 		{
 			if(bPrint) printf("Deferring Syscall: %X NtTerminateProcess, (%s)\r\n",SysCall,SyscallName);
 			return true;
 		}
-		else if(SysCall== 0x53) //NtTerminateThread
+		else if(SysCall== macr_NtTerminateThread) //NtTerminateThread
 		{
 			if(bPrint) printf("Deferring Syscall: %X NtTerminateThread, (%s)\r\n",SysCall,SyscallName);
 			return true;
 		}
-		else if(SysCall== 0x16A) //NtRemoveIoCompletionEx
+		else if(SysCall== macr_NtRemoveIoCompletionEx) //NtRemoveIoCompletionEx
  		{
 			if(bPrint) printf("Deferring Syscall: %X NtRemoveIoCompletionEx, (%s)\r\n",SysCall,SyscallName);
  			return true;

@@ -26,7 +26,8 @@
 #define ULONGLONG unsigned long long
 #define ushort unsigned short
 #define USHORT unsigned short
-
+#define uchar unsigned char
+#define UCHAR unsigned char
 
 
 
@@ -73,6 +74,18 @@ union _OBJECT_HANDLE_INFORMATION
 	   ulong GrantedAccess;
 	}S;
 	ulonglong All;
+};
+
+struct _MY_SECURITY_DESCRIPTOR
+{
+   uchar Revision;
+   uchar Sbz1;
+   ushort Control;
+   ulong OffsetOwner; //at 4
+   ulong OffsetGroup; //at 8
+   ulong OffsetSacl;//at 0C
+   ulong OffsetDacl;//at 10
+
 };
 
 #define OBJ_PROTECT_CLOSE 		0x00000001
@@ -297,6 +310,10 @@ extern "C"
 	//HANDLE GetCurrentThreadEffectiveToken();
 
 	//BOOL OpenProcessToken(HANDLE  ProcessHandle,ulonglong   DesiredAccess,HANDLE* TokenHandle);
+
+
+	//Windows 7, prototype has changed in Windows 10
+	int ZwQueueApcThread(HANDLE ThreadHandle,void* ApcRoutine,void* ApcArgument1,void* ApcArgument2,void* ApcArgument3);
 }
 
 
@@ -362,7 +379,8 @@ void DestroyFunction(MYFUNC pFunc);
 
 void RandomizeTebStuff();
 
-
+ulonglong GetClassicRandomValue();
+void FillClassicRandomData(void* pMem,ulong Size,bool bMode);
 
 unsigned long GetSyscallCount(bool bWin32k);
 unsigned long GetSyscallCount_i(MYFUNC pFunc,bool bWin32k);
@@ -908,3 +926,515 @@ void w10NtAlpcImpersonateClientContainerOfPort (unsigned long SysCall,unsigned l
 void w10NtAlpcConnectPortEx (unsigned long SysCall,unsigned long long* Args,void** pPool,void** pSecondLevelPool);
 void w10NtAlertThreadByThreadId (unsigned long SysCall,unsigned long long* Args,void** pPool,void** pSecondLevelPool);
 void w10NtAddAtomEx(unsigned long SysCall,unsigned long long* Args,void** pPool,void** pSecondLevelPool);
+
+void w10NtNullSyscall(unsigned long SysCall,unsigned long long* Args,void** pPool,void** pSecondLevelPool);
+void w10NtAcquireCrossVmMutant(unsigned long SysCall,unsigned long long* Args,void** pPool,void** pSecondLevelPool);
+void w10NtAcquireProcessActivityReference(unsigned long SysCall,unsigned long long* Args,void** pPool,void** pSecondLevelPool);
+void w10NtAdjustTokenClaimsAndDeviceGroups(unsigned long SysCall,unsigned long long* Args,void** pPool,void** pSecondLevelPool);
+void w10NtAllocateUserPhysicalPagesEx(unsigned long SysCall,unsigned long long* Args,void** pPool,void** pSecondLevelPool);
+void w10NtAllocateVirtualMemoryEx(unsigned long SysCall,unsigned long long* Args,void** pPool,void** pSecondLevelPool);
+void w10NtCallEnclave(unsigned long SysCall,unsigned long long* Args,void** pPool,void** pSecondLevelPool);
+void w10NtCommitRegistryTransaction(unsigned long SysCall,unsigned long long* Args,void** pPool,void** pSecondLevelPool);
+void w10NtCompareSigningLevels(unsigned long SysCall,unsigned long long* Args,void** pPool,void** pSecondLevelPool);
+void w10NtCompleteConnectPort(unsigned long SysCall,unsigned long long* Args,void** pPool,void** pSecondLevelPool);
+void w10NtContinueEx(unsigned long SysCall,unsigned long long* Args,void** pPool,void** pSecondLevelPool);
+void w10NtConvertBetweenAuxiliaryCounterAndPerformanceCounter(unsigned long SysCall,unsigned long long* Args,void** pPool,void** pSecondLevelPool);
+void w10NtCreateCrossVmEvent(unsigned long SysCall,unsigned long long* Args,void** pPool,void** pSecondLevelPool);
+void w10NtCreateCrossVmMutant(unsigned long SysCall,unsigned long long* Args,void** pPool,void** pSecondLevelPool);
+void w10NtCreateRegistryTransaction(unsigned long SysCall,unsigned long long* Args,void** pPool,void** pSecondLevelPool);
+void w10NtCreateSectionEx(unsigned long SysCall,unsigned long long* Args,void** pPool,void** pSecondLevelPool);
+void w10NtDirectGraphicsCall(unsigned long SysCall,unsigned long long* Args,void** pPool,void** pSecondLevelPool);
+void w10NtFilterTokenEx(unsigned long SysCall,unsigned long long* Args,void** pPool,void** pSecondLevelPool);
+void w10NtManageHotPatch(unsigned long SysCall,unsigned long long* Args,void** pPool,void** pSecondLevelPool);
+void w10NtMapViewOfSectionEx(unsigned long SysCall,unsigned long long* Args,void** pPool,void** pSecondLevelPool);
+void w10NtNotifyChangeDirectoryFileEx(unsigned long SysCall,unsigned long long* Args,void** pPool,void** pSecondLevelPool);
+void w10NtOpenRegistryTransaction(unsigned long SysCall,unsigned long long* Args,void** pPool,void** pSecondLevelPool);
+void w10NtPssCaptureVaSpaceBulk(unsigned long SysCall,unsigned long long* Args,void** pPool,void** pSecondLevelPool);
+void w10NtQueryAuxiliaryCounterFrequency(unsigned long SysCall,unsigned long long* Args,void** pPool,void** pSecondLevelPool);
+void w10NtQueryDirectoryFileEx(unsigned long SysCall,unsigned long long* Args,void** pPool,void** pSecondLevelPool);
+void w10NtQueryInformationByName(unsigned long SysCall,unsigned long long* Args,void** pPool,void** pSecondLevelPool);
+void w10NtQuerySecurityPolicy(unsigned long SysCall,unsigned long long* Args,void** pPool,void** pSecondLevelPool);
+void w10NtRegisterProtocolAddressInformation(unsigned long SysCall,unsigned long long* Args,void** pPool,void** pSecondLevelPool);
+void w10NtRenameTransactionManager(unsigned long SysCall,unsigned long long* Args,void** pPool,void** pSecondLevelPool);
+void w10NtRollbackRegistryTransaction(unsigned long SysCall,unsigned long long* Args,void** pPool,void** pSecondLevelPool);
+void w10NtRollforwardTransactionManager(unsigned long SysCall,unsigned long long* Args,void** pPool,void** pSecondLevelPool);
+void w10NtSetCachedSigningLevel2(unsigned long SysCall,unsigned long long* Args,void** pPool,void** pSecondLevelPool);
+void w10NtSetInformationTransactionManager(unsigned long SysCall,unsigned long long* Args,void** pPool,void** pSecondLevelPool);
+void w10NtSetLdtEntries(unsigned long SysCall,unsigned long long* Args,void** pPool,void** pSecondLevelPool);
+void w10NtSinglePhaseReject(unsigned long SysCall,unsigned long long* Args,void** pPool,void** pSecondLevelPool);
+void w10NtTerminateEnclave(unsigned long SysCall,unsigned long long* Args,void** pPool,void** pSecondLevelPool);
+void w10NtLoadKey3(unsigned long SysCall,unsigned long long* Args,void** pPool,void** pSecondLevelPool);
+
+
+//--------
+#define macr_NtAccessCheck 0x0
+#define macr_NtWorkerFactoryWorkerReady 0x1
+#define macr_NtAcceptConnectPort 0x2
+#define macr_NtMapUserPhysicalPagesScatter 0x3
+#define macr_NtWaitForSingleObject 0x4
+#define macr_NtCallbackReturn 0x5
+#define macr_NtReadFile 0x6
+#define macr_NtDeviceIoControlFile 0x7
+#define macr_NtWriteFile 0x8
+#define macr_NtRemoveIoCompletion 0x9
+#define macr_NtReleaseSemaphore 0xa
+#define macr_NtReplyWaitReceivePort 0xb
+#define macr_NtReplyPort 0xc
+#define macr_NtSetInformationThread 0xd
+#define macr_NtSetEvent 0xe
+#define macr_NtClose 0xf
+#define macr_NtQueryObject 0x10
+#define macr_NtQueryInformationFile 0x11
+#define macr_NtOpenKey 0x12
+#define macr_NtEnumerateValueKey 0x13
+#define macr_NtFindAtom 0x14
+#define macr_NtQueryDefaultLocale 0x15
+#define macr_NtQueryKey 0x16
+#define macr_NtQueryValueKey 0x17
+#define macr_NtAllocateVirtualMemory 0x18
+#define macr_NtQueryInformationProcess 0x19
+#define macr_NtWaitForMultipleObjects32 0x1a
+#define macr_NtWriteFileGather 0x1b
+#define macr_NtSetInformationProcess 0x1c
+#define macr_NtCreateKey 0x1d
+#define macr_NtFreeVirtualMemory 0x1e
+#define macr_NtImpersonateClientOfPort 0x1f
+#define macr_NtReleaseMutant 0x20
+#define macr_NtQueryInformationToken 0x21
+#define macr_NtRequestWaitReplyPort 0x22
+#define macr_NtQueryVirtualMemory 0x23
+#define macr_NtOpenThreadToken 0x24
+#define macr_NtQueryInformationThread 0x25
+#define macr_NtOpenProcess 0x26
+#define macr_NtSetInformationFile 0x27
+#define macr_NtMapViewOfSection 0x28
+#define macr_NtAccessCheckAndAuditAlarm 0x29
+#define macr_NtUnmapViewOfSection 0x2a
+#define macr_NtReplyWaitReceivePortEx 0x2b
+#define macr_NtTerminateProcess 0x2c
+#define macr_NtSetEventBoostPriority 0x2d
+#define macr_NtReadFileScatter 0x2e
+#define macr_NtOpenThreadTokenEx 0x2f
+#define macr_NtOpenProcessTokenEx 0x30
+#define macr_NtQueryPerformanceCounter 0x31
+#define macr_NtEnumerateKey 0x32
+#define macr_NtOpenFile 0x33
+#define macr_NtDelayExecution 0x34
+#define macr_NtQueryDirectoryFile 0x35
+#define macr_NtQuerySystemInformation 0x36
+#define macr_NtOpenSection 0x37
+#define macr_NtQueryTimer 0x38
+#define macr_NtFsControlFile 0x39
+#define macr_NtWriteVirtualMemory 0x3a
+#define macr_NtCloseObjectAuditAlarm 0x3b
+#define macr_NtDuplicateObject 0x3c
+#define macr_NtQueryAttributesFile 0x3d
+#define macr_NtClearEvent 0x3e
+#define macr_NtReadVirtualMemory 0x3f
+#define macr_NtOpenEvent 0x40
+#define macr_NtAdjustPrivilegesToken 0x41
+#define macr_NtDuplicateToken 0x42
+#define macr_NtContinue 0x43
+#define macr_NtQueryDefaultUILanguage 0x44
+#define macr_NtQueueApcThread 0x45
+#define macr_NtYieldExecution 0x46
+#define macr_NtAddAtom 0x47
+#define macr_NtCreateEvent 0x48
+#define macr_NtQueryVolumeInformationFile 0x49
+#define macr_NtCreateSection 0x4a
+#define macr_NtFlushBuffersFile 0x4b
+#define macr_NtApphelpCacheControl 0x4c
+#define macr_NtCreateProcessEx 0x4d
+#define macr_NtCreateThread 0x4e
+#define macr_NtIsProcessInJob 0x4f
+#define macr_NtProtectVirtualMemory 0x50
+#define macr_NtQuerySection 0x51
+#define macr_NtResumeThread 0x52
+#define macr_NtTerminateThread 0x53
+#define macr_NtReadRequestData 0x54
+#define macr_NtCreateFile 0x55
+#define macr_NtQueryEvent 0x56
+#define macr_NtWriteRequestData 0x57
+#define macr_NtOpenDirectoryObject 0x58
+#define macr_NtAccessCheckByTypeAndAuditAlarm 0x59
+#define macr_NtNullSyscall 0x5a
+#define macr_NtWaitForMultipleObjects 0x5b
+#define macr_NtSetInformationObject 0x5c
+#define macr_NtCancelIoFile 0x5d
+#define macr_NtTraceEvent 0x5e
+#define macr_NtPowerInformation 0x5f
+#define macr_NtSetValueKey 0x60
+#define macr_NtCancelTimer 0x61
+#define macr_NtSetTimer 0x62
+#define macr_NtAccessCheckByType 0x63
+#define macr_NtAccessCheckByTypeResultList 0x64
+#define macr_NtAccessCheckByTypeResultListAndAuditAlarm 0x65
+#define macr_NtAccessCheckByTypeResultListAndAuditAlarmByHandle 0x66
+#define macr_NtAcquireCrossVmMutant 0x67
+#define macr_NtAcquireProcessActivityReference 0x68
+#define macr_NtAddAtomEx 0x69
+#define macr_NtAddBootEntry 0x6a
+#define macr_NtAddDriverEntry 0x6b
+#define macr_NtAdjustGroupsToken 0x6c
+#define macr_NtAdjustTokenClaimsAndDeviceGroups 0x6d
+#define macr_NtAlertResumeThread 0x6e
+#define macr_NtAlertThread 0x6f
+#define macr_NtAlertThreadByThreadId 0x70
+#define macr_NtAllocateLocallyUniqueId 0x71
+#define macr_NtAllocateReserveObject 0x72
+#define macr_NtAllocateUserPhysicalPages 0x73
+#define macr_NtAllocateUserPhysicalPagesEx 0x74
+#define macr_NtAllocateUuids 0x75
+#define macr_NtAllocateVirtualMemoryEx 0x76
+#define macr_NtAlpcAcceptConnectPort 0x77
+#define macr_NtAlpcCancelMessage 0x78
+#define macr_NtAlpcConnectPort 0x79
+#define macr_NtAlpcConnectPortEx 0x7a
+#define macr_NtAlpcCreatePort 0x7b
+#define macr_NtAlpcCreatePortSection 0x7c
+#define macr_NtAlpcCreateResourceReserve 0x7d
+#define macr_NtAlpcCreateSectionView 0x7e
+#define macr_NtAlpcCreateSecurityContext 0x7f
+#define macr_NtAlpcDeletePortSection 0x80
+#define macr_NtAlpcDeleteResourceReserve 0x81
+#define macr_NtAlpcDeleteSectionView 0x82
+#define macr_NtAlpcDeleteSecurityContext 0x83
+#define macr_NtAlpcDisconnectPort 0x84
+#define macr_NtAlpcImpersonateClientContainerOfPort 0x85
+#define macr_NtAlpcImpersonateClientOfPort 0x86
+#define macr_NtAlpcOpenSenderProcess 0x87
+#define macr_NtAlpcOpenSenderThread 0x88
+#define macr_NtAlpcQueryInformation 0x89
+#define macr_NtAlpcQueryInformationMessage 0x8a
+#define macr_NtAlpcRevokeSecurityContext 0x8b
+#define macr_NtAlpcSendWaitReceivePort 0x8c
+#define macr_NtAlpcSetInformation 0x8d
+#define macr_NtAreMappedFilesTheSame 0x8e
+#define macr_NtAssignProcessToJobObject 0x8f
+#define macr_NtAssociateWaitCompletionPacket 0x90
+#define macr_NtCallEnclave 0x91
+#define macr_NtCancelIoFileEx 0x92
+#define macr_NtCancelSynchronousIoFile 0x93
+#define macr_NtCancelTimer2 0x94
+#define macr_NtCancelWaitCompletionPacket 0x95
+#define macr_NtCommitComplete 0x96
+#define macr_NtCommitEnlistment 0x97
+#define macr_NtCommitRegistryTransaction 0x98
+#define macr_NtCommitTransaction 0x99
+#define macr_NtCompactKeys 0x9a
+#define macr_NtCompareObjects 0x9b
+#define macr_NtCompareSigningLevels 0x9c
+#define macr_NtCompareTokens 0x9d
+#define macr_NtCompleteConnectPort 0x9e
+#define macr_NtCompressKey 0x9f
+#define macr_NtConnectPort 0xa0
+#define macr_NtContinueEx 0xa1
+#define macr_NtConvertBetweenAuxiliaryCounterAndPerformanceCounter 0xa2
+#define macr_NtCreateCrossVmEvent 0xa3
+#define macr_NtCreateCrossVmMutant 0xa4
+#define macr_NtCreateDebugObject 0xa5
+#define macr_NtCreateDirectoryObject 0xa6
+#define macr_NtCreateDirectoryObjectEx 0xa7
+#define macr_NtCreateEnclave 0xa8
+#define macr_NtCreateEnlistment 0xa9
+#define macr_NtCreateEventPair 0xaa
+#define macr_NtCreateIRTimer 0xab
+#define macr_NtCreateIoCompletion 0xac
+#define macr_NtCreateJobObject 0xad
+#define macr_NtCreateJobSet 0xae
+#define macr_NtCreateKeyTransacted 0xaf
+#define macr_NtCreateKeyedEvent 0xb0
+#define macr_NtCreateLowBoxToken 0xb1
+#define macr_NtCreateMailslotFile 0xb2
+#define macr_NtCreateMutant 0xb3
+#define macr_NtCreateNamedPipeFile 0xb4
+#define macr_NtCreatePagingFile 0xb5
+#define macr_NtCreatePartition 0xb6
+#define macr_NtCreatePort 0xb7
+#define macr_NtCreatePrivateNamespace 0xb8
+#define macr_NtCreateProcess 0xb9
+#define macr_NtCreateProfile 0xba
+#define macr_NtCreateProfileEx 0xbb
+#define macr_NtCreateRegistryTransaction 0xbc
+#define macr_NtCreateResourceManager 0xbd
+#define macr_NtCreateSectionEx 0xbe
+#define macr_NtCreateSemaphore 0xbf
+#define macr_NtCreateSymbolicLinkObject 0xc0
+#define macr_NtCreateThreadEx 0xc1
+#define macr_NtCreateTimer 0xc2
+#define macr_NtCreateTimer2 0xc3
+#define macr_NtCreateToken 0xc4
+#define macr_NtCreateTokenEx 0xc5
+#define macr_NtCreateTransaction 0xc6
+#define macr_NtCreateTransactionManager 0xc7
+#define macr_NtCreateUserProcess 0xc8
+#define macr_NtCreateWaitCompletionPacket 0xc9
+#define macr_NtCreateWaitablePort 0xca
+#define macr_NtCreateWnfStateName 0xcb
+#define macr_NtCreateWorkerFactory 0xcc
+#define macr_NtDebugActiveProcess 0xcd
+#define macr_NtDebugContinue 0xce
+#define macr_NtDeleteAtom 0xcf
+#define macr_NtDeleteBootEntry 0xd0
+#define macr_NtDeleteDriverEntry 0xd1
+#define macr_NtDeleteFile 0xd2
+#define macr_NtDeleteKey 0xd3
+#define macr_NtDeleteObjectAuditAlarm 0xd4
+#define macr_NtDeletePrivateNamespace 0xd5
+#define macr_NtDeleteValueKey 0xd6
+#define macr_NtDeleteWnfStateData 0xd7
+#define macr_NtDeleteWnfStateName 0xd8
+#define macr_NtDirectGraphicsCall 0xd9
+#define macr_NtDisableLastKnownGood 0xda
+#define macr_NtDisplayString 0xdb
+#define macr_NtDrawText 0xdc
+#define macr_NtEnableLastKnownGood 0xdd
+#define macr_NtEnumerateBootEntries 0xde
+#define macr_NtEnumerateDriverEntries 0xdf
+#define macr_NtEnumerateSystemEnvironmentValuesEx 0xe0
+#define macr_NtEnumerateTransactionObject 0xe1
+#define macr_NtExtendSection 0xe2
+#define macr_NtFilterBootOption 0xe3
+#define macr_NtFilterToken 0xe4
+#define macr_NtFilterTokenEx 0xe5
+#define macr_NtFlushBuffersFileEx 0xe6
+#define macr_NtFlushInstallUILanguage 0xe7
+#define macr_NtFlushInstructionCache 0xe8
+#define macr_NtFlushKey 0xe9
+#define macr_NtFlushProcessWriteBuffers 0xea
+#define macr_NtFlushVirtualMemory 0xeb
+#define macr_NtFlushWriteBuffer 0xec
+#define macr_NtFreeUserPhysicalPages 0xed
+#define macr_NtFreezeRegistry 0xee
+#define macr_NtFreezeTransactions 0xef
+#define macr_NtGetCachedSigningLevel 0xf0
+#define macr_NtGetCompleteWnfStateSubscription 0xf1
+#define macr_NtGetContextThread 0xf2
+#define macr_NtGetCurrentProcessorNumber 0xf3
+#define macr_NtGetCurrentProcessorNumberEx 0xf4
+#define macr_NtGetDevicePowerState 0xf5
+#define macr_NtGetMUIRegistryInfo 0xf6
+#define macr_NtGetNextProcess 0xf7
+#define macr_NtGetNextThread 0xf8
+#define macr_NtGetNlsSectionPtr 0xf9
+#define macr_NtGetNotificationResourceManager 0xfa
+#define macr_NtGetWriteWatch 0xfb
+#define macr_NtImpersonateAnonymousToken 0xfc
+#define macr_NtImpersonateThread 0xfd
+#define macr_NtInitializeEnclave 0xfe
+#define macr_NtInitializeNlsFiles 0xff
+#define macr_NtInitializeRegistry 0x100
+#define macr_NtInitiatePowerAction 0x101
+#define macr_NtIsSystemResumeAutomatic 0x102
+#define macr_NtIsUILanguageComitted 0x103
+#define macr_NtListenPort 0x104
+#define macr_NtLoadDriver 0x105
+#define macr_NtLoadEnclaveData 0x106
+#define macr_NtLoadKey 0x107
+#define macr_NtLoadKey2 0x108
+#define macr_NtLoadKeyEx 0x109
+#define macr_NtLockFile 0x10a
+#define macr_NtLockProductActivationKeys 0x10b
+#define macr_NtLockRegistryKey 0x10c
+#define macr_NtLockVirtualMemory 0x10d
+#define macr_NtMakePermanentObject 0x10e
+#define macr_NtMakeTemporaryObject 0x10f
+#define macr_NtManageHotPatch 0x110
+#define macr_NtManagePartition 0x111
+#define macr_NtMapCMFModule 0x112
+#define macr_NtMapUserPhysicalPages 0x113
+#define macr_NtMapViewOfSectionEx 0x114
+#define macr_NtModifyBootEntry 0x115
+#define macr_NtModifyDriverEntry 0x116
+#define macr_NtNotifyChangeDirectoryFile 0x117
+#define macr_NtNotifyChangeDirectoryFileEx 0x118
+#define macr_NtNotifyChangeKey 0x119
+#define macr_NtNotifyChangeMultipleKeys 0x11a
+#define macr_NtNotifyChangeSession 0x11b
+#define macr_NtOpenEnlistment 0x11c
+#define macr_NtOpenEventPair 0x11d
+#define macr_NtOpenIoCompletion 0x11e
+#define macr_NtOpenJobObject 0x11f
+#define macr_NtOpenKeyEx 0x120
+#define macr_NtOpenKeyTransacted 0x121
+#define macr_NtOpenKeyTransactedEx 0x122
+#define macr_NtOpenKeyedEvent 0x123
+#define macr_NtOpenMutant 0x124
+#define macr_NtOpenObjectAuditAlarm 0x125
+#define macr_NtOpenPartition 0x126
+#define macr_NtOpenPrivateNamespace 0x127
+#define macr_NtOpenProcessToken 0x128
+#define macr_NtOpenRegistryTransaction 0x129
+#define macr_NtOpenResourceManager 0x12a
+#define macr_NtOpenSemaphore 0x12b
+#define macr_NtOpenSession 0x12c
+#define macr_NtOpenSymbolicLinkObject 0x12d
+#define macr_NtOpenThread 0x12e
+#define macr_NtOpenTimer 0x12f
+#define macr_NtOpenTransaction 0x130
+#define macr_NtOpenTransactionManager 0x131
+#define macr_NtPlugPlayControl 0x132
+#define macr_NtPrePrepareComplete 0x133
+#define macr_NtPrePrepareEnlistment 0x134
+#define macr_NtPrepareComplete 0x135
+#define macr_NtPrepareEnlistment 0x136
+#define macr_NtPrivilegeCheck 0x137
+#define macr_NtPrivilegeObjectAuditAlarm 0x138
+#define macr_NtPrivilegedServiceAuditAlarm 0x139
+#define macr_NtPropagationComplete 0x13a
+#define macr_NtPropagationFailed 0x13b
+#define macr_NtPssCaptureVaSpaceBulk 0x13c
+#define macr_NtPulseEvent 0x13d
+#define macr_NtQueryAuxiliaryCounterFrequency 0x13e
+#define macr_NtQueryBootEntryOrder 0x13f
+#define macr_NtQueryBootOptions 0x140
+#define macr_NtQueryDebugFilterState 0x141
+#define macr_NtQueryDirectoryFileEx 0x142
+#define macr_NtQueryDirectoryObject 0x143
+#define macr_NtQueryDriverEntryOrder 0x144
+#define macr_NtQueryEaFile 0x145
+#define macr_NtQueryFullAttributesFile 0x146
+#define macr_NtQueryInformationAtom 0x147
+#define macr_NtQueryInformationByName 0x148
+#define macr_NtQueryInformationEnlistment 0x149
+#define macr_NtQueryInformationJobObject 0x14a
+#define macr_NtQueryInformationPort 0x14b
+#define macr_NtQueryInformationResourceManager 0x14c
+#define macr_NtQueryInformationTransaction 0x14d
+#define macr_NtQueryInformationTransactionManager 0x14e
+#define macr_NtQueryInformationWorkerFactory 0x14f
+#define macr_NtQueryInstallUILanguage 0x150
+#define macr_NtQueryIntervalProfile 0x151
+#define macr_NtQueryIoCompletion 0x152
+#define macr_NtQueryLicenseValue 0x153
+#define macr_NtQueryMultipleValueKey 0x154
+#define macr_NtQueryMutant 0x155
+#define macr_NtQueryOpenSubKeys 0x156
+#define macr_NtQueryOpenSubKeysEx 0x157
+#define macr_NtQueryPortInformationProcess 0x158
+#define macr_NtQueryQuotaInformationFile 0x159
+#define macr_NtQuerySecurityAttributesToken 0x15a
+#define macr_NtQuerySecurityObject 0x15b
+#define macr_NtQuerySecurityPolicy 0x15c
+#define macr_NtQuerySemaphore 0x15d
+#define macr_NtQuerySymbolicLinkObject 0x15e
+#define macr_NtQuerySystemEnvironmentValue 0x15f
+#define macr_NtQuerySystemEnvironmentValueEx 0x160
+#define macr_NtQuerySystemInformationEx 0x161
+#define macr_NtQueryTimerResolution 0x162
+#define macr_NtQueryWnfStateData 0x163
+#define macr_NtQueryWnfStateNameInformation 0x164
+#define macr_NtQueueApcThreadEx 0x165
+#define macr_NtRaiseException 0x166
+#define macr_NtRaiseHardError 0x167
+#define macr_NtReadOnlyEnlistment 0x168
+#define macr_NtRecoverEnlistment 0x169
+#define macr_NtRecoverResourceManager 0x16a
+#define macr_NtRecoverTransactionManager 0x16b
+#define macr_NtRegisterProtocolAddressInformation 0x16c
+#define macr_NtRegisterThreadTerminatePort 0x16d
+#define macr_NtReleaseKeyedEvent 0x16e
+#define macr_NtReleaseWorkerFactoryWorker 0x16f
+#define macr_NtRemoveIoCompletionEx 0x170
+#define macr_NtRemoveProcessDebug 0x171
+#define macr_NtRenameKey 0x172
+#define macr_NtRenameTransactionManager 0x173
+#define macr_NtReplaceKey 0x174
+#define macr_NtReplacePartitionUnit 0x175
+#define macr_NtReplyWaitReplyPort 0x176
+#define macr_NtRequestPort 0x177
+#define macr_NtResetEvent 0x178
+#define macr_NtResetWriteWatch 0x179
+#define macr_NtRestoreKey 0x17a
+#define macr_NtResumeProcess 0x17b
+#define macr_NtRevertContainerImpersonation 0x17c
+#define macr_NtRollbackComplete 0x17d
+#define macr_NtRollbackEnlistment 0x17e
+#define macr_NtRollbackRegistryTransaction 0x17f
+#define macr_NtRollbackTransaction 0x180
+#define macr_NtRollforwardTransactionManager 0x181
+#define macr_NtSaveKey 0x182
+#define macr_NtSaveKeyEx 0x183
+#define macr_NtSaveMergedKeys 0x184
+#define macr_NtSecureConnectPort 0x185
+#define macr_NtSerializeBoot 0x186
+#define macr_NtSetBootEntryOrder 0x187
+#define macr_NtSetBootOptions 0x188
+#define macr_NtSetCachedSigningLevel 0x189
+#define macr_NtSetCachedSigningLevel2 0x18a
+#define macr_NtSetContextThread 0x18b
+#define macr_NtSetDebugFilterState 0x18c
+#define macr_NtSetDefaultHardErrorPort 0x18d
+#define macr_NtSetDefaultLocale 0x18e
+#define macr_NtSetDefaultUILanguage 0x18f
+#define macr_NtSetDriverEntryOrder 0x190
+#define macr_NtSetEaFile 0x191
+#define macr_NtSetHighEventPair 0x192
+#define macr_NtSetHighWaitLowEventPair 0x193
+#define macr_NtSetIRTimer 0x194
+#define macr_NtSetInformationDebugObject 0x195
+#define macr_NtSetInformationEnlistment 0x196
+#define macr_NtSetInformationJobObject 0x197
+#define macr_NtSetInformationKey 0x198
+#define macr_NtSetInformationResourceManager 0x199
+#define macr_NtSetInformationSymbolicLink 0x19a
+#define macr_NtSetInformationToken 0x19b
+#define macr_NtSetInformationTransaction 0x19c
+#define macr_NtSetInformationTransactionManager 0x19d
+#define macr_NtSetInformationVirtualMemory 0x19e
+#define macr_NtSetInformationWorkerFactory 0x19f
+#define macr_NtSetIntervalProfile 0x1a0
+#define macr_NtSetIoCompletion 0x1a1
+#define macr_NtSetIoCompletionEx 0x1a2
+#define macr_NtSetLdtEntries 0x1a3
+#define macr_NtSetLowEventPair 0x1a4
+#define macr_NtSetLowWaitHighEventPair 0x1a5
+#define macr_NtSetQuotaInformationFile 0x1a6
+#define macr_NtSetSecurityObject 0x1a7
+#define macr_NtSetSystemEnvironmentValue 0x1a8
+#define macr_NtSetSystemEnvironmentValueEx 0x1a9
+#define macr_NtSetSystemInformation 0x1aa
+#define macr_NtSetSystemPowerState 0x1ab
+#define macr_NtSetSystemTime 0x1ac
+#define macr_NtSetThreadExecutionState 0x1ad
+#define macr_NtSetTimer2 0x1ae
+#define macr_NtSetTimerEx 0x1af
+#define macr_NtSetTimerResolution 0x1b0
+#define macr_NtSetUuidSeed 0x1b1
+#define macr_NtSetVolumeInformationFile 0x1b2
+#define macr_NtSetWnfProcessNotificationEvent 0x1b3
+#define macr_NtShutdownSystem 0x1b4
+#define macr_NtShutdownWorkerFactory 0x1b5
+#define macr_NtSignalAndWaitForSingleObject 0x1b6
+#define macr_NtSinglePhaseReject 0x1b7
+#define macr_NtStartProfile 0x1b8
+#define macr_NtStopProfile 0x1b9
+#define macr_NtSubscribeWnfStateChange 0x1ba
+#define macr_NtSuspendProcess 0x1bb
+#define macr_NtSuspendThread 0x1bc
+#define macr_NtSystemDebugControl 0x1bd
+#define macr_NtTerminateEnclave 0x1be
+#define macr_NtTerminateJobObject 0x1bf
+#define macr_NtTestAlert 0x1c0
+#define macr_NtThawRegistry 0x1c1
+#define macr_NtThawTransactions 0x1c2
+#define macr_NtTraceControl 0x1c3
+#define macr_NtTranslateFilePath 0x1c4
+#define macr_NtUmsThreadYield 0x1c5
+#define macr_NtUnloadDriver 0x1c6
+#define macr_NtUnloadKey 0x1c7
+#define macr_NtUnloadKey2 0x1c8
+#define macr_NtUnloadKeyEx 0x1c9
+#define macr_NtUnlockFile 0x1ca
+#define macr_NtUnlockVirtualMemory 0x1cb
+#define macr_NtUnmapViewOfSectionEx 0x1cc
+#define macr_NtUnsubscribeWnfStateChange 0x1cd
+#define macr_NtUpdateWnfStateData 0x1ce
+#define macr_NtVdmControl 0x1cf
+#define macr_NtWaitForAlertByThreadId 0x1d0
+#define macr_NtWaitForDebugEvent 0x1d1
+#define macr_NtWaitForKeyedEvent 0x1d2
+#define macr_NtWaitForWorkViaWorkerFactory 0x1d3
+#define macr_NtWaitHighEventPair 0x1d4
+#define macr_NtWaitLowEventPair 0x1d5
+#define macr_NtLoadKey3 0x1d6

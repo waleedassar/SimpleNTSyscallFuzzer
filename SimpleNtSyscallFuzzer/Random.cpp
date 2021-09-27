@@ -14,6 +14,9 @@ unsigned long Rand()
 }
 
 
+
+
+
 wchar_t* GetRandomWideString(wchar_t* pMem,ulong tLength)
 {
 	if(!pMem || !tLength) return 0;
@@ -276,7 +279,40 @@ ulonglong GetRandomValue()
 }
 
 
+ulonglong GetClassicRandomValue()
+{
+	
+	
+	ulonglong RanX = GetRandomValue();
+	ulong ClassX = Rand()%16;
 
+
+	if(ClassX==0)	    RanX  = RanX%0x10;
+	else if(ClassX==1)  RanX  = RanX%0x100;
+	else if(ClassX==2)  RanX  = RanX%0x1000;
+	else if(ClassX==3)  RanX  = RanX%0x10000;
+	else if(ClassX==4)  RanX  = RanX%0x100000;
+	else if(ClassX==5)  RanX  = RanX%0x1000000;
+	else if(ClassX==6)  RanX  = RanX%0x10000000;
+	else if(ClassX==7)  RanX  = RanX%0x100000000;
+	else if(ClassX==8)  RanX  = RanX%0x1000000000;
+	else if(ClassX==9)  RanX  = RanX%0x10000000000;
+	else if(ClassX==10) RanX  = RanX%0x100000000000;
+	else if(ClassX==11) RanX  = RanX%0x1000000000000;
+	else if(ClassX==12) RanX  = RanX%0x10000000000000;
+	else if(ClassX==13) RanX  = RanX%0x100000000000000;
+	else if(ClassX==14) RanX  = RanX%0x1000000000000000;
+	else if(ClassX==15)
+	{
+		ulong RZ = Rand()%3;
+		if(RZ==0) RanX = 0;
+		else if(RZ==1) RanX = -1;
+		//else random
+	}
+
+
+	return RanX;
+}
 
 bool HasFF(ulonglong Data)
 {
@@ -319,6 +355,79 @@ void FillRandomData(void* pMem,ulong Size)
 
 			//*pRunner = GetRandomValue();
 
+
+			pRunner++;
+
+			SizeX-= 1;
+		}
+
+		unsigned char* pRunnerX = (unsigned char*) pRunner;
+		while(Rem)
+		{
+			*pRunnerX = (unsigned char)GetRandomValue();
+			pRunnerX++;
+			Rem--;
+		}
+	}
+}
+
+
+void FillClassicRandomData(void* pMem,ulong Size,bool bMode)
+{
+	if(pMem && Size)
+	{
+		ulong SizeX = Size/8;//Num of qwords
+
+		ulong Rem = Size % 8;//fraction
+
+
+		ulong ClassX = 0;
+		ulonglong* pRunner = (ulonglong*)pMem;
+		while(SizeX)
+		{
+			ulonglong RanX = GetRandomValue();
+			ClassX = Rand()%18;
+			if(ClassX==0)	    *pRunner  = RanX%0x10;
+			else if(ClassX==1)  *pRunner  = RanX%0x100;
+			else if(ClassX==2)  *pRunner  = RanX%0x1000;
+			else if(ClassX==3)  *pRunner  = RanX%0x10000;
+			else if(ClassX==4)  *pRunner  = RanX%0x100000;
+			else if(ClassX==5)  *pRunner  = RanX%0x1000000;
+			else if(ClassX==6)  *pRunner  = RanX%0x10000000;
+			else if(ClassX==7)  *pRunner  = RanX%0x100000000;
+			else if(ClassX==8)  *pRunner  = RanX%0x1000000000;
+			else if(ClassX==9)  *pRunner  = RanX%0x10000000000;
+			else if(ClassX==10) *pRunner  = RanX%0x100000000000;
+			else if(ClassX==11) *pRunner  = RanX%0x1000000000000;
+			else if(ClassX==12) *pRunner  = RanX%0x10000000000000;
+			else if(ClassX==13) *pRunner  = RanX%0x100000000000000;
+			else if(ClassX==14) *pRunner  = RanX%0x1000000000000000;
+			else if(ClassX==15) *pRunner  = RanX;
+			else if(ClassX==16) *pRunner  = (RanX | 0xffff000000000000);
+			else if(ClassX==17)
+			{
+				ulong RZ = Rand()%3;
+				if(RZ==0) *pRunner = 0;
+				else if(RZ==1) *pRunner = -1;
+				//else random
+			}
+
+			/*
+			if(bMode == true)
+			{
+				//the following 5 lines are only for disclosure detection, remove later and uncomment next line
+				ulonglong RX = GetRandomValue();
+				while(HasFF(RX))
+				{
+					RX = GetRandomValue();
+				}
+				*pRunner = RX;
+			}
+			else
+			{
+				*pRunner = GetRandomValue();
+			}
+			*/
 
 			pRunner++;
 
@@ -503,7 +612,7 @@ void* GetRandomPage()
 			printf("Insufficient resources\r\n");
 			ExitProcess(-2);
 		}
-		FillRandomData(pNew,SizeX);
+		FillClassicRandomData(pNew,SizeX,0);
 		//*(((char*)pNew)+SizeX-0x8) = 0x8E9EAEBECEDEEEFE;//Magic Value
 
 		return pNew;

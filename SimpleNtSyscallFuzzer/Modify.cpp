@@ -1825,7 +1825,18 @@ unsigned long long* Args,
 void** pPool,
 void** pSecondLevelPool)
 {
-   DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+	//Args[0] = GetClassRandomValue();
+
+	ulong R = Rand()%3;
+	if(R==0)
+	{
+		Args[1] = (ulonglong)(pPool[1]);
+	}
+	else if(R==1)
+	{
+		Args[1] = 0;
+	}
+	//else random
 }
 
 void w7NtQueryDirectoryFile
@@ -1846,6 +1857,7 @@ void** pSecondLevelPool)
 	if(Rand()%5==1) *(ulong*)(&Args[0]) = GetRandomValue();
 	else *(ulong*)(&Args[0]) = GetRandomValue()%0x100;
 
+	/*
 	if( (*(ulong*)(&Args[0])==0x0B) ||
 		(*(ulong*)(&Args[0])==0x0C) ||
 		(*(ulong*)(&Args[0])==0x10) ||
@@ -1854,7 +1866,7 @@ void** pSecondLevelPool)
 		(*(ulong*)(&Args[0])==0x40) ||
 		(*(ulong*)(&Args[0])==0x42) ||
 		(*(ulong*)(&Args[0])==0x4D) ) CancelSyscall(Args);
-	 
+	 */
 
 	ulong R = Rand()%3;
 	if(R==0)
@@ -6721,14 +6733,7 @@ void** pSecondLevelPool)
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
 }
 
-void w10NtSinglePhaseReject_0 
-(unsigned long SysCall,
-unsigned long long* Args,
-void** pPool,
-void** pSecondLevelPool)
-{
-   DummyPre(SysCall,Args,pPool,pSecondLevelPool);
-}
+
 
 void w10NtSetWnfProcessNotificationEvent 
 (unsigned long SysCall,
@@ -6799,14 +6804,7 @@ void** pSecondLevelPool)
 	//else random
 }
 
-void w10NtSetInformationTransactionManager_0 
-(unsigned long SysCall,
-unsigned long long* Args,
-void** pPool,
-void** pSecondLevelPool)
-{
-   DummyPre(SysCall,Args,pPool,pSecondLevelPool);
-}
+
 
 void w10NtSetInformationSymbolicLink 
 (unsigned long SysCall,
@@ -6826,14 +6824,6 @@ void** pSecondLevelPool)
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
 }
 
-void w10NtRollforwardTransactionManager_0 
-(unsigned long SysCall,
-unsigned long long* Args,
-void** pPool,
-void** pSecondLevelPool)
-{
-	
-}
 
 void w10NtRevertContainerImpersonation 
 (unsigned long SysCall,
@@ -6844,7 +6834,7 @@ void** pSecondLevelPool)
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
 }
 
-void w10NtRenameTransactionManager_0 
+void w10NtRenameTransactionManager
 (unsigned long SysCall,
 unsigned long long* Args,
 void** pPool,
@@ -6853,7 +6843,7 @@ void** pSecondLevelPool)
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
 }
 
-void w10NtRegisterProtocolAddressInformation_0 
+void w10NtRegisterProtocolAddressInformation
 (unsigned long SysCall,
 unsigned long long* Args,
 void** pPool,
@@ -7122,6 +7112,381 @@ void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
 }
+
+
+
+void w10NtNullSyscall
+(unsigned long SysCall,
+unsigned long long* Args,
+void** pPool,
+void** pSecondLevelPool)
+{
+   DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+}
+
+void w10NtAcquireCrossVmMutant
+(unsigned long SysCall,
+unsigned long long* Args,
+void** pPool,
+void** pSecondLevelPool)
+{
+   DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+}
+
+
+
+void w10NtAcquireProcessActivityReference
+(unsigned long SysCall,
+unsigned long long* Args,
+void** pPool,
+void** pSecondLevelPool)
+{
+   DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+}
+
+
+void w10NtAdjustTokenClaimsAndDeviceGroups
+(unsigned long SysCall,
+unsigned long long* Args,
+void** pPool,
+void** pSecondLevelPool)
+{
+   DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+}
+
+
+void w10NtAllocateUserPhysicalPagesEx
+(unsigned long SysCall,
+unsigned long long* Args,
+void** pPool,
+void** pSecondLevelPool)
+{
+   DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+}
+
+
+void w10NtAllocateVirtualMemoryEx
+(unsigned long SysCall,
+unsigned long long* Args,
+void** pPool,
+void** pSecondLevelPool)
+{
+   DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+}
+
+void w10NtCallEnclave
+(unsigned long SysCall,
+unsigned long long* Args,
+void** pPool,
+void** pSecondLevelPool)
+{
+   DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+}
+
+
+
+void w10NtCommitRegistryTransaction
+(unsigned long SysCall,
+unsigned long long* Args,
+void** pPool,
+void** pSecondLevelPool)
+{
+   DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+}
+
+
+void w10NtCompareSigningLevels
+(unsigned long SysCall,
+unsigned long long* Args,
+void** pPool,
+void** pSecondLevelPool)
+{
+   DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+}
+
+
+void w10NtCompleteConnectPort
+(unsigned long SysCall,
+unsigned long long* Args,
+void** pPool,
+void** pSecondLevelPool)
+{
+   DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+}
+
+
+void w10NtContinueEx
+(unsigned long SysCall,
+unsigned long long* Args,
+void** pPool,
+void** pSecondLevelPool)
+{
+   DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+}
+
+
+void w10NtConvertBetweenAuxiliaryCounterAndPerformanceCounter
+(unsigned long SysCall,
+unsigned long long* Args,
+void** pPool,
+void** pSecondLevelPool)
+{
+   DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+}
+
+
+
+void w10NtCreateCrossVmEvent
+(unsigned long SysCall,
+unsigned long long* Args,
+void** pPool,
+void** pSecondLevelPool)
+{
+   DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+}
+
+
+
+void w10NtCreateCrossVmMutant
+(unsigned long SysCall,
+unsigned long long* Args,
+void** pPool,
+void** pSecondLevelPool)
+{
+   DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+}
+
+
+
+void w10NtCreateRegistryTransaction
+(unsigned long SysCall,
+unsigned long long* Args,
+void** pPool,
+void** pSecondLevelPool)
+{
+   DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+}
+
+
+
+void w10NtCreateSectionEx
+(unsigned long SysCall,
+unsigned long long* Args,
+void** pPool,
+void** pSecondLevelPool)
+{
+   DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+}
+
+
+
+void w10NtDirectGraphicsCall
+(unsigned long SysCall,
+unsigned long long* Args,
+void** pPool,
+void** pSecondLevelPool)
+{
+   DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+}
+
+
+
+void w10NtFilterTokenEx
+(unsigned long SysCall,
+unsigned long long* Args,
+void** pPool,
+void** pSecondLevelPool)
+{
+   DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+}
+
+
+
+void w10NtManageHotPatch
+(unsigned long SysCall,
+unsigned long long* Args,
+void** pPool,
+void** pSecondLevelPool)
+{
+   DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+}
+
+
+
+void w10NtMapViewOfSectionEx
+(unsigned long SysCall,
+unsigned long long* Args,
+void** pPool,
+void** pSecondLevelPool)
+{
+   DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+}
+
+
+void w10NtNotifyChangeDirectoryFileEx
+(unsigned long SysCall,
+unsigned long long* Args,
+void** pPool,
+void** pSecondLevelPool)
+{
+   DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+}
+
+
+
+void w10NtOpenRegistryTransaction
+(unsigned long SysCall,
+unsigned long long* Args,
+void** pPool,
+void** pSecondLevelPool)
+{
+   DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+}
+
+
+
+void w10NtPssCaptureVaSpaceBulk
+(unsigned long SysCall,
+unsigned long long* Args,
+void** pPool,
+void** pSecondLevelPool)
+{
+   DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+}
+
+
+
+void w10NtQueryAuxiliaryCounterFrequency
+(unsigned long SysCall,
+unsigned long long* Args,
+void** pPool,
+void** pSecondLevelPool)
+{
+   DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+}
+
+
+
+void w10NtQueryDirectoryFileEx
+(unsigned long SysCall,
+unsigned long long* Args,
+void** pPool,
+void** pSecondLevelPool)
+{
+   DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+}
+
+void w10NtQueryInformationByName
+(unsigned long SysCall,
+unsigned long long* Args,
+void** pPool,
+void** pSecondLevelPool)
+{
+   DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+}
+
+
+void w10NtQuerySecurityPolicy
+(unsigned long SysCall,
+unsigned long long* Args,
+void** pPool,
+void** pSecondLevelPool)
+{
+   DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+}
+
+
+
+
+
+
+
+
+
+
+void w10NtRollbackRegistryTransaction
+(unsigned long SysCall,
+unsigned long long* Args,
+void** pPool,
+void** pSecondLevelPool)
+{
+   DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+}
+
+
+void w10NtRollforwardTransactionManager
+(unsigned long SysCall,
+unsigned long long* Args,
+void** pPool,
+void** pSecondLevelPool)
+{
+   DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+}
+
+
+void w10NtSetCachedSigningLevel2
+(unsigned long SysCall,
+unsigned long long* Args,
+void** pPool,
+void** pSecondLevelPool)
+{
+   DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+}
+
+
+
+void w10NtSetInformationTransactionManager
+(unsigned long SysCall,
+unsigned long long* Args,
+void** pPool,
+void** pSecondLevelPool)
+{
+   DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+}
+
+
+void w10NtSetLdtEntries
+(unsigned long SysCall,
+unsigned long long* Args,
+void** pPool,
+void** pSecondLevelPool)
+{
+   DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+}
+
+
+void w10NtSinglePhaseReject
+(unsigned long SysCall,
+unsigned long long* Args,
+void** pPool,
+void** pSecondLevelPool)
+{
+   DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+}
+
+
+void w10NtTerminateEnclave
+(unsigned long SysCall,
+unsigned long long* Args,
+void** pPool,
+void** pSecondLevelPool)
+{
+   DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+}
+
+
+void w10NtLoadKey3
+(unsigned long SysCall,
+unsigned long long* Args,
+void** pPool,
+void** pSecondLevelPool)
+{
+   DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+}
+
+
+
+
 
 void w10NtAddAtomEx
 (unsigned long SysCall,

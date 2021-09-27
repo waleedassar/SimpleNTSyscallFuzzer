@@ -1,7 +1,83 @@
-﻿Build started 12/13/2019 9:55:08 PM.
+﻿Build started 9/27/2021 3:39:03 PM.
      1>Project "F:\kernel\Projects\SimpleNtSyscallFuzzer\SimpleNtSyscallFuzzer\SimpleNtSyscallFuzzer.vcxproj" on node 2 (Build target(s)).
      1>ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\x86_amd64\CL.exe /c /Zi /nologo /W3 /WX- /O2 /Oi /GL /D WIN32 /D NDEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Yu"stdafx.h" /Fp"x64\Release\SimpleNtSyscallFuzzer.pch" /Fo"x64\Release\\" /Fd"x64\Release\vc110.pdb" /Gd /TP /errorReport:prompt SimpleNtSyscallFuzzer.cpp Skip.cpp
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\x86_amd64\CL.exe /c /Zi /nologo /W3 /WX- /O2 /Oi /GL /D WIN32 /D NDEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Yu"stdafx.h" /Fp"x64\Release\SimpleNtSyscallFuzzer.pch" /Fo"x64\Release\\" /Fd"x64\Release\vc110.pdb" /Gd /TP /errorReport:prompt APC.cpp Destroy.cpp FuncTable.cpp HexDump.cpp LeakChecker.cpp Modify.cpp ObjCreator.cpp Pre.cpp Random.cpp SimpleNtSyscallFuzzer.cpp Skip.cpp
+         APC.cpp
+     1>f:\kernel\projects\simplentsyscallfuzzer\simplentsyscallfuzzer\Header.h(7): warning C4005: 'RAND_MAX' : macro redefinition
+                 C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\stdlib.h(154) : see previous definition of 'RAND_MAX'
+     1>APC.cpp(42): warning C4244: 'argument' : conversion from 'unsigned __int64' to 'DWORD', possible loss of data
+         Destroy.cpp
+     1>f:\kernel\projects\simplentsyscallfuzzer\simplentsyscallfuzzer\Header.h(7): warning C4005: 'RAND_MAX' : macro redefinition
+                 C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\stdlib.h(154) : see previous definition of 'RAND_MAX'
+         FuncTable.cpp
+     1>f:\kernel\projects\simplentsyscallfuzzer\simplentsyscallfuzzer\Header.h(7): warning C4005: 'RAND_MAX' : macro redefinition
+                 C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\stdlib.h(154) : see previous definition of 'RAND_MAX'
+         HexDump.cpp
+     1>f:\kernel\projects\simplentsyscallfuzzer\simplentsyscallfuzzer\Header.h(7): warning C4005: 'RAND_MAX' : macro redefinition
+                 C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\stdlib.h(154) : see previous definition of 'RAND_MAX'
+     1>HexDump.cpp(50): warning C4267: 'initializing' : conversion from 'size_t' to 'unsigned long', possible loss of data
+         LeakChecker.cpp
+     1>f:\kernel\projects\simplentsyscallfuzzer\simplentsyscallfuzzer\Header.h(7): warning C4005: 'RAND_MAX' : macro redefinition
+                 C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\stdlib.h(154) : see previous definition of 'RAND_MAX'
+         Modify.cpp
+     1>f:\kernel\projects\simplentsyscallfuzzer\simplentsyscallfuzzer\Header.h(7): warning C4005: 'RAND_MAX' : macro redefinition
+                 C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\stdlib.h(154) : see previous definition of 'RAND_MAX'
+     1>Modify.cpp(1857): warning C4244: '=' : conversion from 'unsigned __int64' to 'unsigned long', possible loss of data
+         ObjCreator.cpp
+     1>f:\kernel\projects\simplentsyscallfuzzer\simplentsyscallfuzzer\Header.h(7): warning C4005: 'RAND_MAX' : macro redefinition
+                 C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\stdlib.h(154) : see previous definition of 'RAND_MAX'
+     1>ObjCreator.cpp(123): warning C4267: 'initializing' : conversion from 'size_t' to 'unsigned long', possible loss of data
+     1>ObjCreator.cpp(131): warning C4267: '=' : conversion from 'size_t' to 'unsigned short', possible loss of data
+     1>ObjCreator.cpp(158): warning C4267: '=' : conversion from 'size_t' to 'unsigned long', possible loss of data
+     1>ObjCreator.cpp(160): warning C4267: '=' : conversion from 'size_t' to 'unsigned long', possible loss of data
+     1>ObjCreator.cpp(166): warning C4267: '=' : conversion from 'size_t' to 'unsigned short', possible loss of data
+     1>ObjCreator.cpp(191): warning C4267: '=' : conversion from 'size_t' to 'unsigned long', possible loss of data
+     1>ObjCreator.cpp(210): warning C4267: '=' : conversion from 'size_t' to 'unsigned long', possible loss of data
+     1>ObjCreator.cpp(212): warning C4267: '=' : conversion from 'size_t' to 'unsigned long', possible loss of data
+     1>ObjCreator.cpp(218): warning C4267: '=' : conversion from 'size_t' to 'unsigned short', possible loss of data
+     1>ObjCreator.cpp(338): warning C4267: '=' : conversion from 'size_t' to 'unsigned long', possible loss of data
+     1>ObjCreator.cpp(357): warning C4267: '=' : conversion from 'size_t' to 'unsigned long', possible loss of data
+     1>ObjCreator.cpp(359): warning C4267: '=' : conversion from 'size_t' to 'unsigned long', possible loss of data
+     1>ObjCreator.cpp(368): warning C4267: '=' : conversion from 'size_t' to 'unsigned short', possible loss of data
+     1>ObjCreator.cpp(395): warning C4267: '=' : conversion from 'size_t' to 'unsigned long', possible loss of data
+     1>ObjCreator.cpp(413): warning C4267: '=' : conversion from 'size_t' to 'unsigned long', possible loss of data
+     1>ObjCreator.cpp(415): warning C4267: '=' : conversion from 'size_t' to 'unsigned long', possible loss of data
+     1>ObjCreator.cpp(423): warning C4267: '=' : conversion from 'size_t' to 'unsigned short', possible loss of data
+     1>ObjCreator.cpp(489): warning C4267: '=' : conversion from 'size_t' to 'unsigned long', possible loss of data
+     1>ObjCreator.cpp(491): warning C4267: '=' : conversion from 'size_t' to 'unsigned long', possible loss of data
+     1>ObjCreator.cpp(521): warning C4267: '=' : conversion from 'size_t' to 'unsigned long', possible loss of data
+     1>ObjCreator.cpp(523): warning C4267: '=' : conversion from 'size_t' to 'unsigned long', possible loss of data
+     1>ObjCreator.cpp(543): warning C4267: '=' : conversion from 'size_t' to 'unsigned long', possible loss of data
+     1>ObjCreator.cpp(545): warning C4267: '=' : conversion from 'size_t' to 'unsigned long', possible loss of data
+     1>ObjCreator.cpp(553): warning C4267: '=' : conversion from 'size_t' to 'unsigned short', possible loss of data
+     1>ObjCreator.cpp(582): warning C4267: '=' : conversion from 'size_t' to 'unsigned long', possible loss of data
+     1>ObjCreator.cpp(722): warning C4267: '=' : conversion from 'size_t' to 'unsigned long', possible loss of data
+     1>ObjCreator.cpp(724): warning C4267: '=' : conversion from 'size_t' to 'unsigned long', possible loss of data
+     1>ObjCreator.cpp(772): warning C4267: '=' : conversion from 'size_t' to 'unsigned short', possible loss of data
+     1>ObjCreator.cpp(806): warning C4267: '=' : conversion from 'size_t' to 'unsigned long', possible loss of data
+     1>ObjCreator.cpp(808): warning C4267: '=' : conversion from 'size_t' to 'unsigned long', possible loss of data
+     1>ObjCreator.cpp(817): warning C4267: '=' : conversion from 'size_t' to 'unsigned short', possible loss of data
+     1>ObjCreator.cpp(950): warning C4267: '=' : conversion from 'size_t' to 'unsigned long', possible loss of data
+     1>ObjCreator.cpp(952): warning C4267: '=' : conversion from 'size_t' to 'unsigned long', possible loss of data
+     1>ObjCreator.cpp(961): warning C4267: '=' : conversion from 'size_t' to 'unsigned short', possible loss of data
+         Pre.cpp
+     1>f:\kernel\projects\simplentsyscallfuzzer\simplentsyscallfuzzer\Header.h(7): warning C4005: 'RAND_MAX' : macro redefinition
+                 C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\stdlib.h(154) : see previous definition of 'RAND_MAX'
+         Random.cpp
+     1>f:\kernel\projects\simplentsyscallfuzzer\simplentsyscallfuzzer\Header.h(7): warning C4005: 'RAND_MAX' : macro redefinition
+                 C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\stdlib.h(154) : see previous definition of 'RAND_MAX'
+     1>Random.cpp(136): warning C4244: '=' : conversion from 'unsigned long' to 'char', possible loss of data
+     1>Random.cpp(141): warning C4267: 'initializing' : conversion from 'size_t' to 'unsigned short', possible loss of data
+     1>Random.cpp(164): warning C4244: '=' : conversion from 'unsigned long' to 'unsigned short', possible loss of data
+     1>Random.cpp(165): warning C4244: '=' : conversion from 'unsigned long' to 'unsigned short', possible loss of data
+     1>Random.cpp(177): warning C4244: '=' : conversion from 'unsigned __int64' to 'unsigned long', possible loss of data
+     1>Random.cpp(205): warning C4018: '<' : signed/unsigned mismatch
+     1>Random.cpp(207): warning C4244: '=' : conversion from 'unsigned long' to 'wchar_t', possible loss of data
+     1>Random.cpp(214): warning C4018: '<' : signed/unsigned mismatch
+     1>Random.cpp(251): warning C4244: 'initializing' : conversion from 'DWORD64' to 'unsigned long', possible loss of data
+     1>Random.cpp(262): warning C4244: '+=' : conversion from 'DWORD64' to 'unsigned long', possible loss of data
+     1>Random.cpp(700): warning C4244: 'initializing' : conversion from 'unsigned __int64' to 'unsigned long', possible loss of data
+     1>Random.cpp(705): warning C4244: 'initializing' : conversion from 'unsigned __int64' to 'unsigned long', possible loss of data
          SimpleNtSyscallFuzzer.cpp
      1>f:\kernel\projects\simplentsyscallfuzzer\simplentsyscallfuzzer\Header.h(7): warning C4005: 'RAND_MAX' : macro redefinition
                  C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\stdlib.h(154) : see previous definition of 'RAND_MAX'
@@ -17,12 +93,12 @@
      1>SimpleNtSyscallFuzzer.cpp(294): warning C4018: '<' : signed/unsigned mismatch
      1>SimpleNtSyscallFuzzer.cpp(382): warning C4018: '<' : signed/unsigned mismatch
      1>SimpleNtSyscallFuzzer.cpp(639): warning C4244: 'initializing' : conversion from '__int64' to 'int', possible loss of data
-     1>SimpleNtSyscallFuzzer.cpp(795): warning C4018: '<' : signed/unsigned mismatch
-     1>SimpleNtSyscallFuzzer.cpp(820): warning C4018: '<' : signed/unsigned mismatch
-     1>SimpleNtSyscallFuzzer.cpp(873): warning C4244: 'argument' : conversion from 'time_t' to 'unsigned int', possible loss of data
-     1>SimpleNtSyscallFuzzer.cpp(1437): warning C4018: '<' : signed/unsigned mismatch
-     1>SimpleNtSyscallFuzzer.cpp(1589): warning C4800: 'unsigned long' : forcing value to bool 'true' or 'false' (performance warning)
-     1>SimpleNtSyscallFuzzer.cpp(1637): warning C4800: 'unsigned long' : forcing value to bool 'true' or 'false' (performance warning)
+     1>SimpleNtSyscallFuzzer.cpp(797): warning C4018: '<' : signed/unsigned mismatch
+     1>SimpleNtSyscallFuzzer.cpp(822): warning C4018: '<' : signed/unsigned mismatch
+     1>SimpleNtSyscallFuzzer.cpp(875): warning C4244: 'argument' : conversion from 'time_t' to 'unsigned int', possible loss of data
+     1>SimpleNtSyscallFuzzer.cpp(1438): warning C4018: '<' : signed/unsigned mismatch
+     1>SimpleNtSyscallFuzzer.cpp(1590): warning C4800: 'unsigned long' : forcing value to bool 'true' or 'false' (performance warning)
+     1>SimpleNtSyscallFuzzer.cpp(1638): warning C4800: 'unsigned long' : forcing value to bool 'true' or 'false' (performance warning)
          Skip.cpp
      1>f:\kernel\projects\simplentsyscallfuzzer\simplentsyscallfuzzer\Header.h(7): warning C4005: 'RAND_MAX' : macro redefinition
                  C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\stdlib.h(154) : see previous definition of 'RAND_MAX'
@@ -46,4 +122,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:01.73
+Time Elapsed 00:00:07.15

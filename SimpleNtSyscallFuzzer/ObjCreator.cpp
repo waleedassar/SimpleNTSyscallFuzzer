@@ -860,7 +860,15 @@ int InitKernelObjects()
 	}
 	*/
 
-	hTmTm_l = CreateTransactionManager(0,pTmLog,0,0);
+	wchar_t TmLogName[MAX_PATH]={0};
+	wcscpy(TmLogName,L"walied");
+
+	ulong LogX = Rand();
+	_ultow(LogX,&TmLogName[6],0x10);
+
+	wcscat(TmLogName,L".log");
+
+	hTmTm_l = CreateTransactionManager(0,TmLogName,0,0);
 	if(hTmTm_l == INVALID_HANDLE_VALUE)
 	{
 		printf("Error creating TmTm Transaction Manager\r\n");

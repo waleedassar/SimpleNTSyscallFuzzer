@@ -20,7 +20,6 @@ extern HANDLE hLpc;
 //hCallback
 //Controller
 extern HANDLE hDebugObject;
-extern HDESK hDesk;
 //hDevice
 extern HANDLE hDirectory;
 //hDriver
@@ -199,7 +198,7 @@ void** pSecondLevelPool)
 
 	R = Rand()%3;
 	if(R==0) *(ulong*)(&Args[6]) = 0;
-	else if(R==1) *(ulong*)(&Args[6]) = GetRandomValue()%(0x1000+0x1);
+	else if(R==1) *(ulong*)(&Args[6]) = GetClassicRandomValue()%(0x1000+0x1);
 	//else Random
 
 	R = Rand()%3;
@@ -270,7 +269,7 @@ void** pSecondLevelPool)
 
 	R = Rand()%3;
 	if(R==0) *(ulong*)(&Args[7]) = 0;
-	else if(R==1) *(ulong*)(&Args[7]) = GetRandomValue()%(0x1000+0x1);
+	else if(R==1) *(ulong*)(&Args[7]) = GetClassicRandomValue()%(0x1000+0x1);
 	//else Random
 
 	R = Rand()%3;
@@ -286,7 +285,7 @@ void** pSecondLevelPool)
 
 	R = Rand()%3;
 	if(R==0) *(ulong*)(&Args[9]) = 0;
-	else if(R==1) *(ulong*)(&Args[9]) = GetRandomValue()%(0x1000+0x1);
+	else if(R==1) *(ulong*)(&Args[9]) = GetClassicRandomValue()%(0x1000+0x1);
 	//else Random
 }
 
@@ -330,7 +329,7 @@ void** pSecondLevelPool)
 
 	R = Rand()%3;
 	if(R==0) *(ulong*)(&Args[6]) = 0;
-	else if(R==1) *(ulong*)(&Args[6]) = GetRandomValue()%(0x1000+0x1);
+	else if(R==1) *(ulong*)(&Args[6]) = GetClassicRandomValue()%(0x1000+0x1);
 	//else Random
 
 	R = Rand()%3;
@@ -507,7 +506,7 @@ void** pSecondLevelPool)
 	Args[0] = (ulonglong)hThread;
 	if(Rand()%5==1) Args[0] = 0;
 
-	if(Rand()%2 == 1) *(ulong*)(&Args[1]) = GetRandomValue()%0x100; //classes
+	if(Rand()%2 == 1) *(ulong*)(&Args[1]) = GetClassicRandomValue()%0x100; //classes
 
 	ulong R = Rand()%3;
 	if(R==0)
@@ -522,7 +521,7 @@ void** pSecondLevelPool)
 
 	R = Rand()%3;
 	if(R==0) *(ulong*)(&Args[3]) = 0;
-	else if(R==1) *(ulong*)(&Args[3]) = GetRandomValue()%(0x1000+0x1);
+	else if(R==1) *(ulong*)(&Args[3]) = GetClassicRandomValue()%(0x1000+0x1);
 	//else Random
 }
 
@@ -583,7 +582,7 @@ void** pSecondLevelPool)
 
 	R = Rand()%3;
 	if(R==0) *(ulong*)(&Args[3]) = 0;
-	else if(R==1) *(ulong*)(&Args[3]) = GetRandomValue()%(0x1000+0x1);
+	else if(R==1) *(ulong*)(&Args[3]) = GetClassicRandomValue()%(0x1000+0x1);
 	//else Random
 
 	R = Rand()%3;
@@ -633,11 +632,11 @@ void** pSecondLevelPool)
 
 	R = Rand()%3;
 	if(R==0) *(ulong*)(&Args[3]) = 0;
-	else if(R==1) *(ulong*)(&Args[3]) = GetRandomValue()%(0x1000+0x1);
+	else if(R==1) *(ulong*)(&Args[3]) = GetClassicRandomValue()%(0x1000+0x1);
 	//else Random
 
 
-	if(Rand()%2 == 1) *(ulong*)(&Args[4]) = GetRandomValue()%(0x38+0x1);
+	if(Rand()%2 == 1) *(ulong*)(&Args[4]) = GetClassicRandomValue()%(0x38+0x1);
 }
 
 void w7NtOpenKey
@@ -710,7 +709,7 @@ void** pSecondLevelPool)
 
 	R = Rand()%3;
 	if(R==0) *(ulong*)(&Args[4]) = 0;
-	else if(R==1) *(ulong*)(&Args[4]) = GetRandomValue()%(0x1000+0x1);
+	else if(R==1) *(ulong*)(&Args[4]) = GetClassicRandomValue()%(0x1000+0x1);
 	//else Random
 
 	R = Rand()%3;
@@ -743,7 +742,7 @@ void** pSecondLevelPool)
 
 	R = Rand()%3;
 	if(R==0) *(ulong*)(&Args[1]) = 0;
-	else if(R==1) *(ulong*)(&Args[1]) = GetRandomValue()%(0x1000+0x1);
+	else if(R==1) *(ulong*)(&Args[1]) = GetClassicRandomValue()%(0x1000+0x1);
 	//else Random
 
 
@@ -801,7 +800,7 @@ void** pSecondLevelPool)
 
 	R = Rand()%3;
 	if(R==0) *(ulong*)(&Args[3]) = 0;
-	else if(R==1) *(ulong*)(&Args[3]) = GetRandomValue()%(0x1000+0x1);
+	else if(R==1) *(ulong*)(&Args[3]) = GetClassicRandomValue()%(0x1000+0x1);
 	//else Random
 
 	R = Rand()%3;
@@ -849,7 +848,7 @@ void** pSecondLevelPool)
 
 	R = Rand()%3;
 	if(R==0) *(ulong*)(&Args[4]) = 0;
-	else if(R==1) *(ulong*)(&Args[4]) = GetRandomValue()%(0x1000+0x1);
+	else if(R==1) *(ulong*)(&Args[4]) = GetClassicRandomValue()%(0x1000+0x1);
 	//else Random
 
 	R = Rand()%3;
@@ -927,7 +926,7 @@ void** pSecondLevelPool)
 
 	R = Rand()%3;
 	if(R==0) *(ulong*)(&Args[3]) = 0;
-	else if(R==1) *(ulong*)(&Args[3]) = GetRandomValue()%(0x1000+0x1);
+	else if(R==1) *(ulong*)(&Args[3]) = GetClassicRandomValue()%(0x1000+0x1);
 	//else Random
 
 	R = Rand()%3;
@@ -1014,7 +1013,7 @@ void** pSecondLevelPool)
 
 	R = Rand()%3;
 	if(R==0) *(ulong*)(&Args[6]) = 0;
-	else if(R==1) *(ulong*)(&Args[6]) = GetRandomValue()%(0x1000+0x1);
+	else if(R==1) *(ulong*)(&Args[6]) = GetClassicRandomValue()%(0x1000+0x1);
 	//else Random
 
 	R = Rand()%3;
@@ -1066,7 +1065,7 @@ void** pSecondLevelPool)
 
 	R = Rand()%3;
 	if(R==0) *(ulong*)(&Args[3]) = 0;
-	else if(R==1) *(ulong*)(&Args[3]) = GetRandomValue()%(0x1000+0x1);
+	else if(R==1) *(ulong*)(&Args[3]) = GetClassicRandomValue()%(0x1000+0x1);
 	//else Random
 }
 
@@ -1223,7 +1222,7 @@ void** pSecondLevelPool)
 {
   	Args[0] = (ulonglong)hToken;
 
-	*(ulong*)(&Args[1]) = GetRandomValue()%0x20;
+	*(ulong*)(&Args[1]) = GetClassicRandomValue()%0x20;
 
 
 	ulong R = Rand()%3;
@@ -1238,7 +1237,7 @@ void** pSecondLevelPool)
 
 	R = Rand()%3;
 	if(R==0) *(ulong*)(&Args[3]) = 0;
-	else if(R==1) *(ulong*)(&Args[3]) = GetRandomValue()%(0x1000+0x1);
+	else if(R==1) *(ulong*)(&Args[3]) = GetClassicRandomValue()%(0x1000+0x1);
 	//else Random
 
 	R = Rand()%3;
@@ -1316,7 +1315,7 @@ void** pSecondLevelPool)
 
 	R = Rand()%3;
 	if(R==0) *(ulong*)(&Args[4]) = 0;
-	else if(R==1) *(ulong*)(&Args[4]) = GetRandomValue()%(0x1000+0x1);
+	else if(R==1) *(ulong*)(&Args[4]) = GetClassicRandomValue()%(0x1000+0x1);
 	//else Random
 
 
@@ -1390,7 +1389,7 @@ void** pSecondLevelPool)
 
 	R = Rand()%3;
 	if(R==0) *(ulong*)(&Args[3]) = 0;
-	else if(R==1) *(ulong*)(&Args[3]) = GetRandomValue()%(0x1000+0x1);
+	else if(R==1) *(ulong*)(&Args[3]) = GetClassicRandomValue()%(0x1000+0x1);
 	//else Random
 
 
@@ -1494,11 +1493,11 @@ void** pSecondLevelPool)
 
 	R = Rand()%3;
 	if(R==0) *(ulong*)(&Args[3]) = 0;
-	else if(R==1) *(ulong*)(&Args[3]) = GetRandomValue()%(0x1000+0x1);
+	else if(R==1) *(ulong*)(&Args[3]) = GetClassicRandomValue()%(0x1000+0x1);
 	//else Random
 
 
-	*(ulong*)(&Args[4]) = GetRandomValue()%0x40;
+	*(ulong*)(&Args[4]) = GetClassicRandomValue()%0x40;
 }
 
 void w7NtMapViewOfSection
@@ -1748,7 +1747,6 @@ void** pPool,
 void** pSecondLevelPool)
 {
    Args[0] = (ulonglong)hProcess;
-   if(Rand()%0x10 == 1) Args[0]=0;
 
    if(Rand()%0x10 == 1) *(ulong*)(&Args[1]) = 0;
 
@@ -1854,8 +1852,8 @@ unsigned long long* Args,
 void** pPool,
 void** pSecondLevelPool)
 {
-	if(Rand()%5==1) *(ulong*)(&Args[0]) = GetRandomValue();
-	else *(ulong*)(&Args[0]) = GetRandomValue()%0x100;
+	if(Rand()%5==1) *(ulong*)(&Args[0]) = GetClassicRandomValue();
+	else *(ulong*)(&Args[0]) = GetClassicRandomValue()%0x100;
 
 	/*
 	if( (*(ulong*)(&Args[0])==0x0B) ||
@@ -1882,7 +1880,7 @@ void** pSecondLevelPool)
 
 	R = Rand()%3;
 	if(R==0) *(ulong*)(&Args[2]) = 0;
-	else if(R==1) *(ulong*)(&Args[2]) = GetRandomValue()%(0x1000+0x1);
+	else if(R==1) *(ulong*)(&Args[2]) = GetClassicRandomValue()%(0x1000+0x1);
 	//else Random
 
 	R = Rand()%3;
@@ -2202,7 +2200,7 @@ unsigned long long* Args,
 void** pPool,
 void** pSecondLevelPool)
 {
-   DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+	Args[0] = (ulonglong)hThread;
 }
 
 void w7NtTerminateThread
@@ -2211,7 +2209,8 @@ unsigned long long* Args,
 void** pPool,
 void** pSecondLevelPool)
 {
-   DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+	Args[0] = (ulonglong)hThread;
+	Args[1] = GetRandomNTStatusCode();
 }
 
 void w7NtReadRequestData
@@ -3575,7 +3574,7 @@ void** pSecondLevelPool)
 		Args[2] = 0;
 	}
 
-	*(ulong*)(&Args[3]) |= (GetRandomValue()% ((~0xFFFFFFFC)+1));
+	*(ulong*)(&Args[3]) |= (GetClassicRandomValue()% ((~0xFFFFFFFC)+1));
 }
 
 void w7NtMakePermanentObject
@@ -3618,7 +3617,7 @@ void** pSecondLevelPool)
 	R = Rand()%4;
 	if(R == 0) Args[3]=0;
 	else if(R==1) Args[3] = -1;
-	else if(R==2) Args[3] = GetRandomValue()%0x1001;
+	else if(R==2) Args[3] = GetClassicRandomValue()%0x1001;
 	//else random
 
 
@@ -3737,7 +3736,7 @@ void** pSecondLevelPool)
 
 	R = Rand()%3;
 	if(R==0) *(ulong*)(&Args[6]) = 0;
-	else if(R==1) *(ulong*)(&Args[6]) = GetRandomValue()%(0x1000+0x1);
+	else if(R==1) *(ulong*)(&Args[6]) = GetClassicRandomValue()%(0x1000+0x1);
 	//else Random
 
 	if( Rand()%2 == 1) *(ulong*)(&Args[7]) ^= 0xFFFFF000;
@@ -3792,7 +3791,7 @@ void** pSecondLevelPool)
 
 	R = Rand()%3;
 	if(R==0) *(ulong*)(&Args[8]) = 0;
-	else if(R==1) *(ulong*)(&Args[8]) = GetRandomValue()%(0x1000+0x1);
+	else if(R==1) *(ulong*)(&Args[8]) = GetClassicRandomValue()%(0x1000+0x1);
 	//else Random
 
 	if( Rand()% 2 == 1) *(unsigned char*)(&Args[9]) = 0;
@@ -3857,7 +3856,7 @@ void** pSecondLevelPool)
 
 	R = Rand()%3;
 	if(R==0) *(ulong*)(&Args[10]) = 0;
-	else if(R==1) *(ulong*)(&Args[10]) = GetRandomValue()%(0x1000+0x1);
+	else if(R==1) *(ulong*)(&Args[10]) = GetClassicRandomValue()%(0x1000+0x1);
 	//else Random
 
 	if( Rand()% 2 == 1) *(unsigned char*)(&Args[11]) = 0;
@@ -4829,8 +4828,8 @@ void** pSecondLevelPool)
 		Args[3] = (ulonglong)(pPool[3]);
 		if( Rand()%3 == 1)
 		{
-			((_CLIENT_ID*)(pPool[3]))->UniqueProcess = GetRandomValue()%0x10000;
-			((_CLIENT_ID*)(pPool[3]))->UniqueThread = GetRandomValue()%0x10000;
+			((_CLIENT_ID*)(pPool[3]))->UniqueProcess = GetClassicRandomValue()%0x10000;
+			((_CLIENT_ID*)(pPool[3]))->UniqueThread = GetClassicRandomValue()%0x10000;
 		}
 	}
 	else if(R==1)
@@ -5001,7 +5000,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
 
-	*(ulong*)(&Args[0]) = GetRandomValue()%0x18;
+	*(ulong*)(&Args[0]) = GetClassicRandomValue()%0x18;
 
 	ulong R = Rand()%3;
 	if(R==0)
@@ -5016,7 +5015,7 @@ void** pSecondLevelPool)
 
 	R = Rand()%3;
 	if(R==0) *(ulong*)(&Args[2]) = 0;
-	else if(R==1) *(ulong*)(&Args[2]) = GetRandomValue()%(0x1000+0x1);
+	else if(R==1) *(ulong*)(&Args[2]) = GetClassicRandomValue()%(0x1000+0x1);
 	//else Random
 }
 
@@ -5263,7 +5262,7 @@ void** pSecondLevelPool)
 
 	ulong R = Rand()%3;
 	if(R==0) *(ulong*)(&Args[2]) = 0;
-	else if(R==1) *(ulong*)(&Args[2]) = GetRandomValue()%(0x1000+0x1);
+	else if(R==1) *(ulong*)(&Args[2]) = GetClassicRandomValue()%(0x1000+0x1);
 	//else Random
 
 	R = Rand()%3;
@@ -5373,9 +5372,9 @@ unsigned long long* Args,
 void** pPool,
 void** pSecondLevelPool)
 {
-   if( Rand()%2 == 1) *(ulong*)(&Args[0]) = GetRandomValue()%0x94;
+   if( Rand()%2 == 1) *(ulong*)(&Args[0]) = GetClassicRandomValue()%0x94;
 
-   if( Rand()%2 == 1) *(ulong*)(&Args[1]) = GetRandomValue()%0x20;
+   if( Rand()%2 == 1) *(ulong*)(&Args[1]) = GetClassicRandomValue()%0x20;
 }
 
 void w7NtQueryDirectoryObject
@@ -5399,7 +5398,7 @@ void** pSecondLevelPool)
 
 	R = Rand()%3;
 	if(R==0) *(ulong*)(&Args[2]) = 0;
-	else if(R==1) *(ulong*)(&Args[2]) = GetRandomValue()%(0x1000+0x1);
+	else if(R==1) *(ulong*)(&Args[2]) = GetClassicRandomValue()%(0x1000+0x1);
 	//else Random
 
 	if(Rand()%2 == 1) *(unsigned char*)(&Args[3]) = 0;
@@ -5495,7 +5494,7 @@ void** pSecondLevelPool)
 
 	R = Rand()%3;
 	if(R==0) *(ulong*)(&Args[3]) = 0;
-	else if(R==1) *(ulong*)(&Args[3]) = GetRandomValue()%(0x1000+0x1);
+	else if(R==1) *(ulong*)(&Args[3]) = GetClassicRandomValue()%(0x1000+0x1);
 	//else Random
 
 	if(Rand()%2 == 1) *(unsigned char*)(&Args[4]) = 0;
@@ -5513,7 +5512,7 @@ void** pSecondLevelPool)
 
 	R = Rand()%3;
 	if(R==0) *(ulong*)(&Args[6]) = 0;
-	else if(R==1) *(ulong*)(&Args[6]) = GetRandomValue()%(0x1000+0x1);
+	else if(R==1) *(ulong*)(&Args[6]) = GetClassicRandomValue()%(0x1000+0x1);
 	//else Random
 
 	R = Rand()%3;
@@ -6468,7 +6467,7 @@ unsigned long long* Args,
 void** pPool,
 void** pSecondLevelPool)
 {
-   DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+	Args[0] = (ulonglong)hProcess;
 }
 
 void w7NtSuspendThread
@@ -6477,7 +6476,7 @@ unsigned long long* Args,
 void** pPool,
 void** pSecondLevelPool)
 {
-   DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+	Args[0] = (ulonglong)hThread;
 }
 
 void w7NtSystemDebugControl

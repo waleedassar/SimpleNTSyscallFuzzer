@@ -65,5 +65,14 @@
     <ClCompile Include="Modify.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="RandomizationThread.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SyscallOrder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TebPeb.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

@@ -153,6 +153,95 @@ struct _SECURITY_QUALITY_OF_SERVICE
 #define OBJ_VALID_ATTRIBUTES    0x000007F2
 #define OBJ_CREATOR_INFO_MINE   0x00010000
 
+#define KernelMode 0
+#define UserMode 1
+
+#define SEC_IMAGE           0x1000000
+#define SEC_NEVER_RELOCATE 0x8000000 //SEC_DATA
+#define SEC_UNK 0x100000
+#define SEC_PROTECTED_IMAGE 0x2000000
+#define SEC_FOR_DRIVER 0x400000
+#define SEC_UNK2 0x4000000
+#define SEC_UNK3 0x10000000
+#define SEC_UNK4 0x40000000
+#define SEC_UNK5 0x80000000
+
+
+#define 	LPC_REQUEST   1
+#define 	LPC_REPLY   2
+#define 	LPC_DATAGRAM   3
+#define 	LPC_LOST_REPLY   4
+#define 	LPC_PORT_CLOSED   5
+#define 	LPC_CLIENT_DIED   6
+#define 	LPC_EXCEPTION   7
+#define 	LPC_DEBUG_EVENT   8
+#define 	LPC_ERROR_EVENT   9
+#define 	LPC_CONNECTION_REQUEST   10
+
+
+
+
+
+struct _CLIENT_ID
+{
+	ulonglong UniqueProcess;
+	ulonglong UniqueThread;
+};
+
+//Size 0x28
+struct _PORT_MESSAGE
+{
+	ushort DataLength;
+	ushort TotalLength;
+	ushort Type;
+	ushort DataInfoOffset;
+	_CLIENT_ID ClientId;
+	ulong MessageId;
+	ulong Pad;
+	ulonglong ClientViewSize;
+};
+
+struct _CLIENT_ID32
+{
+	ulong UniqueProcess;
+	ulong UniqueThread;
+};
+
+
+struct _PORT_MESSAGE32
+{
+	ushort DataLength;
+    ushort TotalLength;
+	ushort Type;
+	ushort DataInfoOffset;
+	_CLIENT_ID32 ClientId;
+	ulong MessageId;
+	ulong ClientViewSize;
+};
+
+struct _ETW_CONSUMER_INPUT_OUTPUT
+{
+	ulong LoggerId;//at 0x0
+	ulong NumberOfBlocks;//at 0x4, (0x1  becomes 0x80f8)
+	void* pAddr0;//at 0x8
+	void* pAddr1;//at 0x10
+	HANDLE hEvent0;//at 0x18
+	HANDLE hEvent1;//at 0x20
+	void* pAddr2;//at 0x28
+	void* pAddr3;//at 0x30
+	HANDLE hEtwConsumer;//at 0x38
+	ulonglong Pad0;//at 0x40
+	ulonglong Pad1;//at 0x48
+};
+
+struct _ETW_REGISTRATION_INPUT_OUTPUT
+{
+	GUID guid;
+	ulonglong Unk0;
+	HANDLE hEtwReg;
+	unsigned char Pad[0x80];
+};
+
 void FillRandomObjectAttributes(void* p,ulong Size);
 wchar_t* GetRandomWideString(wchar_t* pMem,ulong tLength);
 void PrintAllArgs(unsigned long long* Args);
@@ -180,6 +269,8 @@ struct _ALPC_PORT_ATTRIBUTES
    ulong Reserved;
 };
 
+
+
 typedef struct pAddr
 {
 	ulong X; //At 0x0 Must be Zero
@@ -200,11 +291,7 @@ struct _KAFFINITY_EX
 	ulonglong Bitmap[4];
 };
 
-struct _CLIENT_ID
-{
-	ulonglong UniqueProcess;
-	ulonglong UniqueThread;
-};
+
 
 
 extern "C"
@@ -334,6 +421,8 @@ struct RANDOMIZATION_THREAD
 	ulonglong SecondLevelCount;
 };
 
+ulong GetRandomNTStatusCode();
+
 
 void InitOsInfo();
 
@@ -352,7 +441,10 @@ void  DestroyFunctionTable(void* pExecPages,unsigned long SyscallCount,MYFUNC* p
 //bool Scan(void* pMem,ulong Size);
 bool Scan(void* pMem,ulong Size,ulong OSVer);
 
-int InitKernelObjects();
+int InitKernelObjects(bool bPrint);
+
+void ObjCreatorThread();
+void ObjDestroyerThread();
 
 void FillRandomUnicodeString(void* p,ulong Size);
 

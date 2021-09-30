@@ -1,11 +1,8 @@
 #include "stdafx.h"
 #include "Header.h"
-
 #include "intrin.h"
 
-extern ulong bMode;//0=>TOCTOU, 1=> Memory Disclosure
-//extern CRITICAL_SECTION CritSec;
-extern longlong CS;
+
 
 
 unsigned long Rand()
@@ -14,6 +11,42 @@ unsigned long Rand()
 }
 
 
+
+wchar_t* GetRandomWideNewLines(wchar_t* pMem,ulong tLength)
+{
+	if(!pMem || !tLength) return 0;
+
+	wchar_t* Printables = L" !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
+	wchar_t* NewLines = L"\r\n";
+
+	unsigned long i;
+	for(i = 0; i < (tLength-1);i++)
+	{
+		if( Rand()%0x10 == 1) pMem[i] = NewLines[Rand()%2];
+		else 				  pMem[i] = Printables[Rand()%95];
+	}
+
+	pMem[i]=0;
+
+	return pMem;
+}
+
+wchar_t* GetRandomWideFormatString(wchar_t* pMem,ulong tLength)
+{
+	if(!pMem || !tLength) return 0;
+
+	wchar_t* Printables = L" !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
+
+	unsigned long i;
+	for(i = 0; i < (tLength-1);i++)
+	{
+		if( Rand()%0x10 == 1) pMem[i] = L'%';
+		else pMem[i] = Printables[Rand()%95];
+	}
+	pMem[i]=0;
+
+	return pMem;
+}
 
 
 
@@ -34,6 +67,48 @@ wchar_t* GetRandomWideString(wchar_t* pMem,ulong tLength)
 	return pMem;
 }
 
+char* GetRandomAsciiNewLines(char* pMem,ulong tLength)
+{
+	if(!pMem || !tLength) return 0;
+
+	char* Printables = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
+	char* NewLines = "\r\n";
+
+	unsigned long i;
+	for(i = 0; i < (tLength-1);i++)
+	{
+		if( Rand()%0x10 == 1) pMem[i] = NewLines[Rand()%2];
+		else pMem[i] = Printables[Rand()%95];
+	}
+
+	pMem[i]=0;
+
+	return pMem;
+}
+
+
+char* GetRandomAsciiFormatString(char* pMem,ulong tLength)
+{
+	if(!pMem || !tLength) return 0;
+
+	char* Printables = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
+
+	unsigned long i;
+	for(i = 0; i < (tLength-1);i++)
+	{
+		if( Rand()%0x10 == 1) pMem[i] = '%';
+		else pMem[i] = Printables[Rand()%95];
+	}
+
+	pMem[i]=0;
+
+	return pMem;
+}
+
+
+
+
+
 char* GetRandomAsciiString(char* pMem,ulong tLength)
 {
 	if(!pMem || !tLength) return 0;
@@ -50,6 +125,7 @@ char* GetRandomAsciiString(char* pMem,ulong tLength)
 
 	return pMem;
 }
+
 
 
 
@@ -85,6 +161,10 @@ void FillRandomObjectAttributes(void* p,ulong Size)
 
 	FillRandomUnicodeString((((unsigned char*)p)+sizeof(_OBJECT_ATTRIBUTES)),Size-sizeof(_OBJECT_ATTRIBUTES));
 }
+
+
+
+
 
 
 void FillRandomUnicodeString(void* p,ulong Size)
@@ -241,6 +321,7 @@ void FillRandomUnicodeString(void* p,ulong Size)
 	}
 }
 
+
 ulonglong GetRandomValue()
 {
 	ulonglong R = __rdtsc();
@@ -279,6 +360,8 @@ ulonglong GetRandomValue()
 }
 
 
+
+
 ulonglong GetClassicRandomValue()
 {
 	
@@ -314,6 +397,8 @@ ulonglong GetClassicRandomValue()
 	return RanX;
 }
 
+
+
 bool HasFF(ulonglong Data)
 {
 	ulonglong DataX = Data;
@@ -331,8 +416,6 @@ bool HasFF(ulonglong Data)
 	return false;
 }
 
-
-
 void FillRandomData(void* pMem,ulong Size)
 {
 	if(pMem && Size)
@@ -345,15 +428,7 @@ void FillRandomData(void* pMem,ulong Size)
 		ulonglong* pRunner = (ulonglong*)pMem;
 		while(SizeX)
 		{
-				//the following 5 lines are only for disclosure detection, remove later and uncomment next line
-				ulonglong RX = GetRandomValue();
-				while(HasFF(RX))
-				{
-					RX = GetRandomValue();
-				}
-				*pRunner = RX;
-
-			//*pRunner = GetRandomValue();
+			*pRunner = GetRandomValue();
 
 
 			pRunner++;
@@ -370,6 +445,50 @@ void FillRandomData(void* pMem,ulong Size)
 		}
 	}
 }
+
+void FillRandomData(void* pMem,ulong Size,bool bMode)
+{
+	if(pMem && Size)
+	{
+		ulong SizeX = Size/8;//Num of qwords
+
+		ulong Rem = Size % 8;//fraction
+
+
+		ulonglong* pRunner = (ulonglong*)pMem;
+		while(SizeX)
+		{
+			if(bMode == true)
+			{
+				//the following 5 lines are only for disclosure detection, remove later and uncomment next line
+				ulonglong RX = GetRandomValue();
+				while(HasFF(RX))
+				{
+					RX = GetRandomValue();
+				}
+				*pRunner = RX;
+			}
+			else
+			{
+				*pRunner = GetRandomValue();
+			}
+
+
+			pRunner++;
+
+			SizeX-= 1;
+		}
+
+		unsigned char* pRunnerX = (unsigned char*) pRunner;
+		while(Rem)
+		{
+			*pRunnerX = (unsigned char)GetRandomValue();
+			pRunnerX++;
+			Rem--;
+		}
+	}
+}
+
 
 
 void FillClassicRandomData(void* pMem,ulong Size,bool bMode)
@@ -412,7 +531,6 @@ void FillClassicRandomData(void* pMem,ulong Size,bool bMode)
 				//else random
 			}
 
-			/*
 			if(bMode == true)
 			{
 				//the following 5 lines are only for disclosure detection, remove later and uncomment next line
@@ -427,7 +545,6 @@ void FillClassicRandomData(void* pMem,ulong Size,bool bMode)
 			{
 				*pRunner = GetRandomValue();
 			}
-			*/
 
 			pRunner++;
 
@@ -444,6 +561,7 @@ void FillClassicRandomData(void* pMem,ulong Size,bool bMode)
 	}
 }
 
+
 bool IsAllFFs(ulong* pMem,unsigned long Count)
 {
 	unsigned long i = 0;
@@ -456,152 +574,8 @@ bool IsAllFFs(ulong* pMem,unsigned long Count)
 	return true;
 }
 
-//Fisher--Yates
-ulong* GetRandomSyscallOrder_Swap(unsigned long Min,unsigned long Max)
-{
-	if(Min > Max) return 0;
-
-	unsigned long Count = 0;
-	ulong* pOrder = 0;
-	if(Min == Max)
-	{
-		pOrder = (ulong*)VirtualAlloc(0,0x4,MEM_COMMIT,PAGE_READWRITE);
-		if(!pOrder)
-		{
-			printf("Error allocating Random Order memory\r\n");
-			return 0;
-		}
-		*pOrder = Min;
-	}
-	else
-	{
-		Count = (Max-Min)+1;
-		pOrder = (ulong*)VirtualAlloc(0,Count*4,MEM_COMMIT,PAGE_READWRITE);
-		if(!pOrder)
-		{
-			printf("Error allocating Random Order memory\r\n");
-			return 0;
-		}
 
 
-		unsigned long X = Max + 1;
-		unsigned long i = 0;
-
-		unsigned long ii = Min;
-
-
-		for(i=0;i<Count;i++)
-		{
-			pOrder[i] = ii;
-			ii++;
-
-			//printf("==> %X\r\n",pOrder[i]);
-		}
-
-
-		unsigned long Trials = 0xFFFF;
-		while(Trials)
-		{
-			unsigned long R0 = rand()%Count;
-			unsigned long R1 = rand()%Count;
-			if(R0==R1) continue;
-			else
-			{
-				unsigned long Temp = pOrder[R0];
-				
-				pOrder[R0] = pOrder[R1];
-
-				pOrder[R1] = Temp;
-				Trials--;
-			}
-		}
-
-	}
-	return pOrder;
-}
-
-
-//Slow, takes so much time
-ulong* GetRandomSyscallOrder(unsigned long Min,unsigned long Max)
-{
-	if(Min > Max) return 0;
-
-
-
-	unsigned long Count = 0;
-	ulong* pOrder = 0;
-	if(Min == Max)
-	{
-		pOrder = (ulong*)LocalAlloc(LMEM_ZEROINIT,4);
-		if(!pOrder)
-		{
-			printf("Error allocating Random Order memory\r\n");
-			return 0;
-		}
-		*pOrder = Min;
-	}
-	else
-	{
-		Count = (Max-Min)+1;
-		pOrder = (ulong*)LocalAlloc(LMEM_ZEROINIT,Count*4);
-		if(!pOrder)
-		{
-			printf("Error allocating Random Order memory\r\n");
-			return 0;
-		}
-
-		ulong* pTemp = (ulong*)LocalAlloc(LMEM_ZEROINIT,Count*4);
-		if(!pTemp)
-		{
-			printf("Error allocating Random Order memory\r\n");
-			return 0;
-		}
-
-		unsigned long X = Max + 1;
-
-
-		unsigned long i = 0;
-		unsigned long ii = Min;
-
-		for(i=0;	i<Count,ii<X;	i++,ii++)
-		{
-			pTemp[i] = ii;
-			//printf("==> %X\r\n",pTemp[i]);
-		}
-
-		
-
-		i = 0;
-		ii = 0;
-		unsigned long T = -1;
-
-
-		while(i<Count)
-		{
-			while(T == -1)
-			{
-				ii = rand()%Count;
-				//printf("==xxxxx===> %X\r\n",ii);
-				T = pTemp[ii];
-				printf("==xxxxx===> %X\r\n",T);
-
-				//if(IsAllFFs(pTemp,Count)) break;
-			}
-
-			pOrder[i] = T;
-			//printf("=====> %X\r\n",pOrder[i]);
-
-			pTemp[ii] = T = -1;
-
-			//if(IsAllFFs(pTemp,Count)) break;
-
-			i++;
-		}
-
-		LocalFree(pTemp);
-	}
-	return pOrder;
-}
 
 void* GetRandomPage()
 {
@@ -635,140 +609,518 @@ void DestroyRandomPage(void* pNew)
 
 
 
-void RandomizeOrderAndCounts(ulong* pOrder,ulong* pCounts,ulong Count)
+
+
+ulong GetRandomSectionAllocationAttribute(uchar PreviousMode)
 {
-	if(!pOrder || !pCounts || !Count) return;
+	bool bInvalid = true;
+	ulong Alloc = SEC_IMAGE;
+	ulong Disallowed[15]={
+		0x80,
+		0x100,
+		0x200,
+		0x400,
+		0x800,
+		0x1000,
+		0x2000,
+		0x4000,
+		0x8000,
+		0x10000,
+		0x20000,
+		0x40000,
+		0x80000,
+		0x800000,
+		0x20000000};
 
 
-		unsigned long Trials = 0xFFFF;
-		while(Trials)
+	while(bInvalid == true)
+	{
+		Alloc = GetClassicRandomValue();
+
+
+		//Remove disallowed attributes
+		for(ulong i=0;i<15;i++)
 		{
-			unsigned long R0 = rand()%Count;
-			unsigned long R1 = rand()%Count;
-			if(R0==R1) continue;
-			else
+			
+			if(Alloc & Disallowed[i])
 			{
-				unsigned long Temp = pOrder[R0];
-				unsigned long Temp2 = pCounts[R0];
-				
-				pOrder[R0] = pOrder[R1];
-				pOrder[R1] = Temp;
-
-
-
-				pCounts[R0] = pCounts[R1];
-				pCounts[R1] = Temp2;
-				Trials--;
+				Alloc &= (~Disallowed[i]);
 			}
 		}
-		return;
+
+		if(PreviousMode == UserMode)
+		{
+			if((Alloc & SEC_UNK) || (Alloc & SEC_PROTECTED_IMAGE))
+			{
+				Alloc &= (~SEC_UNK);
+				Alloc &= (~SEC_PROTECTED_IMAGE);
+			}
+		}
+
+
+
+
+
+
+		//Remove disallowed combinations
+		if( (Alloc & SEC_IMAGE) && (Alloc & SEC_PROTECTED_IMAGE) )
+		{
+			Alloc &= (SEC_PROTECTED_IMAGE);
+		}
+
+		if( (Alloc & SEC_IMAGE) && (Alloc & SEC_UNK) )
+		{
+			Alloc &= (SEC_UNK);
+		}
+
+		if( (Alloc & SEC_NEVER_RELOCATE) && (Alloc & SEC_UNK2))
+		{
+			if( Rand()%2 == 0)
+			{
+				Alloc &= (SEC_NEVER_RELOCATE);
+			}
+			else
+			{
+				Alloc &= (SEC_UNK2);
+			}
+		}
+
+
+		if( (Alloc & SEC_UNK) ||
+			(Alloc & SEC_IMAGE) ||
+			(Alloc & SEC_PROTECTED_IMAGE) )
+		{
+			ulong disallowedX = 0xDC400000;
+			if(Alloc & SEC_UNK)
+			{
+				disallowedX = 0xDC000000;
+			}
+	
+			if(Alloc & disallowedX)
+			{
+				bInvalid = true;
+				continue;
+			}
+		}
+
+		//Add minimum
+		if( (Alloc & SEC_UNK == 0) &&
+			(Alloc & SEC_IMAGE == 0) &&
+			(Alloc & SEC_PROTECTED_IMAGE == 0) &&
+			(Alloc & SEC_UNK2 == 0) &&
+			(Alloc & SEC_NEVER_RELOCATE == 0) )
+		{
+			Alloc |= SEC_IMAGE;
+		}
+
+
+
+		bInvalid = false;
+	}
+	return Alloc;
 }
 
 
-//win32k
-void RandomizeTebStuff()
+ulonglong GetRandomDesiredAccess()
 {
-	char* Teb = (char*)__readgsqword(0x30);
-	if(!Teb) return;
-
-	//FIx TEB GdiBatchCount here, fix it to zero or not
-	//if ( Rand()%2 == 1) *(ulong*)(Teb+0x1740)=0;
-	//else *(ulong*)(Teb+0x1740)=GetRandomValue();
-					
-	//_GDI_TEB_BATCH64* pGdiTebBatch = (_GDI_TEB_BATCH64*)(Teb+0x2F0);
-	//if( Rand()% 2 == 1) FillRandomData(pGdiTebBatch,sizeof(_GDI_TEB_BATCH64));
-
-	//if( Rand()%3 == 1) pGdiTebBatch->Offset=0;
+	ulong Desireds[4]={GENERIC_READ,GENERIC_WRITE,GENERIC_EXECUTE,GENERIC_ALL};
 	
-	//if( Rand()%3 == 1) pGdiTebBatch->hDc = AllDCs[Rand()%AllDCsUsed];
+	ulonglong Final = 0;
 
-	//if( Rand()%3 == 1) *(ulonglong*)( ((char*)Teb) + 0x78) = 0;//Win32ThreadInfo
+	ulong R = Rand()%3;
+	if(R==0)
+	{
+		Final = 0;
+	}
+	else if(R==1)
+	{
+		Final =  Desireds[Rand()%4];
+	}
+	else if(R==2)
+	{
+		ulong RR = Rand()%(4+1);
+		ulong CalcX = 0;
+		while(RR)
+		{
+			CalcX |= Desireds[Rand()%4];
+			RR--;
+		}
+		Final = CalcX;
+	}
+	return Final;
+}
 
-	//char* Win32ClientInfo = Teb+0x800;
-	//if( Rand()%2 == 1) FillRandomData(Win32ClientInfo,0x1F0);
 
+
+
+
+void FillRandomPortMessage(void* pInfo,ulong InfoSize,ulonglong ThreadId,ulonglong ProcessId)
+{
+	if(pInfo && InfoSize)
+	{
+		//FillRandomData(pInfo,InfoSize,0);
+		FillClassicRandomData(pInfo,InfoSize,0);
+
+		ulong UsableSize = InfoSize - sizeof(_PORT_MESSAGE);
+
+		_PORT_MESSAGE* pPort = (_PORT_MESSAGE*)pInfo;
+
+		pPort->Type = 1 + Rand()%10;
+
+		ulong DataLength = (Rand()%(UsableSize+1));
+
+		pPort->DataLength = DataLength;
+
+		ulong TotalLength =  DataLength + sizeof(_PORT_MESSAGE);
+		pPort->TotalLength = TotalLength;
+
+		if(ThreadId)	pPort->ClientId.UniqueThread = ThreadId;
+		if(ProcessId)   pPort->ClientId.UniqueProcess = ProcessId;
+
+
+	}
+}
+
+
+
+void FillRandomPortMessage32(void* pInfo,ulong InfoSize,ulong ThreadId,ulong ProcessId)
+{
+	if(pInfo && InfoSize)
+	{
+		//FillRandomData(pInfo,InfoSize,0);
+		FillClassicRandomData(pInfo,InfoSize,0);
+
+		ulong UsableSize = InfoSize - sizeof(_PORT_MESSAGE32);
+
+		_PORT_MESSAGE32* pPort = (_PORT_MESSAGE32*)pInfo;
+
+		pPort->Type = (1 + Rand()%10) | 0x1000;
+
+		ulong DataLength = (Rand()%(UsableSize+1));
+
+		pPort->DataLength = DataLength;
+
+		ulong TotalLength =  DataLength + sizeof(_PORT_MESSAGE);
+		pPort->TotalLength = TotalLength;
+
+		if(ThreadId)	pPort->ClientId.UniqueThread = ThreadId;
+		if(ProcessId)   pPort->ClientId.UniqueProcess = ProcessId;
+	}
+}
+
+
+
+ulonglong GetValidUserModeAllocatedAddress(HANDLE hProcess)
+{
+
+	ulong Rounds = GetClassicRandomValue()%0x100;
+
+	ulonglong ChosenAddress = 0;
+
+	ulonglong Min = 0;
+	ulonglong Max = 0x7FFFFFFF0000;//win10
+
+	ulonglong i = Min;
+
+	while(i <= Max)
+	{
+			MEMORY_BASIC_INFORMATION MBI={0};
+
+			if(VirtualQueryEx(hProcess,(void*)i,&MBI,sizeof(MBI)))
+			{
+				if( (MBI.State == MEM_RESERVE) || (MBI.State == MEM_COMMIT))
+				{
+					ChosenAddress = i;
+					Rounds--;
+					if(Rounds == 0) return ChosenAddress;
+
+					i+= (MBI.RegionSize);
+					continue;
+				}
+				else
+				{
+					i+= (MBI.RegionSize);
+					continue;
+				}
+			}
+			i+= 0x1000;//next Page
+	}
+	return ChosenAddress;
+}
+
+ulonglong GetValidUserModeReservedAddress(HANDLE hProcess)
+{
+
+	ulong Rounds = GetClassicRandomValue()%0x100;
+
+	ulonglong ChosenAddress = 0;
+
+	ulonglong Min = 0;
+	ulonglong Max = 0x7FFFFFFF0000;//win10
+
+	ulonglong i = Min;
+
+	while(i <= Max)
+	{
+			MEMORY_BASIC_INFORMATION MBI={0};
+
+			if(VirtualQueryEx(hProcess,(void*)i,&MBI,sizeof(MBI)))
+			{
+				if(MBI.State == MEM_RESERVE)
+				{
+					ChosenAddress = i;
+					Rounds--;
+					if(Rounds == 0) return ChosenAddress;
+
+
+					i+= (MBI.RegionSize);
+					continue;
+				}
+				else
+				{
+					i+= (MBI.RegionSize);
+					continue;
+				}
+			}
+			i+= 0x1000;//next Page
+	}
+	return ChosenAddress;
+}
+
+
+ulonglong GetValidUserModeFreeAddress(HANDLE hProcess)
+{
+
+	ulong Rounds = GetClassicRandomValue()%0x100;
+
+	ulonglong ChosenAddress = 0;
+
+	ulonglong Min = 0;
+	ulonglong Max = 0x7FFFFFFF0000;//win10
+
+	ulonglong i = Min;
+
+	while(i <= Max)
+	{
+			MEMORY_BASIC_INFORMATION MBI={0};
+
+			if(VirtualQueryEx(hProcess,(void*)i,&MBI,sizeof(MBI)))
+			{
+				if(MBI.State == MEM_FREE)
+				{
+					ChosenAddress = i;
+					Rounds--;
+					if(Rounds == 0) return ChosenAddress;
+
+
+					i+= (MBI.RegionSize);
+					continue;
+				}
+				else
+				{
+					i+= (MBI.RegionSize);
+					continue;
+				}
+			}
+			i+= 0x1000;//next Page
+	}
+	return ChosenAddress;
+}
+
+
+ulonglong GetValidUserModeAddress()
+{
+	return GetClassicRandomValue()%(0x7FFFFFFF0000 + 1);
+}
+
+ulonglong GetValidUserModeAddress32()
+{
+	return GetClassicRandomValue()%(0x7FFFFFFF+1);
+}
+
+
+ulonglong GetValidKernelModeAddress()
+{
+	return GetClassicRandomValue()|0xfffff00000000000;
+}
+
+
+
+
+
+void FillRandomSecurityDescriptor(void* pSecurityDescriptor,ulonglong InputSize)
+{
+
+	if( (!pSecurityDescriptor) || (!InputSize) ) return;
+
+	FillClassicRandomData(pSecurityDescriptor,InputSize,0);
+
+	ulonglong SecDescrX = (ulonglong)pSecurityDescriptor;
+	ulonglong AfterSecDescrX = SecDescrX + InputSize;
+
+
+		
+		
+
+
+
+	((_MY_SECURITY_DESCRIPTOR*)SecDescrX)->Revision = 1;
+
+	if(Rand()%2 == 1)
+	{
+		((_SECURITY_DESCRIPTOR*)SecDescrX)->Control |= 0x10;//Sacl Present
+	}
+
+	if(Rand()%2 == 1)
+	{
+		((_SECURITY_DESCRIPTOR*)SecDescrX)->Control |= 0x4;//Dacl Present
+	}
+
+	if( Rand()%3 == 1)
+	{
+		((_MY_SECURITY_DESCRIPTOR*)SecDescrX)->Control |= 0x8000;
+
+		ulong OffsetX = 0;
+
+		if( Rand()%5 == 1) ((_MY_SECURITY_DESCRIPTOR*)SecDescrX)->OffsetOwner = 0;
+		else
+		{
+			OffsetX = (GetClassicRandomValue()%(InputSize+1)) & (~4);
+			((_MY_SECURITY_DESCRIPTOR*)SecDescrX)->OffsetOwner = OffsetX;
+		}
+
+		if( Rand()%5 == 1) ((_MY_SECURITY_DESCRIPTOR*)SecDescrX)->OffsetGroup = 0;
+		else
+		{
+			OffsetX = (GetClassicRandomValue()%(InputSize+1)) & (~4);
+			((_MY_SECURITY_DESCRIPTOR*)SecDescrX)->OffsetGroup = OffsetX;
+		}
+
+
+		_ACL* pACL = 0;
+
+		if( Rand()%5 == 1) ((_MY_SECURITY_DESCRIPTOR*)SecDescrX)->OffsetSacl = 0;
+		else
+		{
+			OffsetX = (GetClassicRandomValue()%(InputSize+1)) & (~4);
+			((_MY_SECURITY_DESCRIPTOR*)SecDescrX)->OffsetSacl = OffsetX;
+
+			pACL = (_ACL*)( ((ulonglong)SecDescrX) +OffsetX);
+
+			//printf("OffsetX: %X\r\n",OffsetX);
+			if( Rand()%0x10 == 1) pACL->AclSize = 0;
+			else 
+			{
+				pACL->AclSize = 0x8 + (GetClassicRandomValue()%(InputSize-8+1));
+			}
+			pACL->AclRevision = 2 + Rand()%3;
+		}
+
+
+		if( Rand()%5 == 1) ((_MY_SECURITY_DESCRIPTOR*)SecDescrX)->OffsetDacl = 0;
+		else
+		{
+			OffsetX = (GetClassicRandomValue()%(InputSize+1)) & (~4);
+			((_MY_SECURITY_DESCRIPTOR*)SecDescrX)->OffsetDacl = OffsetX;
+
+			pACL = (_ACL*)( ((ulonglong)SecDescrX) +OffsetX);
+
+			//printf("OffsetX: %X\r\n",OffsetX);
+			if( Rand()%0x10 == 1) pACL->AclSize = 0;
+			else 
+			{
+				pACL->AclSize = 0x8 + (GetClassicRandomValue()%(InputSize-8+1));
+			}
+			pACL->AclRevision = 2 + Rand()%3;
+		}
+	}
+	else
+	{
+		((_SECURITY_DESCRIPTOR*)SecDescrX)->Control &= (~0x8000);
+
+		if( Rand()%5 == 1)
+		{
+			((_SECURITY_DESCRIPTOR*)SecDescrX)->Owner = 0;
+		}
+		else
+		{
+			ulonglong pInXX2 = (SecDescrX + (Rand()%InputSize));
+
+			((_SECURITY_DESCRIPTOR*)SecDescrX)->Owner = (_SID*)(pInXX2);
+
+
+			if(Rand()%0x10 == 1) ((_SID*)pInXX2)->SubAuthorityCount = GetClassicRandomValue();
+			else 				((_SID*)pInXX2)->SubAuthorityCount = GetClassicRandomValue()%(0x3FFFFFF7 + 1);
+		}
+
+		if( Rand()%5 == 1)
+		{
+			((_SECURITY_DESCRIPTOR*)SecDescrX)->Group = 0;
+		}
+		else
+		{
+			ulonglong pInXX3 = (SecDescrX + (Rand()%InputSize));
+			((_SECURITY_DESCRIPTOR*)SecDescrX)->Group = (_SID*)pInXX3;
+
+
+			if(Rand()%0x10 == 1) ((_SID*)pInXX3)->SubAuthorityCount = GetClassicRandomValue();
+			else 				 ((_SID*)pInXX3)->SubAuthorityCount = GetClassicRandomValue()%(0x3FFFFFF7 + 1);
+		}
+
+		if( Rand()%5 == 1)
+		{
+			((_SECURITY_DESCRIPTOR*)SecDescrX)->Dacl  = 0;
+		}
+		else
+		{
+			ulonglong pInXX4 = (SecDescrX + (Rand()%InputSize));
+			((_SECURITY_DESCRIPTOR*)SecDescrX)->Dacl  = (_ACL*)pInXX4;
+
+			if( Rand()%0x10 == 1) ((_ACL*)pInXX4)->AclSize = 0;
+			else ((_ACL*)pInXX4)->AclSize = 0x8 + (GetClassicRandomValue()%(InputSize+1));
+
+			((_ACL*)pInXX4)->AclRevision = 2 + Rand()%3;
+		}
+
+		if( Rand()%5 == 1)
+		{
+			((_SECURITY_DESCRIPTOR*)SecDescrX)->Sacl = 0;
+		}
+		else
+		{
+			ulonglong pInXX5 = (SecDescrX + (Rand()%InputSize));
+			((_SECURITY_DESCRIPTOR*)SecDescrX)->Sacl  = (_ACL*)pInXX5;
+
+			if( Rand()%0x10 == 1) ((_ACL*)pInXX5)->AclSize = 0;
+			else ((_ACL*)pInXX5)->AclSize = 0x8 + (GetClassicRandomValue()%(InputSize+1));
+
+			((_ACL*)pInXX5)->AclRevision = 2 + Rand()%3;
+		}
+	}
 	return;
 }
 
 
-
-
-void RandomiztionThread(RANDOMIZATION_THREAD* pRandThr)
+void FillRandomSid(void* pSid,ulonglong InputSize)
 {
-	if(!pRandThr) return;
+	if( (!pSid) || (!InputSize) ) return;
 
-	unsigned long Count = pRandThr->Count;
-	void** pPool = pRandThr->pPool;
+	FillClassicRandomData(pSid,InputSize,0);
 
-	if(!Count  || !pPool) return;
+	_SID* pSidX = (_SID*)pSid;
 
-	unsigned long	CountX = pRandThr->SecondLevelCount;
-	void** pPoolX = pRandThr->pSecondLevelPool;
 
-	while(1)
+	if(InputSize >= 2)
 	{
-		if(bMode)
-		{
-			ulonglong retX;
-			do
-			{
-				retX = InterlockedCompareExchange64(&CS,1,0);
-			}while(retX);
-		}
-
-		//EnterCriticalSection(&CritSec);
-		//WaitForSingleObject(hMutex,INFINITE);
-
-		//ulonglong rdtscX = __rdtsc();
-
-		
-		unsigned long i=0;
-		for(i=0;i<Count;i++)
-		{
-			if(pPool[i])
-			{
-				FillRandomData(pPool[i],RANDOM_PAGE_SIZE-0x8);//room for magic trail
-			}
-		}
-
-
-
-
-		if(pPoolX && CountX)
-		{
-			for(i=0;i<CountX;i++)
-			{
-				if(pPoolX[i])
-				{
-					FillRandomData(pPoolX[i],RANDOM_PAGE_SIZE-0x8);//room for magic trail
-				}
-			}
-		}
-
-		
-		//printf("Diff: %I64X\r\n",__rdtsc() - rdtscX);
-		//getchar();
-
-		//ReleaseMutex(hMutex);
-		//LeaveCriticalSection(&CritSec);
-
-		if(bMode)
-		{
-			InterlockedDecrement64(&CS);
-		}
-
-		//ZwDelayExecution(FALSE,0);//dummy syscall
-		//Sleep(3);
-
-		/*
-		ulong n = 0x1000;
-		while(n)
-		{
-			__nop();
-			n--;
-		}
-		*/
-		
+		pSidX->Revision = 1;
+		pSidX->SubAuthorityCount = GetClassicRandomValue()%(0xF + 0x1);
 	}
+}
 
+
+ulong GetRandomNTStatusCode()
+{
+	ulong Bases[2] = {0xC0000000,0x80000000};
+
+	return Bases[Rand()%2] | ( Rand()%0x10000);
 }

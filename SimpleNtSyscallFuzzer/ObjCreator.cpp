@@ -11,12 +11,14 @@ extern ulong OSVer;
 #pragma data_seg("ntos")
 
 unsigned long Magic1 = 0xCCCCDDDD;
+
+ulonglong InitProcessId;
+ulonglong InitThreadId;
 //hAdapter
 HANDLE hLpc;
 //hCallback
 //Controller
 HANDLE hDebugObject;
-HDESK hDesk = 0;
 //hDevice
 HANDLE hDirectory;
 //hDriver
@@ -65,10 +67,11 @@ HANDLE AllProcesses[0x1000]={0};
 
 ulonglong AllKernelObject[0x5000]={0};
 ulong AllKernelObjectsUsed = 1;	//fix for div by zero, == side effec==> first object is always zero
-
-
 ulong AllFilesUsed = 1;			//fix for div by zero, == side effec==> first object is always zero
 ulong AllProcessesUsed = 1;		//fix for div by zero, == side effec==> first object is always zero
+
+
+
 unsigned long Magic2 = 0xCCCCCCCC;
 #pragma data_seg()
 //-------------------------------
@@ -102,65 +105,47 @@ void TpRoutine(void* pContext)
 	return;
 }
 
-int InitKernelObjects()
+HANDLE CreateLpcPort(wchar_t* BaseName,ulong Rx,bool bPrint)
 {
 	wchar_t ObjectName_All[MAX_PATH+1]={0};
 
-
-	//------------ Static Name Parts -------------------------------------
-	wchar_t* Name = L"walied";
-	//wchar_t* LpcName = L"\\Sessions\\3\\BaseNamedObjects\\walied";
-	wchar_t* FullName = L"\\BaseNamedObjects\\Local\\walied";
-
-	//---------------------------------------------------------------------
-
-	//-------------- Random Name Parts ------------------------------------
-	unsigned long Rx = Rand();
-	
-	unsigned long Rxx;
-	//---------------- ALPC ----------------------------------------------
-	wcscpy(ObjectName_All,FullName);
+	wcscpy(ObjectName_All,BaseName);
 	unsigned long  LenX = wcslen(ObjectName_All);
 	_ultow(Rx,&ObjectName_All[LenX],0x10);
-	wprintf(L"LPC: %s\r\n",ObjectName_All);
+
+	if(bPrint)	wprintf(L"LPC: %s\r\n",ObjectName_All);
 	
-
-
-
 	_UNICODE_STRING UniS = {0};
 	UniS.Length = wcslen(ObjectName_All)*2;
 	UniS.MaxLength = (UniS.Length)+2;
 	UniS.Buffer = ObjectName_All;
 
 	_OBJECT_ATTRIBUTES ObjAttr = {sizeof(ObjAttr)};
-	ObjAttr.Attributes=0x40;//insensitive
+	ObjAttr.Attributes=OBJ_CASE_INSENSITIVE;
 	ObjAttr.ObjectName=&UniS;
 	
-
-
-	//_ALPC_PORT_ATTRIBUTES PortAttr={0};
-
 	HANDLE hLpc_l = 0;
-	//int retValue = ZwAlpcCreatePort(&hLpc_l,&ObjAttr,&PortAttr);
 	int retValue = ZwCreatePort(&hLpc_l,&ObjAttr,0x0,0x200,0);
 	if(retValue < 0)
 	{
-		printf ("Error creating ALPC port, ret: %X\r\n",retValue);
-		return -5;
+		if(bPrint)	printf ("Error creating ALPC port, ret: %X\r\n",retValue);
+		return 0;
 	}
-	hLpc= hLpc_l;
-	printf("LPC: %X\r\n",hLpc);
-	ObjectName_All[0]=0;
-	AllKernelObject[AllKernelObjectsUsed] = (ulonglong)hLpc_l;
-	AllKernelObjectsUsed++;
-	//--------------------------- Debug -----------------------------------
-	wcscpy(ObjectName_All,FullName);
-	LenX = wcslen(ObjectName_All);
+	if(bPrint) printf("LPC: %X\r\n",hLpc_l);
+	return hLpc_l;
+}
+
+HANDLE CreateDebug(wchar_t* BaseName,ulong Rx,bool bPrint)
+{
+	wchar_t ObjectName_All[MAX_PATH+1]={0};
+
+	wcscpy(ObjectName_All,BaseName);
+	ulong LenX = wcslen(ObjectName_All);
 	_ultow(Rx,&ObjectName_All[LenX],0x10);
 	LenX = wcslen(ObjectName_All);
-	Rxx = Rand();
+	ulong Rxx = Rand();
 	_ultow(Rxx,&ObjectName_All[LenX],0x10);
-	wprintf(L"DebugObject: %s\r\n",ObjectName_All);
+	if(bPrint)	wprintf(L"DebugObject: %s\r\n",ObjectName_All);
 
 	_UNICODE_STRING UniSec = {0};
 	UniSec.Length = wcslen(ObjectName_All)*2;
@@ -174,45 +159,26 @@ int InitKernelObjects()
 	ObjAttrDebug.ObjectName = & UniSec;
 
 	HANDLE hDebug_l = 0;
-	retValue = ZwCreateDebugObject(&hDebug_l,GENERIC_ALL,&ObjAttrDebug,0);
+	int retValue = ZwCreateDebugObject(&hDebug_l,GENERIC_ALL,&ObjAttrDebug,0);
 	if(retValue < 0)
 	{
-		printf ("Error creating Debug Object ret: %X\r\n",retValue);
-		return -5;
+		if(bPrint)	printf ("Error creating Debug Object ret: %X\r\n",retValue);
+		return 0;
 	}
-	hDebugObject = hDebug_l;
-	printf("hDebugObject: %X\r\n",hDebugObject);
-	ObjectName_All[0] = 0;
+	if(bPrint) printf("hDebugObject: %X\r\n",hDebug_l);
+	return hDebug_l;
+}
 
-	AllKernelObject[AllKernelObjectsUsed] = (ulonglong)hDebug_l;
-	AllKernelObjectsUsed++;
-	//-------------------- Desktop ------------------------
-	wcscpy(ObjectName_All,Name);
-	LenX = wcslen(ObjectName_All);
-	_ultow(Rx,&ObjectName_All[LenX],0x10);
-
-	wprintf(L"Desktop: %s\r\n",ObjectName_All);
-
-	//replace with Native call later
-	HDESK hDesk_l =	CreateDesktop(ObjectName_All,0,0,0,DESKTOP_CREATEWINDOW,0);
-	if(!hDesk_l)
-	{
-		printf("Error creating desktop object\r\n");
-		return -1;
-	}
-	hDesk = hDesk_l;
-	printf("hDesk: %I64X\r\n",hDesk);
-	ObjectName_All[0]=0;
-	AllKernelObject[AllKernelObjectsUsed] = (ulonglong)hDesk_l;
-	AllKernelObjectsUsed++;
-	//------------------------ Directory ---------------------------------
-	wcscpy(ObjectName_All,FullName);
-	LenX = wcslen(ObjectName_All);
+HANDLE CreateObjDir(wchar_t* BaseName,ulong Rx,bool bPrint)
+{
+	wchar_t ObjectName_All[MAX_PATH+1]={0};
+	wcscpy(ObjectName_All,BaseName);
+	ulong LenX = wcslen(ObjectName_All);
 	_ultow(Rx,&ObjectName_All[LenX],0x10);
 	LenX = wcslen(ObjectName_All);
-	Rxx = Rand();
+	ulong Rxx = Rand();
 	_ultow(Rxx,&ObjectName_All[LenX],0x10);
-	wprintf(L"Directory: %s\r\n",ObjectName_All);
+	if(bPrint) wprintf(L"Directory: %s\r\n",ObjectName_All);
 
 	_UNICODE_STRING UniSD = {0};
 	UniSD.Length = wcslen(ObjectName_All)*2;
@@ -226,43 +192,26 @@ int InitKernelObjects()
 	ObjAttrDir.ObjectName = & UniSD;
 
 	HANDLE hDir_l = 0;
-	retValue = ZwCreateDirectoryObject(&hDir_l,GENERIC_ALL,&ObjAttrDir);
+	int retValue = ZwCreateDirectoryObject(&hDir_l,GENERIC_ALL,&ObjAttrDir);
 	if(retValue < 0)
 	{
-		printf ("Error creating Directory Object ret: %X\r\n",retValue);
-		return -5;
+		if(bPrint)	printf ("Error creating Directory Object ret: %X\r\n",retValue);
+		return 0;
 	}
-	hDirectory = hDir_l;
-	printf("hDirectory: %X\r\n",hDirectory);
-	ObjectName_All[0] = 0;
+	if(bPrint)	printf("hDirectory: %X\r\n",hDir_l);
+	return hDir_l;
+}
 
-	AllKernelObject[AllKernelObjectsUsed] = (ulonglong)hDir_l;
-	AllKernelObjectsUsed++;
-	//------------------------ ETW --------------------------------------------------------
-	//--------------------------- EtwConsumer -------------- Requires admin----------------
+//Major Code change in latest Win10, please update
+//Requires an admin
+HANDLE CreateEtwConsumer(bool bPrint)
+{
+	//printf("sizeof: %X\r\n",sizeof(_ETW_CONSUMER_INPUT_OUTPUT));
 	ulonglong ResultLength = 0;
-	/*
 	
-
-	struct _ETW_CONSUMER_INPUT_OUTPUT
-	{
-		ulong LoggerId;//at 0x0
-		ulong NumberOfBlocks;//at 0x4, (0x1  becomes 0x80f8)
-		void* pAddr0;//at 0x8
-		void* pAddr1;//at 0x10
-		HANDLE hEvent0;//at 0x18
-		HANDLE hEvent1;//at 0x20
-		void* pAddr2;//at 0x28
-		void* pAddr3;//at 0x30
-		HANDLE hEtwConsumer;//at 0x38
-		ulonglong Pad0;//at 0x40
-		ulonglong Pad1;//at 0x48
-	};
 	
 	_ETW_CONSUMER_INPUT_OUTPUT EtwConsumer = {0};
 	EtwConsumer.LoggerId = 2;
-
-	//printf("sizeof: %X\r\n",sizeof(_ETW_CONSUMER_INPUT_OUTPUT));
 	EtwConsumer.NumberOfBlocks = 4;
 
 	ulong X0 = 0;
@@ -288,24 +237,27 @@ int InitKernelObjects()
 	printf("hEvent1: %I64X\r\n",EtwConsumer.hEvent1);
 
 
-	retValue = ZwTraceControl(0xB,&EtwConsumer,sizeof(_ETW_CONSUMER_INPUT_OUTPUT),&EtwConsumer,sizeof(_ETW_CONSUMER_INPUT_OUTPUT),&ResultLength);
+	int retValue = ZwTraceControl(0xB,
+								&EtwConsumer,
+								sizeof(_ETW_CONSUMER_INPUT_OUTPUT),
+								&EtwConsumer,
+								sizeof(_ETW_CONSUMER_INPUT_OUTPUT),
+								&ResultLength);
 	printf("ZwTraceControl, ret: %X, ResultLength: %X\r\n",retValue,ResultLength);
+	if(retValue < 0)
+	{
+		VirtualFree(EtwConsumer.pAddr1,0,MEM_RELEASE);
+		return 0;
+	}
 
 	printf("hEtwConsumer: %I64X\r\n",EtwConsumer.hEtwConsumer);
 
-	retValue = ZwClose(EtwConsumer.hEtwConsumer);
-	printf("ZwClose, ret: %X\r\n",retValue);
-	*/
+	VirtualFree(EtwConsumer.pAddr1,0,MEM_RELEASE);
+	return EtwConsumer.hEtwConsumer;
+}
 
-	//-------------------------- hEtwRegistration -------------------------
-	struct _ETW_REGISTRATION_INPUT_OUTPUT
-	{
-		GUID guid;
-		ulonglong Unk0;
-		HANDLE hEtwReg;
-		unsigned char Pad[0x80];
-	};
-	
+HANDLE CreateEtwRegistration(bool bPrint)
+{
 	//printf("sizeof: %X\r\n",sizeof(_ETW_REGISTRATION_INPUT_OUTPUT));
 	unsigned char In[0x11]="\xE8\x2A\xA9\xBD\x11\x9F\x49\x4D\xBA\x1D\xA4\xC2\xAB\xCA\x69\x2E";//copied as is
 
@@ -313,39 +265,94 @@ int InitKernelObjects()
 	_ETW_REGISTRATION_INPUT_OUTPUT EtwReg = {0};
 	memcpy(&EtwReg.guid,In,0x10);
 
-	ResultLength = 0;
-	retValue = ZwTraceControl(0xF,&EtwReg,sizeof(_ETW_REGISTRATION_INPUT_OUTPUT),&EtwReg,sizeof(_ETW_REGISTRATION_INPUT_OUTPUT),&ResultLength);
-	printf("ZwTraceControl, ret: %X\r\n",retValue);
+	ulonglong ResultLength = 0;
+	int retValue = 
+		ZwTraceControl(0xF,
+		&EtwReg,
+		sizeof(_ETW_REGISTRATION_INPUT_OUTPUT),
+		&EtwReg,
+		sizeof(_ETW_REGISTRATION_INPUT_OUTPUT),
+		&ResultLength);
+
+	if(bPrint) printf("ZwTraceControl, ret: %X\r\n",retValue);
 	if(retValue < 0)
 	{
-		printf("Can't create EtwRegistration kernel object\r\n");
-		return -5;
+		if(bPrint)	printf("Can't create EtwRegistration kernel object\r\n");
+		return 0;
 	}
+	if(bPrint)	printf("hEtwRegistration: %I64X\r\n",EtwReg.hEtwReg);
+	return EtwReg.hEtwReg;
+}
 
-	HANDLE hEtwRegistration_l;
-	hEtwRegistration = hEtwRegistration_l = EtwReg.hEtwReg;
+int InitKernelObjects(bool bPrint)
+{
+	AllKernelObjectsUsed = 1;
+	AllFilesUsed = 1;
+	AllProcessesUsed = 1;
 
-	printf("hEtwRegistration: %I64X\r\n",hEtwRegistration);
+	InitProcessId = GetCurrentProcessId();
+	InitThreadId = GetCurrentThreadId();
+
+	wchar_t ObjectName_All[MAX_PATH+1]={0};
+
+
+	//------------ Static Name Parts -------------------------------------
+	wchar_t* Name = L"walied";
+	wchar_t* FullName = L"\\BaseNamedObjects\\Local\\walied";
+	//-------------- Random Name Parts ------------------------------------
+	unsigned long Rx = Rand();
+	
+	unsigned long Rxx;
+	//---------------- ALPC ----------------------------------------------
+	HANDLE hLpc_l= CreateLpcPort(FullName,Rx,bPrint);
+	//if(bPrint) printf("LPC: %X\r\n",hLpc_l);
+	hLpc = hLpc_l;
+
+	
+	AllKernelObject[AllKernelObjectsUsed] = (ulonglong)hLpc_l;
+	AllKernelObjectsUsed++;
 	ObjectName_All[0]=0;
+	//--------------------------- Debug -----------------------------------
+	HANDLE hDebug_l = CreateDebug(FullName,Rx,bPrint);
+	//if(bPrint) printf("hDebugObject: %X\r\n",hDebug_l);
+	hDebugObject = hDebug_l;
+	AllKernelObject[AllKernelObjectsUsed] = (ulonglong)hDebug_l;
+	AllKernelObjectsUsed++;
+	ObjectName_All[0] = 0;
+	
+	//------------------------ Directory ---------------------------------
+	HANDLE hDir_l = CreateObjDir(FullName,Rx,bPrint);
+	//if(bPrint)	printf("hDirectory: %X\r\n",hDir_l);
+	hDirectory = hDir_l;
+	AllKernelObject[AllKernelObjectsUsed] = (ulonglong)hDir_l;
+	AllKernelObjectsUsed++;
+	ObjectName_All[0] = 0;
+	
+	//------------------------ ETW --------------------------------------------------
+	//----------------------EtwConsumer -------------- Requires admin----------------
+	//CreateEtwConsumer(bPrint);
+	//-------------------------- hEtwRegistration ------------------------
+	HANDLE hEtwRegistration_l = CreateEtwRegistration(bPrint);
+	//if(bPrint)	printf("hEtwRegistration: %I64X\r\n",hEtwRegistration_l);
+	hEtwRegistration = hEtwRegistration_l;
 
 	AllKernelObject[AllKernelObjectsUsed] = (ulonglong)hEtwRegistration_l;
 	AllKernelObjectsUsed++;
-	//retValue = ZwClose(EtwReg.hEtwReg);
-	//printf("ZwClose, ret: %X\r\n",retValue);
+	ObjectName_All[0]=0;
 	//ExitProcess(0);
 	//-------------------------Event--------------------------------------------
 	wcscpy(ObjectName_All,Name);
-	LenX = wcslen(ObjectName_All);
+	ulong LenX = wcslen(ObjectName_All);
 	_ultow(Rx,&ObjectName_All[LenX],0x10);
-	wprintf(L"Event: %s\r\n",ObjectName_All);
+	if(bPrint) wprintf(L"Event: %s\r\n",ObjectName_All);
 	HANDLE hEvent_l = CreateEvent(0,TRUE,TRUE,ObjectName_All);
 	if(hEvent_l == INVALID_HANDLE_VALUE)
 	{
-		printf("Error creating kernel event object\r\n");
+		if(bPrint)	printf("Error creating kernel event object\r\n");
 		return -5;
 	}
 	hEvent = hEvent_l;
-	printf("Event: %X\r\n",hEvent);
+	if(bPrint)	printf("Event: %X\r\n",hEvent);
 	ObjectName_All[0]=0;
 
 	AllKernelObject[AllKernelObjectsUsed] = (ulonglong)hEvent_l;
@@ -362,7 +369,7 @@ int InitKernelObjects()
 	
 
 
-		wprintf(L"EventPair: %s\r\n",ObjectName_All);
+		if(bPrint)	wprintf(L"EventPair: %s\r\n",ObjectName_All);
 
 		_UNICODE_STRING UniSS_ep = {0};
 		UniSS_ep.Length = wcslen(ObjectName_All)*2;
@@ -375,16 +382,16 @@ int InitKernelObjects()
 		ObjAttrEP.Attributes= OBJ_CASE_INSENSITIVE;
 		ObjAttrEP.ObjectName = & UniSS_ep;
 		HANDLE hEventPair_l = 0;
-		retValue = ZwCreateEventPair(&hEventPair_l,GENERIC_ALL,&ObjAttrEP);
-		printf("ZwCreateEventPair, ret: %X, hEventPair_l: %I64X\r\n",retValue,hEventPair_l);
+		int retValue = ZwCreateEventPair(&hEventPair_l,GENERIC_ALL,&ObjAttrEP);
+		if(bPrint) printf("ZwCreateEventPair, ret: %X, hEventPair_l: %I64X\r\n",retValue,hEventPair_l);
 		if(retValue < 0)
 		{
-			printf("Error creating kernel event pair\r\n");
+			if(bPrint)	printf("Error creating kernel event pair\r\n");
 			return -9;
 		}
 		hEventPair = hEventPair_l;
 
-		printf("hEventPair: %X\r\n",hEventPair);
+		if(bPrint)	printf("hEventPair: %X\r\n",hEventPair);
 		ObjectName_All[0] = 0;
 
 		AllKernelObject[AllKernelObjectsUsed] = (ulonglong)hEventPair_l;
@@ -395,16 +402,16 @@ int InitKernelObjects()
 	LenX = wcslen(ObjectName_All);
 	_ultow(Rx,&ObjectName_All[LenX],0x10);
 
-	wprintf(L"File: %s\r\n",ObjectName_All);
+	if(bPrint)	wprintf(L"File: %s\r\n",ObjectName_All);
 	
 	HANDLE hFile_l = CreateFile(ObjectName_All,GENERIC_READ|GENERIC_WRITE,0,0,CREATE_ALWAYS,0,0);
 	if(hFile == INVALID_HANDLE_VALUE)
 	{
-		printf("Error creating kernel file object\r\n");
+		if(bPrint)	printf("Error creating kernel file object\r\n");
 		return -5;
 	}
 	hFile = hFile_l;
-	printf("File: %X\r\n",hFile);
+	if(bPrint)	printf("File: %X\r\n",hFile);
 	ObjectName_All[0]=0;
 	AllKernelObject[AllKernelObjectsUsed] = (ulonglong)hFile_l;
 	AllKernelObjectsUsed++;
@@ -417,7 +424,7 @@ int InitKernelObjects()
 	_ultow(Rxx,&ObjectName_All[LenX],0x10);
 
 
-	wprintf(L"IOCompletion: %s\r\n",ObjectName_All);
+	if(bPrint)	wprintf(L"IOCompletion: %s\r\n",ObjectName_All);
 
 	_UNICODE_STRING UniSS_iocomp = {0};
 	UniSS_iocomp.Length = wcslen(ObjectName_All)*2;
@@ -430,16 +437,16 @@ int InitKernelObjects()
 	ObjAttrIOCOMP.Attributes= OBJ_CASE_INSENSITIVE;
 	ObjAttrIOCOMP.ObjectName = & UniSS_iocomp;
 	HANDLE hIoCompletion_l = 0;
-	retValue = ZwCreateIoCompletion(&hIoCompletion_l,GENERIC_ALL,&ObjAttrIOCOMP,2);
-	printf("ZwCreateIoCompletion, ret: %X, hIoCompletion_l: %I64X\r\n",retValue,hIoCompletion_l);
+	int retValue = ZwCreateIoCompletion(&hIoCompletion_l,GENERIC_ALL,&ObjAttrIOCOMP,2);
+	if(bPrint)	printf("ZwCreateIoCompletion, ret: %X, hIoCompletion_l: %I64X\r\n",retValue,hIoCompletion_l);
 	if(retValue < 0)
 	{
-		printf("Error creating kernel IOCompletion\r\n");
+		if(bPrint)	printf("Error creating kernel IOCompletion\r\n");
 		return -10;
 	}
 	hIoCompletion = hIoCompletion_l;
 
-	printf("hIOCompletion: %X\r\n",hIoCompletion);
+	if(bPrint)	printf("hIOCompletion: %X\r\n",hIoCompletion);
 	ObjectName_All[0] = 0;
 
 	AllKernelObject[AllKernelObjectsUsed] = (ulonglong)hIoCompletion_l;
@@ -455,7 +462,7 @@ int InitKernelObjects()
 	_ultow(Rxx,&ObjectName_All[LenX],0x10);
 
 
-	wprintf(L"IOCompletionReserve: %s\r\n",ObjectName_All);
+	if(bPrint)	wprintf(L"IOCompletionReserve: %s\r\n",ObjectName_All);
 
 	_UNICODE_STRING UniSS_iocomprsv = {0};
 	UniSS_iocomprsv.Length = wcslen(ObjectName_All)*2;
@@ -471,15 +478,15 @@ int InitKernelObjects()
 	HANDLE hIoCompletionReserve_l = 0;
 	
 	retValue = ZwAllocateReserveObject(&hIoCompletionReserve_l,0,1);
-	printf("ZwAllocateReserveObject, ret: %X, hIoCompletionReserve_l: %I64X\r\n",retValue,hIoCompletionReserve_l);
+	if(bPrint)	printf("ZwAllocateReserveObject, ret: %X, hIoCompletionReserve_l: %I64X\r\n",retValue,hIoCompletionReserve_l);
 	if(retValue < 0)
 	{
-		printf("Error creating kernel IOCompletionReserve\r\n");
+		if(bPrint)	printf("Error creating kernel IOCompletionReserve\r\n");
 		return -11;
 	}
 	hIoCompletionReserve = hIoCompletionReserve_l;
 
-	printf("hIoCompletionReserve: %X\r\n",hIoCompletionReserve);
+	if(bPrint)	printf("hIoCompletionReserve: %X\r\n",hIoCompletionReserve);
 	ObjectName_All[0] = 0;
 
 	AllKernelObject[AllKernelObjectsUsed] = (ulonglong)hIoCompletionReserve_l;
@@ -494,15 +501,15 @@ int InitKernelObjects()
 
 
 
-	wprintf(L"Job: %s\r\n",ObjectName_All);
+	if(bPrint)	wprintf(L"Job: %s\r\n",ObjectName_All);
 	HANDLE hJob_l = CreateJobObject(0,ObjectName_All);
 	if(!hJob_l)
 	{
-		printf("Error creating job object, Err: %X\r\n",GetLastError());
+		if(bPrint)	printf("Error creating job object, Err: %X\r\n",GetLastError());
 		return -5;
 	}
 	hJob = hJob_l;
-	printf("Job: %X\r\n",hJob);
+	if(bPrint)	printf("Job: %X\r\n",hJob);
 	ObjectName_All[0] = 0;
 
 	AllKernelObject[AllKernelObjectsUsed] = (ulonglong)hJob_l;
@@ -511,11 +518,11 @@ int InitKernelObjects()
 	
 	
 	//Visual studio has its own job while testing, uncomment later
-	//if(!AssignProcessToJobObject(hJob,GetCurrentProcess()))
-	//{
-	//	printf("Error assigning to  job object, process already a job object\r\n");
-	//	return -5;
-	//}
+	if(!AssignProcessToJobObject(hJob,GetCurrentProcess()))
+	{
+		if(bPrint)	printf("Error assigning to  job object, process already a job object\r\n");
+		return -5;
+	}
 	//---------------------- Key ---------------------------------------------
 	wcscpy(ObjectName_All,Name);
 	LenX = wcslen(ObjectName_All);
@@ -529,11 +536,11 @@ int InitKernelObjects()
 	
 	if( RegCreateKey(HKEY_CURRENT_USER,ObjectName_All,&hKey_l) != ERROR_SUCCESS)
 	{
-		printf("Error creating key object\r\n");
+		if(bPrint)	printf("Error creating key object\r\n");
 		return -12;
 	}
 	hKey = hKey_l;
-	printf("hKey: %X\r\n",hKey);
+	if(bPrint)	printf("hKey: %X\r\n",hKey);
 	ObjectName_All[0] = 0;
 
 	AllKernelObject[AllKernelObjectsUsed] = (ulonglong)hKey_l;
@@ -547,7 +554,7 @@ int InitKernelObjects()
 	_ultow(Rxx,&ObjectName_All[LenX],0x10);
 
 
-	wprintf(L"hKeyedEvent: %s\r\n",ObjectName_All);
+	if(bPrint)	wprintf(L"hKeyedEvent: %s\r\n",ObjectName_All);
 
 	_UNICODE_STRING UniSS_keyed = {0};
 	UniSS_keyed.Length = wcslen(ObjectName_All)*2;
@@ -563,15 +570,15 @@ int InitKernelObjects()
 	HANDLE hKeyedEvent_l = 0;
 	
 	retValue = ZwCreateKeyedEvent(&hKeyedEvent_l,GENERIC_ALL,&ObjAttr_keyed,0);
-	printf("ZwCreateKeyedEvent, ret: %X, hKeyedEvent_l: %I64X\r\n",retValue,hKeyedEvent_l);
+	if(bPrint)	printf("ZwCreateKeyedEvent, ret: %X, hKeyedEvent_l: %I64X\r\n",retValue,hKeyedEvent_l);
 	if(retValue < 0)
 	{
-		printf("Error creating kernel KeyedEvent\r\n");
+		if(bPrint)	printf("Error creating kernel KeyedEvent\r\n");
 		return -11;
 	}
 	hKeyedEvent = hKeyedEvent_l;
 
-	printf("hKeyedEvent: %X\r\n",hKeyedEvent);
+	if(bPrint)	printf("hKeyedEvent: %X\r\n",hKeyedEvent);
 	ObjectName_All[0] = 0;
 
 	AllKernelObject[AllKernelObjectsUsed] = (ulonglong)hKeyedEvent;
@@ -584,22 +591,22 @@ int InitKernelObjects()
 	_ultow(Rx,&ObjectName_All[LenX],0x10);
 
 	
-	wprintf(L"Mutex: %s\r\n",ObjectName_All);
+	if(bPrint)	wprintf(L"Mutex: %s\r\n",ObjectName_All);
 	HANDLE hMutex_l = CreateMutex(0,0,ObjectName_All);
 	if(!hMutex_l)
 	{
 		if(GetLastError()==ERROR_ALREADY_EXISTS)
 		{
-			printf("A mutex with the same name already exists\r\n");
+			if(bPrint)	printf("A mutex with the same name already exists\r\n");
 		}
 		else
 		{
-			printf("Error creating kernel mutex object, Err: %X\r\n",GetLastError());
+			if(bPrint)	printf("Error creating kernel mutex object, Err: %X\r\n",GetLastError());
 		}
 		return -5;
 	}
 	hMutex = hMutex_l;
-	printf("hMutext: %I64X\r\n",hMutex);
+	if(bPrint)	printf("hMutext: %I64X\r\n",hMutex);
 	ObjectName_All[0]=0;
 	AllKernelObject[AllKernelObjectsUsed] = (ulonglong)hMutex_l;
 	AllKernelObjectsUsed++;
@@ -612,14 +619,14 @@ int InitKernelObjects()
 
 	HANDLE hPowerRequest_l = 0;
 	retValue = ZwPowerInformation(0x2B,&Addr,0x28,&hPowerRequest_l,0x8);
-	printf("ZwPowerInformation: ret: %X, hPowerRequest: %I64X\r\n",retValue,hPowerRequest_l);
+	if(bPrint)	printf("ZwPowerInformation: ret: %X, hPowerRequest: %I64X\r\n",retValue,hPowerRequest_l);
 	if(retValue < 0)
 	{
-		printf("Error creating kernel power request\r\n");
+		if(bPrint)	printf("Error creating kernel power request\r\n");
 		return -13;
 	}
 	hPowerRequest = hPowerRequest_l;
-	printf("hPowerRequest: %I64X\r\n",hPowerRequest_l);
+	if(bPrint)	printf("hPowerRequest: %I64X\r\n",hPowerRequest_l);
 	ObjectName_All[0]=0;
 	AllKernelObject[AllKernelObjectsUsed] = (ulonglong)hPowerRequest_l;
 	AllKernelObjectsUsed++;
@@ -632,13 +639,13 @@ int InitKernelObjects()
 
 	if(!CreateProcess(Path_All,0,0,0,FALSE,CREATE_SUSPENDED,0,0,&SI,&PI))
 	{
-		printf("Error creating process\r\n");
+		if(bPrint)	printf("Error creating process\r\n");
 		return -14;
 	}
 	HANDLE hProcess_l = PI.hProcess;
 	hProcess = hProcess_l;
 
-	printf("hProcess: %I64X\r\n",hProcess_l);
+	if(bPrint)	printf("hProcess: %I64X\r\n",hProcess_l);
 	ObjectName_All[0]=0;
 	AllKernelObject[AllKernelObjectsUsed] = (ulonglong)hProcess_l;
 	AllKernelObjectsUsed++;
@@ -653,18 +660,18 @@ int InitKernelObjects()
 				2 /* Source */,
 				-1 /* Affinity*/);
 
-	printf("ZwCreateProfile, ret: %X\r\n",retValue);
+	if(bPrint)	printf("ZwCreateProfile, ret: %X\r\n",retValue);
 	//Profile objects get out of service in some windows builds
 	if(retValue < 0)
 	{
-		printf("Error creating kernel profile object\r\n");
+		if(bPrint)	printf("Error creating kernel profile object\r\n");
 		//Profile objects get out of service in some windows builds
 		//return -15;
 	}
 	else
 	{
 		hProfile = hProfile_l;
-		printf("hProfile: %I64X\r\n",hProfile_l);
+		if(bPrint)	printf("hProfile: %I64X\r\n",hProfile_l);
 		ObjectName_All[0]=0;
 		AllKernelObject[AllKernelObjectsUsed] = (ulonglong)hProfile_l;
 		AllKernelObjectsUsed++;
@@ -705,14 +712,14 @@ int InitKernelObjects()
 		PAGE_READWRITE,
 		SEC_COMMIT,
 		0);
-	printf("ZwCreateSection, ret: %X\r\n",retValue);
+	if(bPrint)	printf("ZwCreateSection, ret: %X\r\n",retValue);
 	if( retValue < 0)
 	{
-		printf("Error creating kernel section Object\r\n");
+		if(bPrint)	printf("Error creating kernel section Object\r\n");
 		return -6;
 	}
 	hSection = hSection_l;
-	printf("hSection: %I64X\r\n",hSection);
+	if(bPrint)	printf("hSection: %I64X\r\n",hSection);
 	ObjectName_All[0]=0;
 
 	AllKernelObject[AllKernelObjectsUsed] = (ulonglong)hSection_l;
@@ -727,11 +734,11 @@ int InitKernelObjects()
 	HANDLE hSemaphore_l = CreateSemaphore(0,0x10,0x100,ObjectName_All);
 	if(!hSemaphore_l)
 	{
-		printf("Error creating kernel semaphore object\r\n");
+		if(bPrint)	printf("Error creating kernel semaphore object\r\n");
 		return -16;
 	}
 	hSemaphore = hSemaphore_l;
-	printf("hSemaphore: %I64X\r\n",hSemaphore_l);
+	if(bPrint)	printf("hSemaphore: %I64X\r\n",hSemaphore_l);
 	ObjectName_All[0]=0;
 	AllKernelObject[AllKernelObjectsUsed] = (ulonglong)hSemaphore_l;
 	AllKernelObjectsUsed++;
@@ -759,7 +766,7 @@ int InitKernelObjects()
 
 		HANDLE hSession_l = 0;
 		retValue = ZwOpenSession(&hSession,GENERIC_ALL,&ObjAttrSession);
-		printf("ZwOpenSession, ret: %X\r\n",retValue);
+		if(bPrint)	printf("ZwOpenSession, ret: %X\r\n",retValue);
 
 	}
 	
@@ -783,21 +790,21 @@ int InitKernelObjects()
 
 	HANDLE hSymLink_l = 0;
 	retValue = ZwOpenSymbolicLinkObject(&hSymLink_l,GENERIC_READ,&ObjAttr_sl);
-	printf("ZwOpenSymbolicLinkObject, ret: %X\r\n",retValue);
+	if(bPrint)	printf("ZwOpenSymbolicLinkObject, ret: %X\r\n",retValue);
 	if(retValue < 0)
 	{
-		printf("Error opening symbolic link\r\n");
+		if(bPrint)	printf("Error opening symbolic link\r\n");
 		return -15;
 	}
 	hSymLink = hSymLink_l;
 
-	printf("hSymLink: %I64X\r\n",hSymLink_l);
+	if(bPrint)	printf("hSymLink: %I64X\r\n",hSymLink_l);
 	ObjectName_All[0]=0;
 	AllKernelObject[AllKernelObjectsUsed] = (ulonglong)hSymLink_l;
 	AllKernelObjectsUsed++;
 	//----------------------- Thread --------------------------
 	HANDLE hThread_l = PI.hThread;
-	printf("hThread: %I64X\r\n",hThread_l);
+	if(bPrint)	printf("hThread: %I64X\r\n",hThread_l);
 	hThread = hThread_l;
 	AllKernelObject[AllKernelObjectsUsed] = (ulonglong)hThread_l;
 	AllKernelObjectsUsed++;
@@ -811,7 +818,7 @@ int InitKernelObjects()
 	
 
 
-	wprintf(L"Timer: %s\r\n",ObjectName_All);
+	if(bPrint)	wprintf(L"Timer: %s\r\n",ObjectName_All);
 
 	_UNICODE_STRING UniSS_ti = {0};
 	UniSS_ti.Length = wcslen(ObjectName_All)*2;
@@ -826,15 +833,15 @@ int InitKernelObjects()
 
 	HANDLE hTimer_l = 0;
 	retValue = ZwCreateTimer(&hTimer_l,GENERIC_ALL,&ObjAttrTi,1);
-	printf("ZwCreateTimer, ret: %X\r\n",retValue);
+	if(bPrint)	printf("ZwCreateTimer, ret: %X\r\n",retValue);
 	if(retValue < 0)
 	{
-		printf("Error creating kernel timer\r\n");
+		if(bPrint)	printf("Error creating kernel timer\r\n");
 		return -16;
 	}
 	hTimer = hTimer_l;
 
-	printf("hTimer: %I64X\r\n",hTimer_l);
+	if(bPrint)	printf("hTimer: %I64X\r\n",hTimer_l);
 	ObjectName_All[0]=0;
 	AllKernelObject[AllKernelObjectsUsed] = (ulonglong)hTimer_l;
 	AllKernelObjectsUsed++;
@@ -852,10 +859,10 @@ int InitKernelObjects()
 	retValue = ZwCreateTransactionManager(&hTmTm_l,GENERIC_ALL,0,0,1,0);
 
 	
-	printf("ZwCreateTransactionManager, ret: %X\r\n",retValue);
+	if(bPrint)	printf("ZwCreateTransactionManager, ret: %X\r\n",retValue);
 	if(retValue < 0)
 	{
-		printf("Error creating TmTm Transaction Manager\r\n");
+		if(bPrint)	printf("Error creating TmTm Transaction Manager\r\n");
 		return -17;
 	}
 	*/
@@ -871,13 +878,13 @@ int InitKernelObjects()
 	hTmTm_l = CreateTransactionManager(0,TmLogName,0,0);
 	if(hTmTm_l == INVALID_HANDLE_VALUE)
 	{
-		printf("Error creating TmTm Transaction Manager\r\n");
+		if(bPrint)	printf("Error creating TmTm Transaction Manager\r\n");
 		return -17;
 	}
 
 	hTmTm = hTmTm_l;
 
-	printf("hTmTm: %I64X\r\n",hTmTm_l);
+	if(bPrint)	printf("hTmTm: %I64X\r\n",hTmTm_l);
 
 	ObjectName_All[0]=0;
 	AllKernelObject[AllKernelObjectsUsed] = (ulonglong)hTmTm_l;
@@ -891,17 +898,17 @@ int InitKernelObjects()
 
 	retValue = ZwCreateResourceManager(&hTmRm_l,GENERIC_ALL,hTmTm_l,&Guid,0,0,0);
 
-	printf("ZwCreateResourceManager, ret: %X\r\n",retValue);
+	if(bPrint)	printf("ZwCreateResourceManager, ret: %X\r\n",retValue);
 
 	if(retValue < 0)
 	{
-		printf("Error creating TmRm Resource Manager\r\n");
+		if(bPrint)	printf("Error creating TmRm Resource Manager\r\n");
 		return -18;
 	}
 
 	hTmRm = hTmRm_l;
 
-	printf("hTmRm: %I64X\r\n",hTmRm_l);
+	if(bPrint)	printf("hTmRm: %I64X\r\n",hTmRm_l);
 
 	ObjectName_All[0]=0;
 	AllKernelObject[AllKernelObjectsUsed] = (ulonglong)hTmRm_l;
@@ -910,12 +917,12 @@ int InitKernelObjects()
 	HANDLE hTmTx_l = CreateTransaction(0,0,0,0,0,0,0);
 	if(hTmTx_l == INVALID_HANDLE_VALUE)
 	{
-		printf("Error creating TmTx Transaction\r\n");
+		if(bPrint)	printf("Error creating TmTx Transaction\r\n");
 		return -19;
 	}
 	hTmTx = hTmTx_l;
 
-	printf("hTmTx: %I64X\r\n",hTmTx_l);
+	if(bPrint)	printf("hTmTx: %I64X\r\n",hTmTx_l);
 
 	
 	ObjectName_All[0]=0;
@@ -936,12 +943,12 @@ int InitKernelObjects()
 	HANDLE hToken_l = 0;
 	if(!	OpenProcessToken(hProcess_l,TOKEN_ALL_ACCESS,&hToken_l) )
 	{
-		printf("Error OpenProcessToken, %X\r\n",GetLastError());
+		if(bPrint)	printf("Error OpenProcessToken, %X\r\n",GetLastError());
 		return -18;
 	}
 	hToken = hToken_l;
 	
-	printf("hToken: %I64X\r\n",hToken_l);
+	if(bPrint)	printf("hToken: %I64X\r\n",hToken_l);
 	ObjectName_All[0]=0;
 	AllKernelObject[AllKernelObjectsUsed] = (ulonglong)hToken_l;
 	AllKernelObjectsUsed++;
@@ -955,7 +962,7 @@ int InitKernelObjects()
 	
 
 
-	wprintf(L"ThreadPool: %s\r\n",ObjectName_All);
+	if(bPrint)	wprintf(L"ThreadPool: %s\r\n",ObjectName_All);
 
 	_UNICODE_STRING UniSS_tp = {0};
 	UniSS_tp.Length = wcslen(ObjectName_All)*2;
@@ -974,15 +981,15 @@ int InitKernelObjects()
 	HANDLE hTpWorkerFactory_l = 0;
 
 	retValue = ZwCreateWorkerFactory(&hTpWorkerFactory_l,GENERIC_ALL,&ObjAttrTP,hIoCompletion_l,GetCurrentProcess(),TpRoutine,0,1,0x10000,0x1000);
-	printf("ZwCreateWorkerFactory, ret: %X, hTpWorkerFactory_l: %I64X\r\n",retValue,hTpWorkerFactory_l);
+	if(bPrint)	printf("ZwCreateWorkerFactory, ret: %X, hTpWorkerFactory_l: %I64X\r\n",retValue,hTpWorkerFactory_l);
 	if(retValue < 0)
 	{
-		printf("Error creating kernel TP Worker Factory\r\n");
+		if(bPrint)	printf("Error creating kernel TP Worker Factory\r\n");
 		return -20;
 	}
 	hTpWorkerFactory = hTpWorkerFactory_l;
 
-	printf("hTpWorkerFactory: %X\r\n",hTpWorkerFactory_l);
+	if(bPrint)	printf("hTpWorkerFactory: %X\r\n",hTpWorkerFactory_l);
 	ObjectName_All[0] = 0;
 
 	AllKernelObject[AllKernelObjectsUsed] = (ulonglong)hTpWorkerFactory_l;
@@ -991,15 +998,15 @@ int InitKernelObjects()
 	HANDLE hUserApcReserve_l = 0;
 	
 	retValue = ZwAllocateReserveObject(&hUserApcReserve_l,0,0);
-	printf("ZwAllocateReserveObject, ret: %X, hUserApcReserve_l: %I64X\r\n",retValue,hUserApcReserve_l);
+	if(bPrint)	printf("ZwAllocateReserveObject, ret: %X, hUserApcReserve_l: %I64X\r\n",retValue,hUserApcReserve_l);
 	if(retValue < 0)
 	{
-		printf("Error creating kernel UserApcReserve\r\n");
+		if(bPrint)	printf("Error creating kernel UserApcReserve\r\n");
 		return -19;
 	}
 	hUserApcReserve = hUserApcReserve_l;
 
-	printf("hUserApcReserve: %X\r\n",hUserApcReserve_l);
+	if(bPrint)	printf("hUserApcReserve: %X\r\n",hUserApcReserve_l);
 	ObjectName_All[0] = 0;
 
 	AllKernelObject[AllKernelObjectsUsed] = (ulonglong)hUserApcReserve_l;
@@ -1009,16 +1016,46 @@ int InitKernelObjects()
 	hWinsta = CreateWindowStation(0,0,WINSTA_ALL_ACCESS,0);
 	if(!hWinsta)
 	{
-		printf("Error creating WindowStation object\r\n");
+		if(bPrint)	printf("Error creating WindowStation object\r\n");
 		//return -1; //For fuzzing under "NT Authority\SYSTEM"
 	}
 	else
 	{
-		printf("hWInsta: %I64X\r\n",hWinsta);
+		if(bPrint)	printf("hWInsta: %I64X\r\n",hWinsta);
 		AllKernelObject[AllKernelObjectsUsed] = (ulonglong)hWinsta;
 		AllKernelObjectsUsed++;
 	}
 
 	
 	return 0;
+}
+
+
+void ObjCreatorThread()
+{
+
+	while(1)
+	{
+		Sleep(5000);
+		InitKernelObjects(false);
+		cached_AllKernelObjectsUsed = AllKernelObjectsUsed;
+		cached_AllFilesUsed = AllFilesUsed;
+		cached_AllProcessesUsed = AllProcessesUsed;
+	}
+}
+
+void ObjDestroyerThread()
+{
+	while(1)
+	{
+		Sleep(20000);
+		ulong var_AllKernelObjectsUsed = AllKernelObjectsUsed;
+
+		ulong i = 0;
+		while(i < var_AllKernelObjectsUsed)
+		{
+			ZwClose( (HANDLE) (AllKernelObject[i]) );
+			i++;
+		}
+	}
 }

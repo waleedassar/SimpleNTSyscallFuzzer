@@ -121,7 +121,7 @@ void DummyPost(unsigned long SysCall,
 					PrintAllArgs(Args);
 					printf("Press any key to continue\r\n");
 					getchar();
-					FillClassicRandomData((void*)(pPool[i]),RANDOM_PAGE_SIZE,0);
+					FillClassicRandomData((void*)(pPool[i]),RANDOM_PAGE_SIZE,bMode);
 				}
 			}
 
@@ -135,7 +135,7 @@ void DummyPost(unsigned long SysCall,
 					PrintAllArgs(Args);
 					printf("Press any key to continue\r\n");
 					getchar();
-					FillClassicRandomData((void*)(pSecondLevelPool[i]),RANDOM_PAGE_SIZE,0);
+					FillClassicRandomData((void*)(pSecondLevelPool[i]),RANDOM_PAGE_SIZE,bMode);
 				}
 			}
 		}

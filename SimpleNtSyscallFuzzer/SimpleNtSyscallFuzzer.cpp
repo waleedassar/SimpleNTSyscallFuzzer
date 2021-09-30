@@ -804,7 +804,7 @@ int _tmain(int argc, _TCHAR* argv[])
 			}
 			else if( wcsstr(Cmdline_X,L"/shared") )
 			{
-				bShared = true;
+				//bShared = true;
 				//printf("Yes\r\n");
 			}
 			else if( wcsstr(Cmdline_X,L"/verbose") )
@@ -840,7 +840,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	printf("bVerbose: %X\r\n",bVerbose);//remove later
 	printf("CountZZ: %X\r\n",CountZZ);//remove later
 	printf("bDefer: %X\r\n",bDefer);//remove later
-	printf("bMode: %X\r\n",bDefer);//remove later
+	printf("bMode: %X\r\n",bMode);//remove later
 	//----------------------------------------------------------
 	SYSTEM_INFO SysInfo={0};
 	GetSystemInfo(&SysInfo);
@@ -914,7 +914,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	{
 		if( AllKernelObjectsUsed == 1 ) //First Instance
 		{
-			if(InitKernelObjects())
+			if(InitKernelObjects(true))
 			{
 				printf("Error creating dummy Kernel objects\r\n");
 				DestroyFunctionTable(pExecPages,SyscallCount_t,FuncTable,ModifyTable,CleanTable);
@@ -938,11 +938,15 @@ int _tmain(int argc, _TCHAR* argv[])
 
 
 	cached_AllKernelObjectsUsed = AllKernelObjectsUsed;
-
 	cached_AllFilesUsed = AllFilesUsed;
 	cached_AllProcessesUsed = AllProcessesUsed;
 
+	ulong tid_ObjCr = 0;
+	HANDLE hObjCr = CreateThread(0,0x1000,(LPTHREAD_START_ROUTINE)ObjCreatorThread,0,0,&tid_ObjCr);
 
+
+	ulong tid_ObjDestroy = 0;
+	HANDLE hObjTerm = CreateThread(0,0x1000,(LPTHREAD_START_ROUTINE)ObjDestroyerThread,0,0,&tid_ObjDestroy);
 	//-------------------------------------------------------------------------------
 	//---- Intrusive-------
 	char* Teb = (char*)__readgsqword(0x30);

@@ -3,6 +3,7 @@
 
 extern ulong OSVer;
 extern char* NtosCalls[0x1000];
+extern ulong bMode;
 
 
 void CleanArguments(unsigned long SysCall,unsigned long long* Args,void** pPool,void** pSecondLevelPool)
@@ -79,7 +80,7 @@ void CleanArguments(unsigned long SysCall,unsigned long long* Args,void** pPool,
 					DumpHex_8(pPool[i],0x1000);
 					printf("Press any key to continue\r\n");
 					getchar();
-					FillClassicRandomData((void*)(pPool[i]),RANDOM_PAGE_SIZE,0);
+					FillClassicRandomData((void*)(pPool[i]),RANDOM_PAGE_SIZE,bMode);
 				}
 			}
 
@@ -92,7 +93,7 @@ void CleanArguments(unsigned long SysCall,unsigned long long* Args,void** pPool,
 					DumpHex_8(pPool[i],0x1000);
 					printf("Press any key to continue\r\n");
 					getchar();
-					FillClassicRandomData((void*)(pSecondLevelPool[i]),RANDOM_PAGE_SIZE,0);
+					FillClassicRandomData((void*)(pSecondLevelPool[i]),RANDOM_PAGE_SIZE,bMode);
 				}
 			}
 		}

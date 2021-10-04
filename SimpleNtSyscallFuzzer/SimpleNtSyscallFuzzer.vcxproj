@@ -152,6 +152,7 @@
     <ClCompile Include="Modify.cpp" />
     <ClCompile Include="ObjCreator.cpp" />
     <ClCompile Include="Pre.cpp" />
+    <ClCompile Include="Priv.cpp" />
     <ClCompile Include="Random.cpp" />
     <ClCompile Include="RandomizationThread.cpp" />
     <ClCompile Include="SimpleNtSyscallFuzzer.cpp" />

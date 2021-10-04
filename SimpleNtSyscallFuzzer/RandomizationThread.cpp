@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "time.h"
 #include "Header.h"
 
 extern ulong bMode;//0=>TOCTOU, 1=> Memory Disclosure
@@ -8,6 +9,8 @@ extern longlong CS;
 void RandomiztionThread(RANDOMIZATION_THREAD* pRandThr)
 {
 	if(!pRandThr) return;
+
+	srand(time(NULL));
 
 	unsigned long Count = pRandThr->Count;
 	void** pPool = pRandThr->pPool;

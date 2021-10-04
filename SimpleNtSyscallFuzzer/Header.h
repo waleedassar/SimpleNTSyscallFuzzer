@@ -292,7 +292,28 @@ struct _KAFFINITY_EX
 };
 
 
+typedef int(*fNtCreatePartition)(HANDLE hPartition,ulonglong pOutHandle,ulonglong DesiredAccess,ulonglong pObjAttr);
+typedef int(*fNtManagePartition)(HANDLE hPartition,HANDLE hSecondaryPartition,ulonglong InfoClass,ulonglong pInfo,ulonglong InfoLength);
 
+typedef ulonglong (*fNtCreateEnclave)(
+HANDLE hProcess, 
+ulonglong BaseAddress, 
+ulonglong ZeroBits, 
+ulonglong Size, 
+ulonglong InitialCommitment, 
+ulonglong EnclaveType, 
+ulonglong EnclaveInformation, 
+ulonglong EnclaveInformationLength, 
+ulonglong pErrorStatus);
+
+typedef ulonglong (*fNtInitializeEnclave)(
+HANDLE hProcess, 
+ulonglong Address, 
+ulonglong pData, 
+ulonglong DataLength, 
+ulonglong pOutValue);
+
+bool Acquire_LockMemory();
 
 extern "C"
 {
@@ -318,6 +339,9 @@ extern "C"
 
 	int RtlGetVersion(PRTL_OSVERSIONINFOW lpVersionInformation);
 
+	int ZwCreateJobObject(HANDLE* JobHandle, 
+						ACCESS_MASK DesiredAccess, 
+						_OBJECT_ATTRIBUTES* ObjectAttributes);
 
 	int ZwCreateDebugObject(HANDLE *DebugObjectHandle, 
 		ACCESS_MASK DesiredAccess, 
@@ -360,12 +384,33 @@ extern "C"
 	int ZwCreateSymbolicLinkObject(HANDLE* LinkHandle, ACCESS_MASK DesiredAccess, _OBJECT_ATTRIBUTES* ObjectAttributes, _UNICODE_STRING* LinkTarget);
 	int ZwOpenSymbolicLinkObject(HANDLE* LinkHandle, ACCESS_MASK DesiredAccess, _OBJECT_ATTRIBUTES* ObjectAttributes);
 
+	int ZwSuspendProcess(HANDLE ProcessHandle);
+	int ZwTerminateThread(HANDLE ThreadHandle, ulong ExitStatus);
 
+	int ZwCreateEvent(HANDLE* EventHandle, 
+				ACCESS_MASK DesiredAccess, 
+				_OBJECT_ATTRIBUTES* ObjectAttributes, 
+				ulonglong EventType, 
+				ulonglong InitialState);
+	int ZwCreateMutant(HANDLE* MutantHandle, ACCESS_MASK DesiredAccess, _OBJECT_ATTRIBUTES* ObjectAttributes, bool InitialOwner);
 	int ZwCreateTimer( HANDLE* TimerHandle,ACCESS_MASK DesiredAccess,_OBJECT_ATTRIBUTES* ObjectAttributes,ulonglong TimerType );
+	int ZwCreateSemaphore(HANDLE* SemaphoreHandle, ACCESS_MASK DesiredAccess, _OBJECT_ATTRIBUTES* ObjectAttributes, LONG InitialCount, LONG MaximumCount);
+
 
 	int ZwCreateTransactionManager(HANDLE* TmHandle,ACCESS_MASK DesiredAccess,_OBJECT_ATTRIBUTES* ObjectAttributes,_UNICODE_STRING* LogFileName,ulonglong CreateOptions,ulonglong CommitStrength);
 
 	int ZwCreateResourceManager(HANDLE* ResourceManagerHandle, ACCESS_MASK DesiredAccess, HANDLE TmHandle, void* RmGuid, _OBJECT_ATTRIBUTES* ObjectAttributes, ulonglong CreateOptions, _UNICODE_STRING* Description);
+
+	int ZwCreateTransaction(HANDLE* TransactionHandle, 
+		ACCESS_MASK DesiredAccess,
+		_OBJECT_ATTRIBUTES* ObjectAttributes,
+		LPGUID Uow, 
+		HANDLE TmHandle,
+		__int64 CreateOptions, 
+		__int64 IsolationLevel, 
+		__int64 IsolationFlags,
+		_LARGE_INTEGER* Timeout, 
+		_UNICODE_STRING* Description);
 
 	int ZwCreateEnlistment(HANDLE* EnlistmentHandle,
 		ACCESS_MASK DesiredAccess,
@@ -443,7 +488,7 @@ bool Scan(void* pMem,ulong Size,ulong OSVer);
 
 int InitKernelObjects(bool bPrint);
 
-void ObjCreatorThread();
+void ObjCreatorDestroyerThread();
 void ObjDestroyerThread();
 
 void FillRandomUnicodeString(void* p,ulong Size);

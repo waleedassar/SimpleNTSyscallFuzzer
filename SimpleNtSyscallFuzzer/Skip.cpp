@@ -108,6 +108,11 @@ bool CallHasBugs_10(unsigned long SysCall,bool bPrint)
 			if(bPrint) printf("Ignoring Syscall: %X NtWaitForSingleObject (%s)\r\n",SysCall,SyscallName);
 			return true;
 		}
+		else if(SysCall== macr_NtWaitForMultipleObjects32) //NtWaitForMultipleObjects32
+		{
+			if(bPrint) printf("Ignoring Syscall: %X NtWaitForMultipleObjects32 (%s)\r\n",SysCall,SyscallName);
+			return true;
+		}
 		else if(SysCall== macr_NtWaitForKeyedEvent) //NtWaitForKeyedEvent
 		{
 			if(bPrint) printf("Ignoring Syscall: %X NtWaitForKeyedEvent (%s)\r\n",SysCall,SyscallName);
@@ -188,9 +193,29 @@ bool CallHasBugs_10(unsigned long SysCall,bool bPrint)
 			if(bPrint) printf("Ignoring Syscall: %X NtAlpcSendWaitReceivePort (%s)\r\n",SysCall,SyscallName);
 			return true;
 		}
+		else if(SysCall == macr_NtRequestWaitReplyPort) //NtRequestWaitReplyPort
+		{
+			if(bPrint) printf("Ignoring Syscall: %X NtRequestWaitReplyPort (%s)\r\n",SysCall,SyscallName);
+			return true;
+		}
 		else if(SysCall == macr_NtRemoveIoCompletion) //NtRemoveIoCompletion
 		{
 			if(bPrint) printf("Ignoring Syscall: %X NtRemoveIoCompletion (%s)\r\n",SysCall,SyscallName);
+			return true;
+		}
+		else if(SysCall == macr_NtRemoveIoCompletionEx) //NtRemoveIoCompletionEx
+		{
+			if(bPrint) printf("Ignoring Syscall: %X NtRemoveIoCompletionEx (%s)\r\n",SysCall,SyscallName);
+			return true;
+		}
+		else if(SysCall == macr_NtGetNotificationResourceManager) //NtGetNotificationResourceManager
+		{
+			if(bPrint) printf("Ignoring Syscall: %X NtGetNotificationResourceManager (%s)\r\n",SysCall,SyscallName);
+			return true;
+		}
+		else if(SysCall == macr_NtReleaseKeyedEvent) //NtReleaseKeyedEvent
+		{
+			if(bPrint) printf("Ignoring Syscall: %X NtReleaseKeyedEvent (%s)\r\n",SysCall,SyscallName);
 			return true;
 		}
 		//disruptive calls
@@ -234,6 +259,39 @@ bool CallHasBugs_10(unsigned long SysCall,bool bPrint)
 			if(bPrint) printf("Ignoring Syscall: %X NtSetDefaultLocale (%s)\r\n",SysCall,SyscallName);
 			return true;
 		}
+		else if(SysCall == macr_NtSetSystemPowerState) //NtSetSystemPowerState
+		{
+			if(bPrint) printf("Ignoring Syscall: %X NtSetSystemPowerState (%s)\r\n",SysCall,SyscallName);
+			return true;
+		}
+		else if(SysCall == macr_NtShutdownSystem) //NtShutdownSystem
+		{
+			if(bPrint) printf("Ignoring Syscall: %X NtShutdownSystem (%s)\r\n",SysCall,SyscallName);
+			return true;
+		}
+		else if(SysCall == macr_NtInitiatePowerAction) //NtInitiatePowerAction
+		{
+			if(bPrint) printf("Ignoring Syscall: %X NtInitiatePowerAction (%s)\r\n",SysCall,SyscallName);
+			return true;
+		}
+		//Slow calls
+		else if(SysCall == macr_NtMapUserPhysicalPages) //NtMapUserPhysicalPages
+		{
+			if(bPrint) printf("Ignoring Syscall: %X NtMapUserPhysicalPages (%s)\r\n",SysCall,SyscallName);
+			return true;
+		}
+		else if(SysCall == macr_NtMapUserPhysicalPagesScatter) //NtMapUserPhysicalPagesScatter
+		{
+			if(bPrint) printf("Ignoring Syscall: %X NtMapUserPhysicalPagesScatter (%s)\r\n",SysCall,SyscallName);
+			return true;
+		}
+		else if(SysCall == macr_NtEnumerateValueKey) //NtEnumerateValueKey
+		{
+			if(bPrint) printf("Ignoring Syscall: %X NtEnumerateValueKey (%s)\r\n",SysCall,SyscallName);
+			return true;
+		}
+		
+		
 		return false;
 }
 
@@ -385,10 +443,7 @@ bool CallHasBugs(unsigned long SysCall,bool bPrint)
 
 
 
-
-
-
-
+//-----------------------------
 bool ShouldDeferSyscall_10(unsigned long SysCall,bool bPrint)
 {
 		char* SyscallName = NtosCalls[SysCall];
@@ -413,16 +468,13 @@ bool ShouldDeferSyscall_10(unsigned long SysCall,bool bPrint)
 			if(bPrint) printf("Deferring Syscall: %X NtTerminateJobObject, (%s)\r\n",SysCall,SyscallName);
 			return true;
 		}
-		else if(SysCall== macr_NtRemoveIoCompletionEx) //NtRemoveIoCompletionEx
- 		{
-			if(bPrint) printf("Deferring Syscall: %X NtRemoveIoCompletionEx, (%s)\r\n",SysCall,SyscallName);
- 			return true;
- 		}
+		/*
 		else if(SysCall== macr_NtReleaseKeyedEvent) //NtReleaseKeyedEvent
  		{
 			if(bPrint) printf("Deferring Syscall: %X NtReleaseKeyedEvent, (%s)\r\n",SysCall,SyscallName);
  			return true;
  		}
+		*/
 		else if(SysCall== macr_NtResetEvent) //NtResetEvent
  		{
 			if(bPrint) printf("Deferring Syscall: %X NtResetEvent, (%s)\r\n",SysCall,SyscallName);

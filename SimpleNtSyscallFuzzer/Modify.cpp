@@ -54,7 +54,7 @@ extern HANDLE hToken;
 extern HANDLE hTpWorkerFactory;
 //Type
 extern HANDLE hUserApcReserve;
-extern HWINSTA hWinsta;
+extern HANDLE hPartition;
 //hWmiGuid
 
 
@@ -2174,6 +2174,8 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hProcess;
+   Args[1] = (ulonglong)hJob;
 }
 
 void w7NtProtectVirtualMemory
@@ -2192,6 +2194,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hSection;
 }
 
 void w7NtResumeThread
@@ -2238,6 +2241,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hEvent;
 }
 
 void w7NtWriteRequestData
@@ -2328,6 +2332,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hKey;
 }
 
 void w7NtCancelTimer
@@ -2337,6 +2342,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hTimer;
 }
 
 void w7NtSetTimer
@@ -2346,6 +2352,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hTimer;
 }
 
 void w7NtAcceptConnectPort
@@ -2355,6 +2362,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hLpc;
 }
 
 void w7NtAccessCheck
@@ -2436,6 +2444,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hThread;
 }
 
 void w7NtAlertThread
@@ -2445,6 +2454,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hThread;
 }
 
 void w7NtAllocateLocallyUniqueId
@@ -2499,6 +2509,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hLpc;
 }
 
 void w7NtAlpcConnectPort
@@ -2625,6 +2636,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[1] = (ulonglong)hLpc;
 }
 
 void w7NtAlpcQueryInformation
@@ -2634,6 +2646,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hLpc;
 }
 
 void w7NtAlpcQueryInformationMessage
@@ -2643,6 +2656,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hLpc;
 }
 
 void w7NtAlpcRevokeSecurityContext
@@ -2652,6 +2666,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hLpc;
 }
 
 void w7NtAlpcSendWaitReceivePort
@@ -2661,6 +2676,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hLpc;
 }
 
 void w7NtAlpcSetInformation
@@ -2670,6 +2686,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hLpc;
 }
 
 void w7NtAreMappedFilesTheSame
@@ -2688,6 +2705,8 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hJob;
+   Args[1] = (ulonglong)hProcess;
 }
 
 void w7NtCancelIoFileEx
@@ -2697,6 +2716,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hFile;
 }
 
 void w7NtCancelSynchronousIoFile
@@ -2706,6 +2726,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hFile;
 }
 
 void w7NtCommitComplete
@@ -2715,6 +2736,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hTmEn;
 }
 
 void w7NtCommitEnlistment
@@ -2724,6 +2746,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hTmEn;
 }
 
 void w7NtCommitTransaction
@@ -2733,6 +2756,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hTmTx;
 }
 
 void w7NtCompactKeys
@@ -2751,6 +2775,8 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hToken;
+   Args[1] = (ulonglong)hToken;
 }
 
 void w7xHalGetInterruptTranslator
@@ -2769,6 +2795,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hKey;
 }
 
 void w7NtConnectPort
@@ -2778,6 +2805,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hLpc;
 }
 
 void w7NtCreateDebugObject
@@ -3048,6 +3076,8 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hProcess;
+   Args[1] = (ulonglong)hDebugObject;
 }
 
 void w7NtDebugContinue
@@ -3057,6 +3087,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hDebugObject;
 }
 
 void w7NtDeleteAtom
@@ -3102,6 +3133,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hKey;
 }
 
 void w7NtDeleteObjectAuditAlarm
@@ -3129,6 +3161,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hKey;
 }
 
 void w7NtDisableLastKnownGood
@@ -3210,6 +3243,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hSection;
 }
 
 void w7NtFilterToken
@@ -3219,6 +3253,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hToken;
 }
 
 void w7NtFlushInstallUILanguage
@@ -3237,6 +3272,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hProcess;
 }
 
 void w7NtFlushKey
@@ -3246,6 +3282,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hKey;
 }
 
 void w7NtFlushProcessWriteBuffers
@@ -3264,6 +3301,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hProcess;
 }
 
 void w7NtFlushWriteBuffer
@@ -3282,6 +3320,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hProcess;
 }
 
 void w7NtFreezeRegistry
@@ -3309,6 +3348,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hThread;
 }
 
 void w7NtGetCurrentProcessorNumber
@@ -3345,6 +3385,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hProcess;
 }
 
 void w7NtGetNextThread
@@ -3354,6 +3395,8 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hProcess;
+   Args[0] = (ulonglong)hThread;
 }
 
 void w7NtGetNlsSectionPtr
@@ -3372,6 +3415,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hTmRm;
 }
 
 void w7NtGetPlugPlayEvent
@@ -3381,6 +3425,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hEvent;
 }
 
 void w7NtGetWriteWatch
@@ -3390,6 +3435,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hProcess;
 }
 
 void w7NtImpersonateAnonymousToken
@@ -3399,6 +3445,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hThread;
 }
 
 void w7NtImpersonateThread
@@ -3408,6 +3455,8 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hThread;
+   Args[1] = (ulonglong)hThread;
 }
 
 void w7NtInitializeNlsFiles
@@ -3462,6 +3511,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hLpc;
 }
 
 void w7NtLoadDriver
@@ -3507,6 +3557,8 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hFile;
+   Args[0] = (ulonglong)hEvent;
 }
 
 void w7NtLockProductActivationKeys
@@ -3543,7 +3595,8 @@ unsigned long long* Args,
 void** pPool,
 void** pSecondLevelPool)
 {
-   Args[0] = (ulonglong)hKey;
+	DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+	Args[0] = (ulonglong)hKey;
 }
 
 void w7NtLockVirtualMemory
@@ -5564,6 +5617,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hJob;
 }
 
 void w7NtQueryInformationPort
@@ -5573,6 +5627,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hLpc;
 }
 
 void w7NtQueryInformationResourceManager
@@ -5582,6 +5637,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hTmRm;
 }
 
 void w7NtQueryInformationTransaction
@@ -5591,6 +5647,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hTmTx;
 }
 
 void w7NtQueryInformationTransactionManager
@@ -5600,6 +5657,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hTmTm;
 }
 
 void w7NtQueryInformationWorkerFactory
@@ -5609,6 +5667,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hTpWorkerFactory;
 }
 
 void w7NtQueryInstallUILanguage
@@ -5636,6 +5695,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hIoCompletion;
 }
 
 void w7NtQueryLicenseValue
@@ -5663,6 +5723,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hMutex;
 }
 
 void w7NtQueryOpenSubKeys
@@ -5699,6 +5760,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hFile;
 }
 
 void w7NtQuerySecurityAttributesToken
@@ -5708,6 +5770,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hToken;
 }
 
 void w7NtQuerySecurityObject
@@ -5717,6 +5780,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = AllKernelObject[Rand()%AllKernelObjectsUsed];
 }
 
 void w7NtQuerySemaphore
@@ -5726,6 +5790,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hSemaphore;
 }
 
 void w7NtQuerySymbolicLinkObject
@@ -5735,6 +5800,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hSymLink;
 }
 
 void w7NtQuerySystemEnvironmentValue
@@ -5780,6 +5846,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hThread;
 }
 
 void w7NtRaiseException
@@ -5825,6 +5892,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hTmRm;
 }
 
 void w7NtRecoverTransactionManager
@@ -5834,6 +5902,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hTmTm;
 }
 
 void w7NtRegisterProtocolAddressInformation
@@ -5852,6 +5921,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hThread;
 }
 
 void w7NtReleaseKeyedEvent
@@ -5861,6 +5931,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hKeyedEvent;
 }
 
 void w7NtReleaseWorkerFactoryWorker
@@ -5870,6 +5941,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hTpWorkerFactory;
 }
 
 void w7NtRemoveIoCompletionEx
@@ -5879,6 +5951,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hIoCompletion;
 }
 
 void w7NtRemoveProcessDebug
@@ -5888,6 +5961,8 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hProcess;
+   Args[1] = (ulonglong)hDebugObject;
 }
 
 void w7NtRenameKey
@@ -5897,6 +5972,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hKey;
 }
 
 void w7NtRenameTransactionManager
@@ -5915,6 +5991,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[1] = (ulonglong)hKey;
 }
 
 void w7NtReplacePartitionUnit
@@ -5933,6 +6010,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hLpc;
 }
 
 void w7NtRequestPort
@@ -5942,6 +6020,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hLpc;
 }
 
 void w7NtResetEvent
@@ -5951,7 +6030,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
-
+   Args[0] = (ulonglong)hEvent;
    //weird hard error in win10
    //printf("hEvent: %I64X\r\n",hEvent);
    //PrintAllArgs(Args);
@@ -5964,6 +6043,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hProcess;
 }
 
 void w7NtRestoreKey
@@ -5973,6 +6053,8 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hKey;
+   Args[1] = (ulonglong)hFile;
 }
 
 void w7NtResumeProcess
@@ -5982,6 +6064,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hProcess;
 }
 
 void w7NtRollbackComplete
@@ -6009,6 +6092,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hTmTx;
 }
 
 void w7NtRollforwardTransactionManager
@@ -6018,6 +6102,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hTmTm;
 }
 
 void w7NtSaveKey
@@ -6027,6 +6112,9 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+
+   Args[0] = (ulonglong)hKey;
+   Args[1] = (ulonglong)hFile;
 }
 
 void w7NtSaveKeyEx
@@ -6036,6 +6124,9 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+
+   Args[0] = (ulonglong)hKey;
+   Args[1] = (ulonglong)hFile;
 }
 
 void w7NtSaveMergedKeys
@@ -6045,6 +6136,9 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hKey;
+   Args[1] = (ulonglong)hKey;
+   Args[2] = (ulonglong)hFile;
 }
 
 void w7NtSecureConnectPort
@@ -6090,6 +6184,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hThread;
 }
 
 void w7NtSetDebugFilterState
@@ -6108,6 +6203,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hLpc;
 }
 
 void w7NtSetDefaultLocale
@@ -6144,6 +6240,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hFile;
 }
 
 void w7NtSetHighEventPair
@@ -6153,6 +6250,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hEventPair;
 }
 
 void w7NtSetHighWaitLowEventPair
@@ -6162,6 +6260,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hEventPair;
 }
 
 void w7NtSetInformationDebugObject
@@ -6171,6 +6270,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hDebugObject;
 }
 
 void w7NtSetInformationEnlistment
@@ -6189,6 +6289,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hJob;
 }
 
 void w7NtSetInformationKey
@@ -6198,6 +6299,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hKey;
 }
 
 void w7NtSetInformationResourceManager
@@ -6207,6 +6309,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hTmRm;
 }
 
 void w7NtSetInformationToken
@@ -6216,6 +6319,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hToken;
 }
 
 void w7NtSetInformationTransaction
@@ -6225,6 +6329,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hTmTx;
 }
 
 void w7NtSetInformationTransactionManager
@@ -6234,6 +6339,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hTmTm;
 }
 
 void w7NtSetInformationWorkerFactory
@@ -6243,6 +6349,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hTpWorkerFactory;
 }
 
 void w7NtSetIntervalProfile
@@ -6261,6 +6368,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hIoCompletion;
 }
 
 void w7NtSetIoCompletionEx
@@ -6270,6 +6378,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hIoCompletion;
 }
 
 void w7xKdSetupPciDeviceForDebugging
@@ -6288,6 +6397,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hEventPair;
 }
 
 void w7NtSetLowWaitHighEventPair
@@ -6297,6 +6407,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hEventPair;
 }
 
 void w7NtSetQuotaInformationFile
@@ -6306,6 +6417,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hFile;
 }
 
 void w7NtSetSecurityObject
@@ -6315,6 +6427,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = AllKernelObject[Rand()%AllKernelObjectsUsed];
 }
 
 void w7NtSetSystemEnvironmentValue
@@ -6378,6 +6491,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hTimer;
 }
 
 void w7NtSetTimerResolution
@@ -6405,6 +6519,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hFile;
 }
 
 void w7NtShutdownSystem
@@ -6423,6 +6538,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hTpWorkerFactory;
 }
 
 void w7NtSignalAndWaitForSingleObject
@@ -6450,6 +6566,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hProfile;
 }
 
 void w7NtStopProfile
@@ -6459,6 +6576,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hProfile;
 }
 
 void w7NtSuspendProcess
@@ -6495,6 +6613,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hJob;
 }
 
 void w7NtTestAlert
@@ -6585,6 +6704,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[1] = (ulonglong)hEvent;
 }
 
 void w7NtUnlockFile
@@ -6594,6 +6714,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hFile;
 }
 
 void w7NtUnlockVirtualMemory
@@ -6603,6 +6724,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hProcess;
 }
 
 void w7NtVdmControl
@@ -6621,6 +6743,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hDebugObject;
 }
 
 void w7NtWaitForKeyedEvent
@@ -6630,6 +6753,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hKeyedEvent;
 }
 
 void w7NtWaitForWorkViaWorkerFactory
@@ -6639,6 +6763,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hTpWorkerFactory;
 }
 
 void w7NtWaitHighEventPair
@@ -6648,6 +6773,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hEventPair;
 }
 
 void w7NtWaitLowEventPair
@@ -6657,6 +6783,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hEventPair;
 }
 
 void w7NtWorkerFactoryWorkerReady
@@ -6666,6 +6793,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hTpWorkerFactory;
 }
 
 //--------------- win10 ----------------------
@@ -6721,6 +6849,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hProcess;
 }
 
 void w10NtSubscribeWnfStateChange 
@@ -6750,6 +6879,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hTimer; 
 }
 
 void w10NtSetIRTimer 
@@ -6759,6 +6889,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hTimer;
 }
 
 void w10NtSetInformationVirtualMemory 
@@ -6812,6 +6943,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hSymLink;
 }
 
 void w10NtSetCachedSigningLevel 
@@ -6885,6 +7017,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hPartition;
 }
 
 void w10NtLoadEnclaveData 
@@ -6903,6 +7036,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hProcess;
 }
 
 void w10NtGetCurrentProcessorNumberEx 
@@ -6939,6 +7073,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hFile;
 }
 
 void w10NtFilterBootOption 
@@ -7038,6 +7173,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hProcess;
 }
 
 void w10NtCreateDirectoryObjectEx 
@@ -7211,6 +7347,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hLpc;
 }
 
 
@@ -7297,6 +7434,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hToken;
 }
 
 
@@ -7319,6 +7457,8 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hSection;
+   Args[1] = (ulonglong)hProcess;
 }
 
 
@@ -7329,6 +7469,8 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hFile;
+   Args[1] = (ulonglong)hEvent;
 }
 
 
@@ -7373,6 +7515,8 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hFile;
+   Args[1] = (ulonglong)hEvent;
 }
 
 void w10NtQueryInformationByName

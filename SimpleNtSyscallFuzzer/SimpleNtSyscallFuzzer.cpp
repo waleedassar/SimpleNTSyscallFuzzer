@@ -20,8 +20,32 @@ ulong bMode; //0 => TOCTOU 1=> Memory Disclosure
 //CRITICAL_SECTION CritSec;
 //CRITICAL_SECTION CritSec2;
 longlong CS = 0;
+
+
+fNtCreatePartition NtCreatePartition = 0;
+fNtManagePartition NtManagePartition = 0;
+fNtCreateEnclave   NtCreateEnclave = 0;
+fNtInitializeEnclave NtInitializeEnclave = 0;
 //----------------------------------------
 
+
+
+
+
+void Resolve()
+{
+	HMODULE hNtdll = GetModuleHandle(L"ntdll.dll");
+	NtCreatePartition = (fNtCreatePartition)GetProcAddress(hNtdll,"NtCreatePartition");
+	NtManagePartition = (fNtManagePartition)GetProcAddress(hNtdll,"NtManagePartition");
+	NtCreateEnclave = (fNtCreateEnclave)GetProcAddress(hNtdll,"NtCreateEnclave");
+	NtInitializeEnclave = (fNtInitializeEnclave)GetProcAddress(hNtdll,"NtInitializeEnclave");
+	if( (!NtCreatePartition)||(!NtManagePartition)  )
+	{
+		printf("OS not supported\r\n");
+		ExitProcess(-1);
+	}
+}
+//----------------------------------------
 void ScanContextAndStack()
 {
 	//CONTEXT_CONTROL 
@@ -774,7 +798,11 @@ int _tmain(int argc, _TCHAR* argv[])
 {
 	//PatchUserEntrypoints();
 	//return 0;
+
 	printf("Hello....Magic: %X, %X\r\n",Magic1,Magic2); //remove later
+
+	srand(time(NULL)); 
+
 
 	bool bSetAffinity = true;
 	bool bShared = false;
@@ -877,7 +905,9 @@ int _tmain(int argc, _TCHAR* argv[])
 
 
 
-	srand(time(NULL)); 
+	
+	//--------------------------------------------------------------------------------
+	Resolve();
 	//--------------------------------------------------------------------------------
 	ulong SyscallCount_t = GetSyscallCount(false);
 
@@ -941,12 +971,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	cached_AllFilesUsed = AllFilesUsed;
 	cached_AllProcessesUsed = AllProcessesUsed;
 
-	ulong tid_ObjCr = 0;
-	HANDLE hObjCr = CreateThread(0,0x1000,(LPTHREAD_START_ROUTINE)ObjCreatorThread,0,0,&tid_ObjCr);
 
-
-	ulong tid_ObjDestroy = 0;
-	HANDLE hObjTerm = CreateThread(0,0x1000,(LPTHREAD_START_ROUTINE)ObjDestroyerThread,0,0,&tid_ObjDestroy);
 	//-------------------------------------------------------------------------------
 	//---- Intrusive-------
 	char* Teb = (char*)__readgsqword(0x30);
@@ -1417,9 +1442,14 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	PatchUserEntrypoints();
 
-
 	
+	ulong tid_ObjCr = 0;
+	HANDLE hObjCr = CreateThread(0,0x1000,(LPTHREAD_START_ROUTINE)ObjCreatorDestroyerThread,0,0,&tid_ObjCr);
 
+
+	//ulong tid_ObjDestroy = 0;
+	//HANDLE hObjTerm = CreateThread(0,0x1000,(LPTHREAD_START_ROUTINE)ObjDestroyerThread,0,0,&tid_ObjDestroy);
+	
 
 	while(pCounts[0])
 	{
@@ -1499,8 +1529,8 @@ int _tmain(int argc, _TCHAR* argv[])
 						if(bRandomTeb)
 						{
 							//Backup Peb/TEB
-							FillRandomData(PEB_r,0x1000);
-							FillRandomData(TEB_r,0x2000);
+							FillClassicRandomData(PEB_r,0x1000,bMode);
+							FillClassicRandomData(TEB_r,0x2000,bMode);
 
 
 							memcpy(PEB,Peb,0x1000);

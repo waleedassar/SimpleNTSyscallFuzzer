@@ -1,87 +1,30 @@
-﻿Build started 10/5/2021 1:46:08 AM.
+﻿Build started 10/9/2021 10:38:09 AM.
      1>Project "F:\kernel\Projects\SimpleNtSyscallFuzzer\SimpleNtSyscallFuzzer\SimpleNtSyscallFuzzer.vcxproj" on node 2 (Build target(s)).
      1>ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\x86_amd64\CL.exe /c /Zi /nologo /W3 /WX- /O2 /Oi /GL /D WIN32 /D NDEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Yu"stdafx.h" /Fp"x64\Release\SimpleNtSyscallFuzzer.pch" /Fo"x64\Release\\" /Fd"x64\Release\vc110.pdb" /Gd /TP /errorReport:prompt ObjCreator.cpp
-         ObjCreator.cpp
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\x86_amd64\CL.exe /c /Zi /nologo /W3 /WX- /O2 /Oi /GL /D WIN32 /D NDEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Yu"stdafx.h" /Fp"x64\Release\SimpleNtSyscallFuzzer.pch" /Fo"x64\Release\\" /Fd"x64\Release\vc110.pdb" /Gd /TP /errorReport:prompt SimpleNtSyscallFuzzer.cpp
+         SimpleNtSyscallFuzzer.cpp
      1>f:\kernel\projects\simplentsyscallfuzzer\simplentsyscallfuzzer\Header.h(7): warning C4005: 'RAND_MAX' : macro redefinition
                  C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\stdlib.h(154) : see previous definition of 'RAND_MAX'
-     1>ObjCreator.cpp(120): warning C4267: 'initializing' : conversion from 'size_t' to 'unsigned long', possible loss of data
-     1>ObjCreator.cpp(126): warning C4267: '=' : conversion from 'size_t' to 'unsigned short', possible loss of data
-     1>ObjCreator.cpp(151): warning C4267: 'initializing' : conversion from 'size_t' to 'unsigned long', possible loss of data
-     1>ObjCreator.cpp(153): warning C4267: '=' : conversion from 'size_t' to 'unsigned long', possible loss of data
-     1>ObjCreator.cpp(154): warning C4244: 'initializing' : conversion from 'unsigned __int64' to 'unsigned long', possible loss of data
-     1>ObjCreator.cpp(159): warning C4267: '=' : conversion from 'size_t' to 'unsigned short', possible loss of data
-     1>ObjCreator.cpp(187): warning C4267: 'initializing' : conversion from 'size_t' to 'unsigned long', possible loss of data
-     1>ObjCreator.cpp(189): warning C4267: '=' : conversion from 'size_t' to 'unsigned long', possible loss of data
-     1>ObjCreator.cpp(190): warning C4244: 'initializing' : conversion from 'unsigned __int64' to 'unsigned long', possible loss of data
-     1>ObjCreator.cpp(195): warning C4267: '=' : conversion from 'size_t' to 'unsigned short', possible loss of data
-     1>ObjCreator.cpp(251): warning C4267: 'initializing' : conversion from 'size_t' to 'unsigned long', possible loss of data
-     1>ObjCreator.cpp(253): warning C4267: '=' : conversion from 'size_t' to 'unsigned long', possible loss of data
-     1>ObjCreator.cpp(254): warning C4244: 'initializing' : conversion from 'unsigned __int64' to 'unsigned long', possible loss of data
-     1>ObjCreator.cpp(260): warning C4267: '=' : conversion from 'size_t' to 'unsigned short', possible loss of data
-     1>ObjCreator.cpp(290): warning C4267: 'initializing' : conversion from 'size_t' to 'unsigned long', possible loss of data
-     1>ObjCreator.cpp(312): warning C4267: 'initializing' : conversion from 'size_t' to 'unsigned long', possible loss of data
-     1>ObjCreator.cpp(314): warning C4267: '=' : conversion from 'size_t' to 'unsigned long', possible loss of data
-     1>ObjCreator.cpp(315): warning C4244: 'initializing' : conversion from 'unsigned __int64' to 'unsigned long', possible loss of data
-     1>ObjCreator.cpp(320): warning C4267: '=' : conversion from 'size_t' to 'unsigned short', possible loss of data
-     1>ObjCreator.cpp(366): warning C4267: 'initializing' : conversion from 'size_t' to 'unsigned long', possible loss of data
-     1>ObjCreator.cpp(368): warning C4267: '=' : conversion from 'size_t' to 'unsigned long', possible loss of data
-     1>ObjCreator.cpp(369): warning C4244: 'initializing' : conversion from 'unsigned __int64' to 'unsigned long', possible loss of data
-     1>ObjCreator.cpp(375): warning C4267: '=' : conversion from 'size_t' to 'unsigned short', possible loss of data
-     1>ObjCreator.cpp(403): warning C4267: 'initializing' : conversion from 'size_t' to 'unsigned long', possible loss of data
-     1>ObjCreator.cpp(405): warning C4267: '=' : conversion from 'size_t' to 'unsigned long', possible loss of data
-     1>ObjCreator.cpp(406): warning C4244: 'initializing' : conversion from 'unsigned __int64' to 'unsigned long', possible loss of data
-     1>ObjCreator.cpp(425): warning C4267: 'initializing' : conversion from 'size_t' to 'unsigned long', possible loss of data
-     1>ObjCreator.cpp(427): warning C4267: '=' : conversion from 'size_t' to 'unsigned long', possible loss of data
-     1>ObjCreator.cpp(428): warning C4244: 'initializing' : conversion from 'unsigned __int64' to 'unsigned long', possible loss of data
-     1>ObjCreator.cpp(435): warning C4267: '=' : conversion from 'size_t' to 'unsigned short', possible loss of data
-     1>ObjCreator.cpp(463): warning C4267: 'initializing' : conversion from 'size_t' to 'unsigned long', possible loss of data
-     1>ObjCreator.cpp(465): warning C4267: '=' : conversion from 'size_t' to 'unsigned long', possible loss of data
-     1>ObjCreator.cpp(466): warning C4244: 'initializing' : conversion from 'unsigned __int64' to 'unsigned long', possible loss of data
-     1>ObjCreator.cpp(473): warning C4267: '=' : conversion from 'size_t' to 'unsigned short', possible loss of data
-     1>ObjCreator.cpp(609): warning C4267: 'initializing' : conversion from 'size_t' to 'unsigned long', possible loss of data
-     1>ObjCreator.cpp(611): warning C4267: '=' : conversion from 'size_t' to 'unsigned long', possible loss of data
-     1>ObjCreator.cpp(612): warning C4244: 'initializing' : conversion from 'unsigned __int64' to 'unsigned long', possible loss of data
-     1>ObjCreator.cpp(619): warning C4267: '=' : conversion from 'size_t' to 'unsigned short', possible loss of data
-     1>ObjCreator.cpp(650): warning C4267: 'initializing' : conversion from 'size_t' to 'unsigned long', possible loss of data
-     1>ObjCreator.cpp(652): warning C4267: '=' : conversion from 'size_t' to 'unsigned long', possible loss of data
-     1>ObjCreator.cpp(653): warning C4244: 'initializing' : conversion from 'unsigned __int64' to 'unsigned long', possible loss of data
-     1>ObjCreator.cpp(659): warning C4267: '=' : conversion from 'size_t' to 'unsigned short', possible loss of data
-     1>ObjCreator.cpp(672): warning C4267: '=' : conversion from 'size_t' to 'unsigned short', possible loss of data
-     1>ObjCreator.cpp(699): warning C4267: 'initializing' : conversion from 'size_t' to 'unsigned long', possible loss of data
-     1>ObjCreator.cpp(701): warning C4267: '=' : conversion from 'size_t' to 'unsigned long', possible loss of data
-     1>ObjCreator.cpp(702): warning C4244: 'initializing' : conversion from 'unsigned __int64' to 'unsigned long', possible loss of data
-     1>ObjCreator.cpp(708): warning C4267: '=' : conversion from 'size_t' to 'unsigned short', possible loss of data
-     1>ObjCreator.cpp(741): warning C4267: 'initializing' : conversion from 'size_t' to 'unsigned long', possible loss of data
-     1>ObjCreator.cpp(748): warning C4267: '=' : conversion from 'size_t' to 'unsigned short', possible loss of data
-     1>ObjCreator.cpp(780): warning C4267: 'initializing' : conversion from 'size_t' to 'unsigned long', possible loss of data
-     1>ObjCreator.cpp(782): warning C4267: '=' : conversion from 'size_t' to 'unsigned long', possible loss of data
-     1>ObjCreator.cpp(783): warning C4244: 'initializing' : conversion from 'unsigned __int64' to 'unsigned long', possible loss of data
-     1>ObjCreator.cpp(787): warning C4267: '=' : conversion from 'size_t' to 'unsigned short', possible loss of data
-     1>ObjCreator.cpp(808): warning C4267: '=' : conversion from 'size_t' to 'unsigned short', possible loss of data
-     1>ObjCreator.cpp(829): warning C4267: 'initializing' : conversion from 'size_t' to 'unsigned long', possible loss of data
-     1>ObjCreator.cpp(831): warning C4267: '=' : conversion from 'size_t' to 'unsigned long', possible loss of data
-     1>ObjCreator.cpp(832): warning C4244: 'initializing' : conversion from 'unsigned __int64' to 'unsigned long', possible loss of data
-     1>ObjCreator.cpp(836): warning C4267: '=' : conversion from 'size_t' to 'unsigned short', possible loss of data
-     1>ObjCreator.cpp(849): warning C4267: '=' : conversion from 'size_t' to 'unsigned short', possible loss of data
-     1>ObjCreator.cpp(895): warning C4267: 'initializing' : conversion from 'size_t' to 'unsigned long', possible loss of data
-     1>ObjCreator.cpp(897): warning C4267: '=' : conversion from 'size_t' to 'unsigned long', possible loss of data
-     1>ObjCreator.cpp(898): warning C4244: 'initializing' : conversion from 'unsigned __int64' to 'unsigned long', possible loss of data
-     1>ObjCreator.cpp(904): warning C4267: '=' : conversion from 'size_t' to 'unsigned short', possible loss of data
-     1>ObjCreator.cpp(959): warning C4267: 'initializing' : conversion from 'size_t' to 'unsigned long', possible loss of data
-     1>ObjCreator.cpp(961): warning C4267: '=' : conversion from 'size_t' to 'unsigned long', possible loss of data
-     1>ObjCreator.cpp(962): warning C4244: 'initializing' : conversion from 'unsigned __int64' to 'unsigned long', possible loss of data
-     1>ObjCreator.cpp(968): warning C4267: '=' : conversion from 'size_t' to 'unsigned short', possible loss of data
-     1>ObjCreator.cpp(1062): warning C4267: 'initializing' : conversion from 'size_t' to 'unsigned long', possible loss of data
-     1>ObjCreator.cpp(1064): warning C4267: '=' : conversion from 'size_t' to 'unsigned long', possible loss of data
-     1>ObjCreator.cpp(1065): warning C4244: 'initializing' : conversion from 'unsigned __int64' to 'unsigned long', possible loss of data
-     1>ObjCreator.cpp(1071): warning C4267: '=' : conversion from 'size_t' to 'unsigned short', possible loss of data
-     1>ObjCreator.cpp(1106): warning C4267: 'initializing' : conversion from 'size_t' to 'unsigned long', possible loss of data
-     1>ObjCreator.cpp(1113): warning C4267: '=' : conversion from 'size_t' to 'unsigned short', possible loss of data
-     1>ObjCreator.cpp(1154): warning C4244: 'initializing' : conversion from 'unsigned __int64' to 'unsigned long', possible loss of data
-     1>ObjCreator.cpp(1155): warning C4101: 'Rxx' : unreferenced local variable
-     1>ObjCreator.cpp(1532): warning C4244: 'argument' : conversion from 'time_t' to 'unsigned int', possible loss of data
-     1>ObjCreator.cpp(1565): warning C4244: 'argument' : conversion from 'time_t' to 'unsigned int', possible loss of data
+     1>SimpleNtSyscallFuzzer.cpp(109): warning C4267: 'initializing' : conversion from 'size_t' to 'unsigned long', possible loss of data
+     1>SimpleNtSyscallFuzzer.cpp(113): warning C4018: '<' : signed/unsigned mismatch
+     1>SimpleNtSyscallFuzzer.cpp(134): warning C4267: 'initializing' : conversion from 'size_t' to 'unsigned long', possible loss of data
+     1>SimpleNtSyscallFuzzer.cpp(188): warning C4267: 'argument' : conversion from 'size_t' to 'DWORD', possible loss of data
+     1>SimpleNtSyscallFuzzer.cpp(204): warning C4267: 'argument' : conversion from 'size_t' to 'DWORD', possible loss of data
+     1>SimpleNtSyscallFuzzer.cpp(224): warning C4267: 'argument' : conversion from 'size_t' to 'DWORD', possible loss of data
+     1>SimpleNtSyscallFuzzer.cpp(255): warning C4305: '=' : truncation from 'unsigned __int64' to 'char'
+     1>SimpleNtSyscallFuzzer.cpp(255): warning C4309: '=' : truncation of constant value
+     1>SimpleNtSyscallFuzzer.cpp(298): warning C4018: '<' : signed/unsigned mismatch
+     1>SimpleNtSyscallFuzzer.cpp(318): warning C4018: '<' : signed/unsigned mismatch
+     1>SimpleNtSyscallFuzzer.cpp(406): warning C4018: '<' : signed/unsigned mismatch
+     1>SimpleNtSyscallFuzzer.cpp(663): warning C4244: 'initializing' : conversion from '__int64' to 'int', possible loss of data
+     1>SimpleNtSyscallFuzzer.cpp(804): warning C4244: 'argument' : conversion from 'time_t' to 'unsigned int', possible loss of data
+     1>SimpleNtSyscallFuzzer.cpp(825): warning C4018: '<' : signed/unsigned mismatch
+     1>SimpleNtSyscallFuzzer.cpp(855): warning C4018: '<' : signed/unsigned mismatch
+     1>SimpleNtSyscallFuzzer.cpp(1477): warning C4018: '<' : signed/unsigned mismatch
+     1>SimpleNtSyscallFuzzer.cpp(1532): warning C4800: 'unsigned long' : forcing value to bool 'true' or 'false' (performance warning)
+     1>SimpleNtSyscallFuzzer.cpp(1533): warning C4800: 'unsigned long' : forcing value to bool 'true' or 'false' (performance warning)
+     1>SimpleNtSyscallFuzzer.cpp(1629): warning C4800: 'unsigned long' : forcing value to bool 'true' or 'false' (performance warning)
+     1>SimpleNtSyscallFuzzer.cpp(1677): warning C4800: 'unsigned long' : forcing value to bool 'true' or 'false' (performance warning)
        Link:
          C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"F:\kernel\Projects\SimpleNtSyscallFuzzer\x64\Release\SimpleNtSyscallFuzzer.exe" /INCREMENTAL:NO /NOLOGO ntdll.lib Ktmw32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"F:\kernel\Projects\SimpleNtSyscallFuzzer\x64\Release\SimpleNtSyscallFuzzer.pdb" /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"F:\kernel\Projects\SimpleNtSyscallFuzzer\x64\Release\SimpleNtSyscallFuzzer.lib" /MACHINE:X64 x64\Release\APC.obj
          x64\Release\Destroy.obj
@@ -106,4 +49,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:04.10
+Time Elapsed 00:00:02.62

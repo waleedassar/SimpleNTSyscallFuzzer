@@ -485,7 +485,7 @@ HANDLE mCreateMutex(wchar_t* BaseName,ulong Rx,bool bPrint)
 	
 	
 	int retValue = ZwCreateMutant(&hMutex_l,GENERIC_ALL,&ObjAttr_mx,0);
-	printf("ZwCreateMutant, ret: %X\r\n",retValue);
+	if(bPrint)	printf("ZwCreateMutant, ret: %X\r\n",retValue);
 	if(retValue < 0)
 	{
 		if(bPrint)	printf("Error creating kernel mutex object, Err: %X\r\n",GetLastError());
@@ -631,7 +631,7 @@ HANDLE mCreateSemaphore(wchar_t* BaseName,ulong Rx,bool bPrint)
 	
 	
 	int retValue = ZwCreateSemaphore(&hSemaphore_l,GENERIC_ALL,&ObjAttr_smph,0x1,0x1000);
-	printf("ZwCreateSemaphore, ret: %X\r\n",retValue);
+	if(bPrint)	printf("ZwCreateSemaphore, ret: %X\r\n",retValue);
 	if(retValue < 0)
 	{
 		if(bPrint)	printf("Error creating kernel semaphore object\r\n");
@@ -678,7 +678,7 @@ HANDLE mCreateSymLink(wchar_t* BaseName,ulong Rx,bool bPrint)
 
 	HANDLE hSymLink_l = 0;
 	int retValue = ZwCreateSymbolicLinkObject(&hSymLink_l,
-									GENERIC_ALL,
+									GENERIC_ALL|2,
 									&ObjAttr_sl,
 									&uniTarget);
 	if(bPrint)	printf("ZwCreateSymbolicLinkObject, ret: %X\r\n",retValue);
@@ -822,6 +822,42 @@ HANDLE mCreateRm(wchar_t* BaseName,ulong Rx,HANDLE hTmTmX,bool bPrint)
 	return hTmRm_l;
 }
 
+HANDLE mCreateEn(wchar_t* BaseName,ulong Rx,HANDLE hTmRmX,HANDLE hTmTxX,bool bPrint)
+{
+	wchar_t ObjectName_All[MAX_PATH+1]={0};
+	wcscpy(ObjectName_All,BaseName);
+	ulong LenX = wcslen(ObjectName_All);
+	_ultow(Rx,&ObjectName_All[LenX],0x10);
+	LenX = wcslen(ObjectName_All);
+	ulong Rxx = GetRandomValue();
+	_ultow(Rxx,&ObjectName_All[LenX],0x10);
+
+	_UNICODE_STRING uniEnName = {0};
+	uniEnName.Length = wcslen(ObjectName_All)*2;
+	uniEnName.MaxLength = uniEnName.Length + 2;
+	uniEnName.Buffer = ObjectName_All;
+
+	if(bPrint)	wprintf(L"TmEn: %s\r\n",ObjectName_All);
+
+	_OBJECT_ATTRIBUTES ObjAttrEn = {0};
+	ObjAttrEn.Length = sizeof(ObjAttrEn);
+	ObjAttrEn.Attributes = OBJ_CASE_INSENSITIVE;
+	ObjAttrEn.ObjectName = &uniEnName;
+
+	HANDLE hTmEn_l = 0;
+	int retValue = ZwCreateEnlistment(&hTmEn_l,GENERIC_ALL,hTmRmX,hTmTxX,
+							&ObjAttrEn,1 /* CreateOptions 0 or 1 */,0x8 /* Notification Mask*/,0);
+	if(bPrint)	printf("ZwCreateEnlistment: %X\r\n",retValue);
+	if(retValue < 0)
+	{
+		if(bPrint)	printf("Error creating TmEn Enlistment\r\n");
+		return 0;
+	}
+	if(bPrint)	printf("hTmEn: %I64X\r\n",hTmEn_l);
+	return hTmEn_l;
+}
+
+
 HANDLE mCreateTx(wchar_t* BaseName,ulong Rx,HANDLE hTmTmX,bool bPrint)
 {
 	wchar_t ObjectName_All[MAX_PATH+1]={0};
@@ -862,7 +898,7 @@ HANDLE mCreateTx(wchar_t* BaseName,ulong Rx,HANDLE hTmTmX,bool bPrint)
 							0,
 							0,
 							&uniDesc);
-	printf("ZwCreateTransaction, ret: %X\r\n",retValue);
+	if(bPrint)	printf("ZwCreateTransaction, ret: %X\r\n",retValue);
 	if(retValue < 0)
 	{
 		if(bPrint)	printf("Error creating TmTx Transaction\r\n");
@@ -1445,16 +1481,12 @@ int InitKernelObjects(bool bPrint)
 	AllKernelObjectsUsed++;
 	ObjectName_All[0]=0;
 	//---------------------- TmEn Enlistment --------------------------
-	
-	//unsigned char Buff[0x200]={0};
-	//FillRandomData(Buff,0x200);
-	//HANDLE hTmEn_l = CreateEnlistment(0,hTmRm_l,hTmTx_l,0,0,Buff);
-	//printf("hTmEn: %I64X\r\n",hTmEn_l);
-	
-	//hTmEn_l = 0;
-	//int retValue = ZwCreateEnlistment(&hTmEn_l,GENERIC_ALL,hTmRm_l,hTmTx_l,0,1 /* CreateOptions 0 or 1 */,0 /* Notification Mask*/,0);
-	//printf("ZwCreateEnlistment: %X\r\n",retValue);
-	//printf("hTmEn: %I64X\r\n",hTmEn_l);
+	HANDLE hTmEn_l = mCreateEn(FullName,Rx,hTmRm_l,hTmTx_l,bPrint);
+	if(bPrint)	printf("hTmEn: %I64X\r\n",hTmEn_l);
+	hTmEn = hTmEn_l;
+	AllKernelObject[AllKernelObjectsUsed] = (ulonglong)hTmEn_l;
+	AllKernelObjectsUsed++;
+	ObjectName_All[0]=0;
 	//---------------------- Token ------------------------------------
 	HANDLE hToken_l = mCreateToken(hProcess_l,bPrint);
 	if(bPrint)	printf("hToken: %I64X\r\n",hToken_l);
@@ -1532,14 +1564,22 @@ void ObjCreatorDestroyerThread()
 	srand(time(NULL));
 	while(1)
 	{
-		Sleep(10000);
+		Sleep(50000);
 		if(hProcess)
 		{
+			/*
+			int retX = ZwTerminateThread(hThread,GetRandomNTStatusCode());
+			if(retX < 0)
+			{
+				printf("ZwTerminateThread, ret: %X (hThread: %I64X)\r\n",retX,hThread);
+				ExitProcess(0);
+			}
+			*/
 			int retX = ZwTerminateProcess(hProcess,GetRandomNTStatusCode());
 			if(retX < 0)
 			{
-				//printf("ZwTerminateProcess, ret: %X (hProcess: %I64X)\r\n",retX,hProcess);
-				//ExitProcess(0);
+				printf("ZwTerminateProcess, ret: %X (hProcess: %I64X)\r\n",retX,hProcess);
+				ExitProcess(0);
 			}
 		}
 
@@ -1552,6 +1592,13 @@ void ObjCreatorDestroyerThread()
 		}
 		//----------------
 		InitKernelObjects(false);
+		/*
+		if(InitKernelObjects(false))
+		{
+			printf("Error creating dummy Kernel objects\r\n");
+			ExitProcess(0);
+		}
+		*/
 		cached_AllKernelObjectsUsed = AllKernelObjectsUsed;
 		cached_AllFilesUsed = AllFilesUsed;
 		cached_AllProcessesUsed = AllProcessesUsed;

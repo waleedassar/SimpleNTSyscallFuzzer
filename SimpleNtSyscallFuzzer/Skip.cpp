@@ -290,8 +290,69 @@ bool CallHasBugs_10(unsigned long SysCall,bool bPrint)
 			if(bPrint) printf("Ignoring Syscall: %X NtEnumerateValueKey (%s)\r\n",SysCall,SyscallName);
 			return true;
 		}
-		
-		
+		//Other remove me
+		/*
+		else if(SysCall == macr_NtNotifyChangeSession) //NtNotifyChangeSession
+		{
+			if(bPrint) printf("Ignoring Syscall: %X NtNotifyChangeSession (%s)\r\n",SysCall,SyscallName);
+			return true;
+		}
+		else if(SysCall == macr_NtReplyPort) //NtReplyPort
+		{
+			if(bPrint) printf("Ignoring Syscall: %X NtReplyPort (%s)\r\n",SysCall,SyscallName);
+			return true;
+		}
+		else if(SysCall == macr_NtAlpcDeletePortSection) //NtAlpcDeletePortSection
+		{
+			if(bPrint) printf("Ignoring Syscall: %X NtAlpcDeletePortSection (%s)\r\n",SysCall,SyscallName);
+			return true;
+		}
+		else if(SysCall == macr_NtAlpcRevokeSecurityContext) //NtAlpcRevokeSecurityContext
+		{
+			if(bPrint) printf("Ignoring Syscall: %X NtAlpcRevokeSecurityContext (%s)\r\n",SysCall,SyscallName);
+			return true;
+		}
+		else if(SysCall == macr_NtAlpcDeleteSecurityContext) //NtAlpcDeleteSecurityContext
+		{
+			if(bPrint) printf("Ignoring Syscall: %X NtAlpcDeleteSecurityContext (%s)\r\n",SysCall,SyscallName);
+			return true;
+		}
+		else if(SysCall == macr_NtAlpcDeleteResourceReserve) //NtAlpcDeleteResourceReserve
+		{
+			if(bPrint) printf("Ignoring Syscall: %X NtAlpcDeleteResourceReserve (%s)\r\n",SysCall,SyscallName);
+			return true;
+		}
+		else if(SysCall == macr_NtTraceEvent) //NtTraceEvent
+		{
+			if(bPrint) printf("Ignoring Syscall: %X NtTraceEvent (%s)\r\n",SysCall,SyscallName);
+			return true;
+		}
+		else if(SysCall == macr_NtCallEnclave) //NtCallEnclave
+		{
+			if(bPrint) printf("Ignoring Syscall: %X NtCallEnclave (%s)\r\n",SysCall,SyscallName);
+			return true;
+		}
+		else if(SysCall == macr_NtCreateProcess) //NtCreateProcess
+		{
+			if(bPrint) printf("Ignoring Syscall: %X NtCreateProcess (%s)\r\n",SysCall,SyscallName);
+			return true;
+		}
+		else if(SysCall == macr_NtSetSystemInformation) //NtSetSystemInformation
+		{
+			if(bPrint) printf("Ignoring Syscall: %X NtSetSystemInformation (%s)\r\n",SysCall,SyscallName);
+			return true;
+		}
+		else if(SysCall == macr_NtLoadEnclaveData) //NtLoadEnclaveData
+		{
+			if(bPrint) printf("Ignoring Syscall: %X NtLoadEnclaveData (%s)\r\n",SysCall,SyscallName);
+			return true;
+		}
+		else if(SysCall == macr_NtEnumerateTransactionObject) //NtEnumerateTransactionObject
+		{
+			if(bPrint) printf("Ignoring Syscall: %X NtEnumerateTransactionObject (%s)\r\n",SysCall,SyscallName);
+			return true;
+		}
+		*/
 		return false;
 }
 
@@ -453,6 +514,11 @@ bool ShouldDeferSyscall_10(unsigned long SysCall,bool bPrint)
 			if(bPrint) printf("Deferring Syscall: %X NtClose, (%s)\r\n",SysCall,SyscallName);
 			return true;
 		}
+		else if(SysCall == macr_NtDuplicateObject) //NtDuplicateObject
+		{
+			if(bPrint) printf("Deferring Syscall: %X NtDuplicateObject, (%s)\r\n",SysCall,SyscallName);
+			return true;
+		}
 		else if(SysCall== macr_NtTerminateProcess) //NtTerminateProcess
 		{
 			if(bPrint) printf("Deferring Syscall: %X NtTerminateProcess, (%s)\r\n",SysCall,SyscallName);
@@ -493,6 +559,11 @@ bool ShouldDeferSyscall_10(unsigned long SysCall,bool bPrint)
 		else if(SysCall== macr_NtLockVirtualMemory) //NtLockVirtualMemory
  		{
 			if(bPrint) printf("Deferring Syscall: %X NtLockVirtualMemory, (%s)\r\n",SysCall,SyscallName);
+ 			return true;
+ 		}
+		else if(SysCall== macr_NtDeletePrivateNamespace) //NtDeletePrivateNamespace
+ 		{
+			if(bPrint) printf("Deferring Syscall: %X NtDeletePrivateNamespace, (%s)\r\n",SysCall,SyscallName);
  			return true;
  		}
 		return false;

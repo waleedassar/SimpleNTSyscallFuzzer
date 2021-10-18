@@ -68,7 +68,7 @@ void DummyPre(unsigned long SysCall,
 		{
 			if(i == 0 || i ==1 || i == 2)
 			{
-				Args[i] = Rand()%0x60;//class
+				Args[i] = Rand()%0x100;//class
 			}
 		}
 		else if(R==4)

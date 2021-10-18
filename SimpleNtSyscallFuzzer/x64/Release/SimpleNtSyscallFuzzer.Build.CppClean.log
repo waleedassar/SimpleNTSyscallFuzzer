@@ -16,12 +16,16 @@ F:\KERNEL\PROJECTS\SIMPLENTSYSCALLFUZZER\SIMPLENTSYSCALLFUZZER\X64\RELEASE\HEXDU
 F:\KERNEL\PROJECTS\SIMPLENTSYSCALLFUZZER\SIMPLENTSYSCALLFUZZER\X64\RELEASE\FUNCTABLE.OBJ
 F:\KERNEL\PROJECTS\SIMPLENTSYSCALLFUZZER\SIMPLENTSYSCALLFUZZER\X64\RELEASE\DESTROY.OBJ
 F:\KERNEL\PROJECTS\SIMPLENTSYSCALLFUZZER\SIMPLENTSYSCALLFUZZER\X64\RELEASE\APC.OBJ
+F:\KERNEL\PROJECTS\SIMPLENTSYSCALLFUZZER\SIMPLENTSYSCALLFUZZER\X64\RELEASE\JOBPROCESS.OBJ
+F:\KERNEL\PROJECTS\SIMPLENTSYSCALLFUZZER\SIMPLENTSYSCALLFUZZER\X64\RELEASE\CREATEPROCESS.OBJ
 F:\KERNEL\PROJECTS\SIMPLENTSYSCALLFUZZER\X64\RELEASE\SIMPLENTSYSCALLFUZZER.EXE
 F:\KERNEL\PROJECTS\SIMPLENTSYSCALLFUZZER\X64\RELEASE\SIMPLENTSYSCALLFUZZER.PDB
 F:\kernel\Projects\SimpleNtSyscallFuzzer\SimpleNtSyscallFuzzer\x64\Release\APC.obj
+F:\kernel\Projects\SimpleNtSyscallFuzzer\SimpleNtSyscallFuzzer\x64\Release\CreateProcess.obj
 F:\kernel\Projects\SimpleNtSyscallFuzzer\SimpleNtSyscallFuzzer\x64\Release\Destroy.obj
 F:\kernel\Projects\SimpleNtSyscallFuzzer\SimpleNtSyscallFuzzer\x64\Release\FuncTable.obj
 F:\kernel\Projects\SimpleNtSyscallFuzzer\SimpleNtSyscallFuzzer\x64\Release\HexDump.obj
+F:\kernel\Projects\SimpleNtSyscallFuzzer\SimpleNtSyscallFuzzer\x64\Release\JobProcess.obj
 F:\kernel\Projects\SimpleNtSyscallFuzzer\SimpleNtSyscallFuzzer\x64\Release\LeakChecker.obj
 F:\kernel\Projects\SimpleNtSyscallFuzzer\SimpleNtSyscallFuzzer\x64\Release\Modify.obj
 F:\kernel\Projects\SimpleNtSyscallFuzzer\SimpleNtSyscallFuzzer\x64\Release\ObjCreator.obj

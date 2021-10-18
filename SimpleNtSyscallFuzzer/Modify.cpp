@@ -22,6 +22,7 @@ extern HANDLE hLpc;
 extern HANDLE hDebugObject;
 //hDevice
 extern HANDLE hDirectory;
+extern HANDLE hNameSpaceDirectory;
 //hDriver
 //hEtwConsumer
 extern HANDLE hEtwRegistration;
@@ -33,6 +34,7 @@ extern HANDLE hFile;
 extern HANDLE hIoCompletion;
 extern HANDLE hIoCompletionReserve;
 extern HANDLE hJob;
+extern HANDLE hPartitionJob;
 extern HKEY hKey;
 extern HANDLE hKeyedEvent;
 extern HANDLE hMutex;
@@ -51,13 +53,15 @@ extern HANDLE hTmRm;
 extern HANDLE hTmTm;
 extern HANDLE hTmTx;
 extern HANDLE hToken;
+extern HANDLE hToken2;
 extern HANDLE hTpWorkerFactory;
 //Type
 extern HANDLE hUserApcReserve;
 extern HANDLE hPartition;
+extern HANDLE hPartition2;
 //hWmiGuid
-
-
+extern HANDLE hWaitCompletionPacket;
+extern HANDLE hRegistryTransaction;
 
 
 
@@ -163,7 +167,8 @@ void** pPool,
 void** pSecondLevelPool)
 {
 	Args[0] = (ulonglong)hFile;
-	if(Rand()%5==1) Args[0] = 0;
+	//Uncomment
+	//if(Rand()%5==1) Args[0] = 0;
 
 	Args[1] = (ulonglong)hEvent;
 	if(Rand()%5==1) Args[1] = 0;
@@ -233,10 +238,12 @@ void** pPool,
 void** pSecondLevelPool)
 {
    	Args[0] = (ulonglong)hFile;
-	if(Rand()%5==1) Args[0] = 0;
+	//Uncomment
+	//if(Rand()%15==1) Args[0] = 0;
 
 	Args[1] = (ulonglong)hEvent;
-	if(Rand()%5==1) Args[1] = 0;
+	//Uncomment
+	//if(Rand()%5==1) Args[1] = 0;
 
 	if( Rand()%2 ==1) Args[2] = (ulonglong)(&DummyCallbackRoutine);
 	else Args[2] = 0;
@@ -296,7 +303,8 @@ void** pPool,
 void** pSecondLevelPool)
 {
 	Args[0] = (ulonglong)hFile;
-	if(Rand()%5==1) Args[0] = 0;
+	//Uncomment
+	//if(Rand()%5==1) Args[0] = 0;
 
 	Args[1] = (ulonglong)hEvent;
 	if(Rand()%5==1) Args[1] = 0;
@@ -418,7 +426,8 @@ void** pPool,
 void** pSecondLevelPool)
 {
 	Args[0] = (ulonglong)hSemaphore;
-	if(Rand()%5==1) Args[0] = 0;
+	//Uncomment
+	//if(Rand()%15==1) Args[0] = 0;
 
 
 	ulong R = Rand()%3;
@@ -504,7 +513,8 @@ void** pPool,
 void** pSecondLevelPool)
 {
 	Args[0] = (ulonglong)hThread;
-	if(Rand()%5==1) Args[0] = 0;
+	//Uncomment
+	//if(Rand()%5==1) Args[0] = 0;
 
 
 	unsigned long long Classes[0x21]={0x2,0x3,0x4,0x5,0x7,0x9,0xa,0xd,0xe,0xf,0x11,0x12,0x13,0x16,0x18,0x19,0x1d,0x1e,0x1f,0x20,0x21,0x22,0x24,0x26,0x27,0x2a,0x2b,0x2c,0x2e,0x2f,0x30,0x31,0x32};
@@ -525,6 +535,9 @@ void** pSecondLevelPool)
 	if(R==0) *(ulong*)(&Args[3]) = 0;
 	else if(R==1) *(ulong*)(&Args[3]) = GetClassicRandomValue()%(0x1000+0x1);
 	//else Random
+
+
+	//printf("Class: %X\r\n",*(ulong*)(&Args[1]));
 }
 
 void w7NtSetEvent
@@ -534,7 +547,8 @@ void** pPool,
 void** pSecondLevelPool)
 {
 	Args[0] = (ulonglong)hEvent;
-	if(Rand()%5==1) Args[0] = 0;
+	//Uncomment
+	//if(Rand()%5==1) Args[0] = 0;
 
 	ulong R = Rand()%3;
 	if(R==0)
@@ -565,9 +579,11 @@ unsigned long long* Args,
 void** pPool,
 void** pSecondLevelPool)
 {
+	//Uncomment
+	/*
 	ulonglong Handles[3]={0,-1,-2};
 	if(Rand()%5 == 1) Args[0]=Handles[Rand()%3];
-	else Args[0] = (ulonglong)(AllKernelObject[Rand()%AllKernelObjectsUsed]);
+	else */Args[0] = (ulonglong)(AllKernelObject[Rand()%AllKernelObjectsUsed]);
 
 	unsigned long long Classes[0x5]={0x0,0x1,0x2,0x3,0x4};
 	if(Rand()%2 == 1) *(ulong*)(&Args[1]) = Classes[Rand()%0x5];
@@ -607,7 +623,8 @@ void** pPool,
 void** pSecondLevelPool)
 {
 	Args[0] = (ulonglong)hFile;
-	if(Rand()%5==1) Args[0] = 0;
+	//Uncomment
+	//if(Rand()%5==1) Args[0] = 0;
 
 
 
@@ -786,7 +803,8 @@ void** pPool,
 void** pSecondLevelPool)
 {
    	Args[0] = (ulonglong)hKey;
-	if(Rand()%5==1) Args[0] = 0;
+	//Uncomment
+	//if(Rand()%5==1) Args[0] = 0;
 
 
 	if(Rand()%2 == 1) *(ulong*)(&Args[1]) = Rand()%0x10;
@@ -824,7 +842,8 @@ void** pPool,
 void** pSecondLevelPool)
 {
    	Args[0] = (ulonglong)hKey;
-	if(Rand()%5==1) Args[0] = 0;
+	//Uncomment
+	//if(Rand()%15==1) Args[0] = 0;
 
 	ulong R = Rand()%3;
 	if(R==0)
@@ -872,7 +891,8 @@ void** pPool,
 void** pSecondLevelPool)
 {
    	Args[0] = (ulonglong)hProcess;
-	if(Rand()%5==1) Args[0] = 0;
+	//Uncomment
+	//if(Rand()%5==1) Args[0] = 0;
 
 
 	ulong R = Rand()%3;
@@ -905,10 +925,12 @@ void** pPool,
 void** pSecondLevelPool)
 {
    	Args[0] = (ulonglong)hProcess;
-	if(Rand()%5==1) Args[0] = 0;
+	//UnComment
+	//if(Rand()%15==1) Args[0] = 0;
 
 
-	if(Rand()%2 == 1) *(ulong*)(&Args[1]) = Rand()%0x40;
+	unsigned long long Classes[0x47]={0x0,0x1,0x2,0x3,0x4,0x7,0xa,0xc,0xe,0xf,0x12,0x13,0x14,0x15,0x16,0x17,0x18,0x1a,0x1b,0x1c,0x1d,0x1e,0x1f,0x20,0x21,0x22,0x24,0x25,0x26,0x27,0x2a,0x2b,0x2c,0x2d,0x2e,0x2f,0x31,0x32,0x33,0x34,0x36,0x37,0x3a,0x3b,0x3c,0x3d,0x40,0x41,0x42,0x43,0x45,0x46,0x47,0x48,0x49,0x4a,0x4b,0x4c,0x4d,0x4f,0x51,0x52,0x54,0x55,0x57,0x58,0x59,0x5c,0x5e,0x60,0x61};
+	if(Rand()%2 == 1) *(ulong*)(&Args[1]) = Classes[Rand()%0x47];
 
 	if( (*(ulong*)(&Args[1])==0xF) ||
 		(*(ulong*)(&Args[1])==0x2A) ) CancelSyscall(Args);
@@ -982,10 +1004,12 @@ void** pPool,
 void** pSecondLevelPool)
 {
 	Args[0] = (ulonglong)hFile;
-	if(Rand()%5==1) Args[0] = 0;
+	//Uncomment
+	//if(Rand()%15==1) Args[0] = 0;
 
 	Args[1] = (ulonglong)hEvent;
-	if(Rand()%5==1) Args[1] = 0;
+	//Uncomment
+	//if(Rand()%5==1) Args[1] = 0;
 
 	if( Rand()%2 ==1) Args[2] = (ulonglong)(&DummyCallbackRoutine);
 	else Args[2] = 0;
@@ -1050,7 +1074,8 @@ void** pPool,
 void** pSecondLevelPool)
 {
    	Args[0] = (ulonglong)hProcess;
-	if(Rand()%5==1) Args[0] = 0;
+	//Uncomment
+	//if(Rand()%15==1) Args[0] = 0;
 
 
 	unsigned long long Classes[0x42]={0x1,0x5,0x6,0x8,0x9,0xa,0xb,0xc,0xd,0xf,0x10,0x11,0x12,0x13,0x15,0x16,0x17,0x18,0x19,0x1d,0x1f,0x20,0x21,0x22,0x23,0x27,0x28,0x29,0x2a,0x2d,0x2e,0x30,0x31,0x34,0x35,0x36,0x38,0x39,0x3b,0x3e,0x3f,0x41,0x42,0x43,0x44,0x46,0x47,0x48,0x4a,0x4d,0x50,0x52,0x53,0x55,0x57,0x5a,0x5b,0x5d,0x5f,0x60,0x61,0x62,0x63,0x64,0x65,0x66};
@@ -1225,8 +1250,10 @@ void** pPool,
 void** pSecondLevelPool)
 {
   	Args[0] = (ulonglong)hToken;
+	if( Rand()%2 == 1)	Args[0] = (ulonglong)hToken2;
 
-	*(ulong*)(&Args[1]) = GetClassicRandomValue()%0x20;
+	unsigned long long Classes[0x29]={0x1,0x2,0x3,0x4,0x5,0x6,0x7,0x8,0x9,0xa,0xb,0xc,0xd,0xf,0x10,0x11,0x12,0x13,0x14,0x15,0x16,0x17,0x18,0x19,0x1a,0x1b,0x1c,0x1d,0x1e,0x1f,0x20,0x21,0x22,0x25,0x27,0x28,0x29,0x2a,0x2b,0x2c,0x2f};
+	*(ulong*)(&Args[1]) = Classes[Rand()%0x29];
 
 
 	ulong R = Rand()%3;
@@ -1304,7 +1331,8 @@ void** pSecondLevelPool)
 	}
 	//else Random
 
-	*(ulong*)(&Args[2]) = Rand()%7;
+	unsigned long long Classes[0xa]={0x0,0x1,0x2,0x3,0x4,0x5,0x6,0x7,0x8,0xb};
+	*(ulong*)(&Args[2]) = Classes[Rand()%0xA];
 
 
 	R = Rand()%3;
@@ -1379,7 +1407,8 @@ void** pSecondLevelPool)
 	if( Rand()%3 == 1) Args[0] = -2;
 	Args[0] = (ulonglong)hThread;
 
-	*(ulong*)(&Args[1]) = Rand()%0x22;
+	unsigned long long Classes[0x22]={0x0,0x1,0x6,0x9,0xb,0xc,0xe,0x10,0x11,0x12,0x14,0x15,0x16,0x17,0x18,0x19,0x1a,0x1d,0x1e,0x1f,0x20,0x21,0x22,0x23,0x24,0x25,0x26,0x27,0x28,0x29,0x2a,0x2b,0x2c,0x2d};
+	*(ulong*)(&Args[1]) = Classes[Rand()%0x22];
 
 	ulong R = Rand()%3;
 	if(R==0)
@@ -1513,7 +1542,8 @@ void** pSecondLevelPool)
 	Args[0] = (ulonglong)hSection;
 	
 	Args[1] = (ulonglong)hProcess;
-	if(Rand()%0x10==1) Args[1]=0;
+	//Uncomment
+	//if(Rand()%0x10==1) Args[1]=0;
 
 
 	ulong R = Rand()%3;
@@ -1763,7 +1793,9 @@ void** pPool,
 void** pSecondLevelPool)
 {
 	Args[0] = (ulonglong)hEvent;
-	if(Rand()%0x10==1) Args[0]=0;
+	
+	//Uncomment
+	//if(Rand()%0x10==1) Args[0]=0;
 }
 
 //Phase
@@ -1774,6 +1806,8 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hFile;
+   Args[1] = (ulonglong)hEvent;
 }
 
 void w7NtOpenThreadTokenEx
@@ -1783,6 +1817,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hThread;
 }
 
 void w7NtOpenProcessTokenEx
@@ -1792,6 +1827,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hProcess;
 }
 
 void w7NtQueryPerformanceCounter
@@ -1810,6 +1846,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hKey;
 }
 
 void w7NtOpenFile
@@ -1851,7 +1888,7 @@ void** pSecondLevelPool)
    Args[0] = (ulonglong)hFile;
 
    unsigned long long Classes[0xc]={0x1,0x2,0x3,0xc,0x1d,0x20,0x21,0x25,0x26,0x32,0x3c,0x3f};
-
+   *(ulong*)(&Args[7]) = Classes[Rand()%0xc];
 }
 
 void w7NtQuerySystemInformation
@@ -1925,6 +1962,8 @@ void** pSecondLevelPool)
    Args[0] = (ulonglong)hTimer;
 
    unsigned long long Classes[0x1]={0x0};
+   *(ulong*)(&Args[1]) = Classes[Rand()%0x1];
+
 }
 
 void w7NtFsControlFile
@@ -1934,6 +1973,9 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+
+   Args[0] = (ulonglong)hFile;
+   Args[1] = (ulonglong)hEvent;
 }
 
 void w7NtWriteVirtualMemory
@@ -1943,6 +1985,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hProcess;
 }
 
 void w7NtCloseObjectAuditAlarm
@@ -2035,6 +2078,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hEvent;
 }
 
 void w7NtReadVirtualMemory
@@ -2044,6 +2088,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hProcess;
 }
 
 void w7NtOpenEvent
@@ -2062,6 +2107,8 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hToken;
+   if( Rand()%2 == 1)	Args[0] = (ulonglong)hToken2;
 }
 
 void w7NtDuplicateToken
@@ -2071,6 +2118,8 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hToken;
+   if( Rand()%2 == 1)	Args[0] = (ulonglong)hToken2;
 }
 
 void w7NtContinue
@@ -2098,6 +2147,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hThread;
 }
 
 void w7NtYieldExecution
@@ -2137,6 +2187,7 @@ void** pSecondLevelPool)
    Args[0] = (ulonglong)hFile;
 
    unsigned long long Classes[0xd]={0x1,0x3,0x4,0x5,0x6,0x7,0x8,0x9,0xa,0xb,0xc,0xd,0xe};
+   *(ulong*)(&Args[4]) = Classes[Rand()%0xd];
 }
 
 void w7NtCreateSection
@@ -2155,6 +2206,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hFile;
 }
 
 void w7NtApphelpCacheControl
@@ -2173,6 +2225,18 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+
+   Args[3] = (ulonglong)hProcess;
+   if( Rand()%3 == 1) Args[3] = 0;
+
+   Args[5] = (ulonglong)hSection;
+   if( Rand()%3 == 1) Args[5] = 0;
+
+   Args[6] = (ulonglong)hDebugObject;
+   if( Rand()%3 == 1) Args[6] = 0;
+
+   Args[7] = (ulonglong)hLpc;
+   if( Rand()%3 == 1) Args[7] = 0;
 }
 
 void w7NtCreateThread
@@ -2192,7 +2256,9 @@ void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
    Args[0] = (ulonglong)hProcess;
-   Args[1] = (ulonglong)hJob;
+
+   HANDLE hJobs[2] = {hJob,hPartitionJob};
+   Args[1] = (ulonglong)(hJobs[Rand()%2]);
 }
 
 void w7NtProtectVirtualMemory
@@ -2212,6 +2278,9 @@ void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
    Args[0] = (ulonglong)hSection;
+
+   unsigned long long Classes[0x4]={0x0,0x1,0x2,0x3};
+   *(ulong*)(&Args[1]) = Classes[Rand()%0x4];
 }
 
 void w7NtResumeThread
@@ -2240,6 +2309,8 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+
+   Args[0] = (ulonglong)hLpc;
 }
 
 void w7NtCreateFile
@@ -2261,6 +2332,8 @@ void** pSecondLevelPool)
    Args[0] = (ulonglong)hEvent;
 
    unsigned long long Classes[0x1]={0x0};
+   *(ulong*)(&Args[1]) = Classes[Rand()%0x1];
+
 }
 
 void w7NtWriteRequestData
@@ -2270,6 +2343,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hLpc;
 }
 
 void w7NtOpenDirectoryObject
@@ -2328,6 +2402,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hFile;
 }
 
 void w7NtTraceEvent
@@ -2337,6 +2412,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hEtwRegistration;
 }
 
 void w7NtPowerInformation
@@ -2458,6 +2534,8 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hToken;
+   if( Rand()%2 == 1)	Args[0] = (ulonglong)hToken2;
 }
 
 void w7NtAlertResumeThread
@@ -2505,6 +2583,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hProcess;
 }
 
 void w7NtAllocateUuids
@@ -2523,6 +2602,8 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+
+   Args[1] = (ulonglong)hLpc;
 }
 
 void w7NtAlpcCancelMessage
@@ -2560,6 +2641,10 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hLpc;
+
+   Args[2] = (ulonglong)hSection;
+   if( Rand()%5 == 1) Args[2] = 0;
 }
 
 void w7NtAlpcCreateResourceReserve
@@ -2569,6 +2654,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hLpc;
 }
 
 void w7NtAlpcCreateSectionView
@@ -2587,6 +2673,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hLpc;
 }
 
 void w7NtAlpcDeletePortSection
@@ -2596,6 +2683,9 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hLpc;
+
+   Args[2] = (ulonglong)hSection;
 }
 
 void w7NtAlpcDeleteResourceReserve
@@ -2605,6 +2695,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hLpc;
 }
 
 void w7NtAlpcDeleteSectionView
@@ -2614,6 +2705,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hLpc;
 }
 
 void w7NtAlpcDeleteSecurityContext
@@ -2623,6 +2715,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hLpc;
 }
 
 void w7NtAlpcDisconnectPort
@@ -2632,6 +2725,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hLpc;
 }
 
 void w7NtAlpcImpersonateClientOfPort
@@ -2641,6 +2735,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hLpc;
 }
 
 void w7NtAlpcOpenSenderProcess
@@ -2650,6 +2745,8 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+
+   Args[1] = (ulonglong)hLpc;
 }
 
 void w7NtAlpcOpenSenderThread
@@ -2731,7 +2828,10 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
-   Args[0] = (ulonglong)hJob;
+
+   HANDLE hJobs[2] = {hJob,hPartitionJob};
+   Args[0] = (ulonglong)(hJobs[Rand()%2]);
+
    Args[1] = (ulonglong)hProcess;
 }
 
@@ -2802,7 +2902,10 @@ void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
    Args[0] = (ulonglong)hToken;
+   if( Rand()%2 == 1)	Args[0] = (ulonglong)hToken2;
+
    Args[1] = (ulonglong)hToken;
+   if( Rand()%2 == 1)	Args[1] = (ulonglong)hToken2;
 }
 
 void w7xHalGetInterruptTranslator
@@ -2859,6 +2962,9 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+
+   Args[2] = (ulonglong)hTmRm;
+   Args[3] = (ulonglong)hTmTx;
 }
 
 void w7NtCreateEventPair
@@ -2904,6 +3010,8 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+
+   Args[6] = (ulonglong)hRegistryTransaction;
 }
 
 void w7NtCreateKeyedEvent
@@ -2976,6 +3084,19 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+
+   Args[3] = (ulonglong)hProcess;
+   if( Rand()%3 == 1) Args[3] = 0;
+
+
+   Args[5] = (ulonglong)hSection;
+   if( Rand()%3 == 1) Args[5] = 0;
+
+   Args[6] = (ulonglong)hDebugObject;
+   if( Rand()%3 == 1) Args[6] = 0;
+
+   Args[6] = (ulonglong)hLpc;
+   if( Rand()%3 == 1) Args[6] = 0;
 }
 
 void w7NtCreateProfile
@@ -3003,6 +3124,8 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+
+   Args[2] = (ulonglong)hTmTm;
 }
 
 void w7NtCreateSemaphore
@@ -3030,6 +3153,8 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+
+   Args[3] = (ulonglong)hProcess;
 }
 
 void w7NtCreateTimer
@@ -3093,6 +3218,9 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+
+   Args[3] = (ulonglong)hIoCompletion;
+   Args[4] = (ulonglong)hProcess;
 }
 
 void w7NtDebugActiveProcess
@@ -3178,6 +3306,9 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hNameSpaceDirectory;
+   //Uncomment
+   //if( Rand()%15 == 1) Args[0] = (ulonglong)hDirectory;
 }
 
 void w7NtDeleteValueKey
@@ -3260,6 +3391,14 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+
+   ulong R = Rand()%3;
+   if(R == 0) Args[0] = (ulonglong)hTmTm;
+   else if(R == 1) Args[0] = (ulonglong)hTmRm;
+   else
+   {
+
+   }
 }
 
 void w7NtExtendSection
@@ -3280,6 +3419,7 @@ void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
    Args[0] = (ulonglong)hToken;
+   if( Rand()%2 == 1)	Args[0] = (ulonglong)hToken2;
 }
 
 void w7NtFlushInstallUILanguage
@@ -3393,6 +3533,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hFile;
 }
 
 void w7NtGetMUIRegistryInfo
@@ -3671,7 +3812,7 @@ unsigned long long* Args,
 void** pPool,
 void** pSecondLevelPool)
 {
-   Args[0] = (ulonglong)(AllKernelObject[Rand()%AllKernelObjectsUsed]);
+	Args[0] = (ulonglong)(AllKernelObject[Rand()%AllKernelObjectsUsed]);
 }
 
 void w7NtMapCMFModule
@@ -3781,7 +3922,8 @@ void** pPool,
 void** pSecondLevelPool)
 {
    Args[0] = (ulonglong)hFile;
-   if( Rand()%5==1) Args[0]=0;
+   //Uncomment
+   //if( Rand()%5==1) Args[0]=0;
 
    Args[1] = (ulonglong)hEvent;
    if( Rand()%5==1) Args[1]=0;
@@ -3950,12 +4092,10 @@ unsigned long long* Args,
 void** pPool,
 void** pSecondLevelPool)
 {
-   Args[0] = (ulonglong)hSession;
+	Args[0] = (ulonglong)hSession;
 
-   if( Rand()%2==1) *(ulong*)(&Args[3]) = 1 + Rand()%2;
-
-   if( Rand()%2==1) *(ulong*)(&Args[4]) = 1 + Rand()%0xA;
-
+   
+	if( Rand()%2==1) *(ulong*)(&Args[3]) = 1 + Rand()%2;
 
 	ulong R = Rand()%3;
 	if(R==0)
@@ -4007,7 +4147,8 @@ void** pSecondLevelPool)
 	//else Random
 
 	Args[2] = (ulonglong)hTmRm;
-	if( Rand()%5==1) Args[2]=0;
+	//Uncomment
+	//if( Rand()%5==1) Args[2]=0;
 
 	R = Rand()%3;
 	if(R==0)
@@ -4269,8 +4410,9 @@ void** pSecondLevelPool)
 	}
 
 
-	Args[3] = (ulonglong)hTmTx;
-	if(Rand()%5==1) Args[3]=0;
+	Args[3] = (ulonglong)hRegistryTransaction;
+	//Uncomment
+	//if(Rand()%15==1) Args[3]=0;
 }
 
 
@@ -4323,8 +4465,9 @@ void** pSecondLevelPool)
 
 	if( Rand()%2==1) *(ulong*)(&Args[3]) |= 0xC;
 
-	Args[4] = (ulonglong)hTmTx;
-	if(Rand()%5==1) Args[4]=0;
+	Args[4] = (ulonglong)hRegistryTransaction;
+	//Uncomment
+	//if(Rand()%15==1) Args[4]=0;
 }
 
 void w7NtOpenKeyedEvent
@@ -4491,6 +4634,7 @@ void** pSecondLevelPool)
 	//else Random
 
 	Args[5]=(ulonglong)hToken;
+	if( Rand()%2 == 1)	Args[5] = (ulonglong)hToken2;
 	if(Rand()%5 == 1)  Args[5]=0;
 
 
@@ -5105,7 +5249,8 @@ void** pPool,
 void** pSecondLevelPool)
 {
 	Args[0] = (ulonglong)hTmEn;
-	if( Rand()%5==1) Args[0] = 0;
+	//Uncomment
+	//if( Rand()%15==1) Args[0] = 0;
 
 	ulong R = Rand()%3;
 	if(R==0)
@@ -5126,7 +5271,8 @@ void** pPool,
 void** pSecondLevelPool)
 {
 	Args[0] = (ulonglong)hTmEn;
-	if( Rand()%5==1) Args[0] = 0;
+	//Uncomment
+	//if( Rand()%15==1) Args[0] = 0;
 
 	ulong R = Rand()%3;
 	if(R==0)
@@ -5147,7 +5293,8 @@ void** pPool,
 void** pSecondLevelPool)
 {
 	Args[0] = (ulonglong)hTmEn;
-	if( Rand()%5==1) Args[0] = 0;
+	//Uncomment
+	//if( Rand()%15==1) Args[0] = 0;
 
 	ulong R = Rand()%3;
 	if(R==0)
@@ -5168,7 +5315,8 @@ void** pPool,
 void** pSecondLevelPool)
 {
 	Args[0] = (ulonglong)hTmEn;
-	if( Rand()%5==1) Args[0] = 0;
+	//Uncomment
+	//if( Rand()%15==1) Args[0] = 0;
 
 	ulong R = Rand()%3;
 	if(R==0)
@@ -5189,6 +5337,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
 	Args[0] = (ulonglong)hToken;
+	if( Rand()%2 == 1)	Args[0] = (ulonglong)hToken2;
 
 	ulong R = Rand()%3;
 	if(R==0)
@@ -5241,7 +5390,8 @@ void** pSecondLevelPool)
 	if( Rand()%5 == 1) Args[1] = (Rand()%3) - 2;
 
 	Args[2]=(ulonglong)hToken;
-	if(Rand()%5 == 1)  Args[2]=0;
+	if( Rand()%5 == 1 )   Args[2]=0;
+	if( Rand()%2 == 1 )	Args[2] = (ulonglong)hToken2;
 
 	ulong Desireds[4]={GENERIC_READ,GENERIC_WRITE,GENERIC_EXECUTE,GENERIC_ALL};
 	R = Rand()%4;
@@ -5313,6 +5463,7 @@ void** pSecondLevelPool)
 
 	Args[2]=(ulonglong)hToken;
 	if(Rand()%5 == 1)  Args[2]=0;
+	if( Rand()%2 == 1)	Args[2] = (ulonglong)hToken2;
 
 
 	R = Rand()%3;
@@ -5363,7 +5514,8 @@ void** pPool,
 void** pSecondLevelPool)
 {
 	Args[0]=(ulonglong)hTmRm;
-	if( Rand()%5 == 1) Args[0] = 0;
+	//Uncomment
+	//if( Rand()%15 == 1) Args[0] = 0;
 }
 
 void w7NtPulseEvent
@@ -5616,6 +5768,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hFile;
 }
 
 void w7NtQueryInformationAtom
@@ -5627,6 +5780,7 @@ void** pSecondLevelPool)
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
 
    unsigned long long Classes[0x2]={0x0,0x1};
+   *(ulong*)(&Args[1]) = Classes[Rand()%0x2];
 }
 
 void w7NtQueryInformationEnlistment
@@ -5639,6 +5793,7 @@ void** pSecondLevelPool)
    Args[0] = (ulonglong)hTmEn;
 
    unsigned long long Classes[0x3]={0x0,0x1,0x2};
+   *(ulong*)(&Args[1]) = Classes[Rand()%0x3];
 }
 
 void w7NtQueryInformationJobObject
@@ -5648,7 +5803,11 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
-   Args[0] = (ulonglong)hJob;
+   HANDLE hJobs[2] = {hJob,hPartitionJob};
+   Args[0] = (ulonglong)(hJobs[Rand()%2]);
+
+	unsigned long long Classes[0x2c]={0x1,0x2,0x3,0x4,0x5,0x6,0x7,0x8,0x9,0xa,0xb,0xc,0xd,0xe,0xf,0x10,0x11,0x12,0x13,0x14,0x15,0x16,0x17,0x18,0x1a,0x1c,0x1d,0x1e,0x1f,0x20,0x21,0x22,0x24,0x25,0x26,0x27,0x28,0x29,0x2a,0x2b,0x2c,0x2d,0x2e,0x2f};
+	*(ulong*)(&Args[1]) = Classes[Rand()%0x2C];
 }
 
 void w7NtQueryInformationPort
@@ -5669,6 +5828,9 @@ void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
    Args[0] = (ulonglong)hTmRm;
+
+   unsigned long long Classes[0x1]={0x0};
+   *(ulong*)(&Args[1]) = Classes[Rand()%0x1];
 }
 
 void w7NtQueryInformationTransaction
@@ -5679,6 +5841,9 @@ void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
    Args[0] = (ulonglong)hTmTx;
+
+   unsigned long long Classes[0x5]={0x0,0x1,0x2,0x3,0x5};
+   *(ulong*)(&Args[1]) = Classes[Rand()%0x5];
 }
 
 void w7NtQueryInformationTransactionManager
@@ -5689,6 +5854,9 @@ void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
    Args[0] = (ulonglong)hTmTm;
+
+   unsigned long long Classes[0x5]={0x0,0x1,0x2,0x4,0x5};
+   *(ulong*)(&Args[1]) = Classes[Rand()%0x5];
 }
 
 void w7NtQueryInformationWorkerFactory
@@ -5699,6 +5867,9 @@ void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
    Args[0] = (ulonglong)hTpWorkerFactory;
+
+   unsigned long long Classes[0x1]={0x7};
+   *(ulong*)(&Args[1]) = Classes[Rand()%0x1];
 }
 
 void w7NtQueryInstallUILanguage
@@ -5727,6 +5898,9 @@ void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
    Args[0] = (ulonglong)hIoCompletion;
+
+   unsigned long long Classes[0x1]={0x0};
+   *(ulong*)(&Args[1]) = Classes[Rand()%0x1];
 }
 
 void w7NtQueryLicenseValue
@@ -5736,6 +5910,8 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+
+   Args[3] = GetClassicRandomValue()%(0x800000 + 0x1);
 }
 
 void w7NtQueryMultipleValueKey
@@ -5745,6 +5921,9 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hKey;
+
+   Args[2] = GetClassicRandomValue()%(0x10000 + 1);
 }
 
 void w7NtQueryMutant
@@ -5755,6 +5934,9 @@ void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
    Args[0] = (ulonglong)hMutex;
+
+   unsigned long long Classes[0x2]={0x0,0x1};
+   *(ulong*)(&Args[1]) = Classes[Rand()%0x2];
 }
 
 void w7NtQueryOpenSubKeys
@@ -5802,6 +5984,7 @@ void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
    Args[0] = (ulonglong)hToken;
+   if( Rand()%2 == 1)	Args[0] = (ulonglong)hToken2;
 }
 
 void w7NtQuerySecurityObject
@@ -5822,6 +6005,9 @@ void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
    Args[0] = (ulonglong)hSemaphore;
+
+   unsigned long long Classes[0x1]={0x0};
+   *(ulong*)(&Args[1]) = Classes[Rand()%0x1];
 }
 
 void w7NtQuerySymbolicLinkObject
@@ -5908,6 +6094,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hTmEn;
 }
 
 void w7NtRecoverEnlistment
@@ -5917,6 +6104,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hTmEn;
 }
 
 void w7NtRecoverResourceManager
@@ -5946,6 +6134,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hTmRm;
 }
 
 void w7NtRegisterThreadTerminatePort
@@ -6016,6 +6205,9 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   
+   Args[0] = (ulonglong)(pPool[0]);
+   FillRandomUnicodeString( pPool[0],RANDOM_PAGE_SIZE);
 }
 
 void w7NtReplaceKey
@@ -6108,6 +6300,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hTmEn;
 }
 
 void w7NtRollbackEnlistment
@@ -6117,6 +6310,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hTmEn;
 }
 
 void w7NtRollbackTransaction
@@ -6331,7 +6525,8 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
-   Args[0] = (ulonglong)hJob;
+   HANDLE hJobs[2] = {hJob,hPartitionJob};
+   Args[0] = (ulonglong)(hJobs[Rand()%2]);
 
 	unsigned long long Classes[0x2c]={0x1,0x2,0x3,0x4,0x5,0x6,0x7,0x8,0x9,0xa,0xb,0xc,0xe,0xf,0x10,0x11,0x12,0x13,0x15,0x16,0x17,0x18,0x19,0x1a,0x1b,0x1c,0x1d,0x1f,0x20,0x21,0x22,0x23,0x24,0x25,0x26,0x27,0x28,0x29,0x2a,0x2b,0x2c,0x2d,0x2e,0x2f};
    *(ulong*)(&Args[1]) = Classes[Rand()%0x2C];
@@ -6371,7 +6566,9 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+
    Args[0] = (ulonglong)hToken;
+   if( Rand()%2 == 1)	Args[0] = (ulonglong)hToken2;
 
    unsigned long long Classes[0x10]={0x4,0x5,0x6,0xc,0xe,0x10,0x11,0x13,0x17,0x18,0x19,0x1a,0x1b,0x27,0x2a,0x2d};
    *(ulong*)(&Args[1]) = Classes[Rand()%0x10];
@@ -6444,6 +6641,7 @@ void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
    Args[0] = (ulonglong)hIoCompletion;
+   Args[1] = (ulonglong)hIoCompletionReserve;
 }
 
 void w7xKdSetupPciDeviceForDebugging
@@ -6523,6 +6721,8 @@ void** pSecondLevelPool)
 
    unsigned long long Classes[0x4d]={0x9,0x15,0x18,0x1a,0x1b,0x1c,0x1e,0x1f,0x22,0x25,0x26,0x27,0x28,0x29,0x2e,0x2f,0x30,0x33,0x34,0x36,0x38,0x3b,0x45,0x47,0x48,0x4a,0x4b,0x4f,0x50,0x51,0x52,0x56,0x57,0x59,0x5b,0x5c,0x5d,0x5e,0x5f,0x61,0x66,0x68,0x6d,0x6e,0x6f,0x71,0x7e,0x7f,0x81,0x82,0x83,0x84,0x86,0x8e,0x96,0x97,0x98,0x9b,0x9f,0xa1,0xa4,0xa8,0xaa,0xb0,0xb1,0xbb,0xbe,0xbf,0xc2,0xc7,0xcc,0xce,0xcf,0xd2,0xd4,0xe0,0xe1};
    *(ulong*)(&Args[0]) = Classes[Rand()%0x4d];
+
+   //printf("Class: %X\r\n",*(ulong*)(&Args[0]));
 }
 
 void w7NtSetSystemPowerState
@@ -6689,7 +6889,8 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
-   Args[0] = (ulonglong)hJob;
+   HANDLE hJobs[2] = {hJob,hPartitionJob};
+   Args[0] = (ulonglong)(hJobs[Rand()%2]);
 }
 
 void w7NtTestAlert
@@ -6946,6 +7147,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hEvent;
 }
 
 void w10NtSetTimer2 
@@ -7063,6 +7265,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hTmRm;
 }
 
 void w10NtQueryWnfStateNameInformation 
@@ -7099,7 +7302,21 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
-   Args[0] = (ulonglong)hPartition;
+
+   HANDLE hPartitions[5]={ (HANDLE)-1,(HANDLE)-2,hPartition,hPartition2,(HANDLE)0};
+   Args[0] = (ulonglong)(hPartitions[Rand()%4]);
+
+   Args[1] = (ulonglong)(hPartitions[Rand()%5]);
+
+   ulong ClassX = Rand()%0x6;
+   *(ulong*)(&Args[2]) = ClassX;
+
+
+   Args[3] = (ulonglong) (pPool[3]);
+
+   ulong Sizes[6]={0xF0,0x10,0x28,0x18,0x20,0x28};
+   *(ulong*)(&Args[4]) = Sizes[ClassX];
+   
 }
 
 void w10NtLoadEnclaveData 
@@ -7146,6 +7363,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hFile;
 }
 
 void w10NtFlushBuffersFileEx 
@@ -7228,6 +7446,9 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   
+   ulonglong Handles[3] = {0,-1,-2};
+   Args[0] = (ulonglong)(Handles[Rand()%3]);
 }
 
 void w10NtCreateLowBoxToken 
@@ -7237,6 +7458,9 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+
+   Args[1] = (ulonglong)hToken;
+   if( Rand()%2 == 1)	Args[1] = (ulonglong)hToken2;
 }
 
 void w10NtCreateIRTimer 
@@ -7256,6 +7480,25 @@ void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
    Args[0] = (ulonglong)hProcess;
+
+
+   ulonglong EnclaveTypes[4]={1,2,0x10,0x11};
+   *(ulong*)(&Args[5]) = EnclaveTypes[Rand()%4];
+
+
+   //Bypass a bug here, till Microsoft fixes it.
+   //Type
+   if( *(ulong*)(&Args[5]) == 1)
+   {
+	   //EnclaveInformationLength 
+	   if( *(ulong*)(&Args[7]) == 0)
+	   {
+		   while(*(ulong*)(&Args[7])==0)
+		   {
+			   *(ulong*)(&Args[7]) = GetClassicRandomValue();
+		   }
+	   }
+   }
 }
 
 void w10NtCreateDirectoryObjectEx 
@@ -7265,6 +7508,9 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+
+   Args[3] = (ulonglong)hDirectory;
+   if( Rand()% 5 == 1) Args[3] = AllKernelObject[Rand()%AllKernelObjectsUsed];
 }
 
 void w10NtCompareObjects 
@@ -7274,6 +7520,8 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = AllKernelObject[Rand()%AllKernelObjectsUsed];
+   Args[1] = AllKernelObject[Rand()%AllKernelObjectsUsed];
 }
 
 void w10NtCancelWaitCompletionPacket 
@@ -7283,6 +7531,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hWaitCompletionPacket;
 }
 
 void w10NtCancelTimer2 
@@ -7292,6 +7541,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hTimer;
 }
 
 void w10NtAssociateWaitCompletionPacket 
@@ -7301,6 +7551,9 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hWaitCompletionPacket;
+   Args[1] = (ulonglong)hIoCompletion;
+   Args[2] = AllKernelObject[Rand()%AllKernelObjectsUsed];
 }
 
 void w10NtAlpcImpersonateClientContainerOfPort 
@@ -7310,6 +7563,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hLpc;
 }
 
 void w10NtAlpcConnectPortEx 
@@ -7379,6 +7633,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hProcess;
 }
 
 
@@ -7389,6 +7644,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hProcess;
 }
 
 void w10NtCallEnclave
@@ -7409,6 +7665,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hRegistryTransaction;
 }
 
 
@@ -7517,6 +7774,7 @@ void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
    Args[0] = (ulonglong)hToken;
+   if( Rand()%2 == 1)	Args[0] = (ulonglong)hToken2;
 }
 
 
@@ -7636,6 +7894,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hRegistryTransaction;
 }
 
 
@@ -7646,6 +7905,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hTmTm;
 }
 
 
@@ -7687,6 +7947,7 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+   Args[0] = (ulonglong)hTmEn;
 }
 
 

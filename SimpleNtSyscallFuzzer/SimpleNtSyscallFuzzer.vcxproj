@@ -148,6 +148,7 @@
     <ClCompile Include="Destroy.cpp" />
     <ClCompile Include="FuncTable.cpp" />
     <ClCompile Include="HexDump.cpp" />
+    <ClCompile Include="CreateProcess.cpp" />
     <ClCompile Include="LeakChecker.cpp" />
     <ClCompile Include="Modify.cpp" />
     <ClCompile Include="ObjCreator.cpp" />

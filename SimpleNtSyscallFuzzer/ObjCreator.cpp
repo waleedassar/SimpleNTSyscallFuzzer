@@ -23,6 +23,7 @@ HANDLE hLpc;
 HANDLE hDebugObject;
 //hDevice
 HANDLE hDirectory;
+HANDLE hNameSpaceDirectory;
 //hDriver
 //hEtwConsumer
 HANDLE hEtwRegistration;
@@ -34,6 +35,7 @@ HANDLE hFile;
 HANDLE hIoCompletion;
 HANDLE hIoCompletionReserve;
 HANDLE hJob;
+HANDLE hPartitionJob;
 HKEY hKey;
 HANDLE hKeyedEvent;
 HANDLE hMutex;
@@ -52,14 +54,16 @@ HANDLE hTmRm;
 HANDLE hTmTm;
 HANDLE hTmTx;
 HANDLE hToken;
+HANDLE hToken2;
 HANDLE hTmEn;
 HANDLE hTpWorkerFactory;
 //Type
 HANDLE hUserApcReserve;
 HANDLE hPartition;
+HANDLE hPartition2;
 //hWmiGuid
-
-
+HANDLE hWaitCompletionPacket;
+HANDLE hRegistryTransaction;
 
 
 
@@ -84,9 +88,13 @@ ulong cached_AllKernelObjectsUsed = 0;
 ulong cached_AllFilesUsed = 0;
 ulong cached_AllProcessesUsed = 0;
 
-
+extern fNtOpenPartition   NtOpenPartition;
 extern fNtCreatePartition NtCreatePartition;
 extern fNtManagePartition NtManagePartition;
+extern fNtCreateRegistryTransaction NtCreateRegistryTransaction;
+
+
+wchar_t* wPartName = L"\\RPC Control\\walied";
 //------------------------------------------
 
 
@@ -110,9 +118,182 @@ void TpRoutine(void* pContext)
 	return;
 }
 
+//------------------
+PSID GetCurrentUserSID(ulong* pSidSize)
+{
+
+
+	SetLastError(0);
+
+	if(pSidSize) *pSidSize = 0;
+
+	DWORD cchDomainName = 0x100;
+
+	WCHAR * wszDomainName = (wchar_t*)LocalAlloc(LMEM_ZEROINIT,cchDomainName);
+	if(!wszDomainName) return 0;
+	
+
+
+	ulong SidSize = 0x10000;
+	_SID* pSid = (_SID*)VirtualAlloc(0,SidSize,MEM_COMMIT,PAGE_READWRITE);
+	if(pSid)
+	{
+		SID_NAME_USE UseX;
+
+		if( LookupAccountName(0,L"walied",pSid,&SidSize,wszDomainName,&cchDomainName,&UseX) )
+		{
+			LocalFree(wszDomainName);
+			if(pSidSize) *pSidSize = SidSize;
+			return pSid;
+		}
+		else
+		{
+			printf("Error getting current user's sid.\r\n");
+			VirtualFree(pSid,0,MEM_RELEASE);
+		}
+	}
+	LocalFree(wszDomainName);
+	return 0;
+}
+
+uchar* FillBasic(_BOUNDARY_DESCRIPTOR_INPUT_BASIC* pBoundBasic)
+{
+	if(!pBoundBasic) return 0;
+
+	pBoundBasic->Revision=1;
+	pBoundBasic->NumberOfEntries=0;
+	pBoundBasic->Size= sizeof(_BOUNDARY_DESCRIPTOR_INPUT_BASIC); //to be updated
+	pBoundBasic->UNKZ = 0;
+
+	return (((uchar*)pBoundBasic) + sizeof(_BOUNDARY_DESCRIPTOR_INPUT_BASIC));
+}
+
+uchar* AddNameTLV(_BOUNDARY_DESCRIPTOR_INPUT_BASIC* pBoundBasic,
+				_BOUNDARY_DESCRIPTOR_INPUT_TLV* pTLV,
+				wchar_t* NameSpaceName)
+{
+	if(!pBoundBasic) return 0;
+	if(!pTLV) return 0;
+	if(!NameSpaceName) return 0;
+	//----------------
+	ulonglong DiffX = 0;
+	if( ((ulonglong)pTLV) & 0x7)
+	{
+		//printf("Realigning\r\n");
+		
+		ulonglong xTLV = 
+		((((ulonglong)pTLV) + 7) & 0xFFFFFFFFFFFFFFF8);
+		
+		DiffX = xTLV - ((ulonglong)pTLV);
+
+		pTLV = (_BOUNDARY_DESCRIPTOR_INPUT_TLV*)xTLV;
+	}
+
+	pTLV->Type = 1;
+
+	ulong NameLen = wcslen(NameSpaceName) * 2;
+
+	pTLV->Length = sizeof(_BOUNDARY_DESCRIPTOR_INPUT_TLV) + NameLen;
+
+	uchar* pTLV_data = ((uchar*)pTLV) + sizeof(_BOUNDARY_DESCRIPTOR_INPUT_TLV);
+
+	memcpy(pTLV_data,NameSpaceName,NameLen);
+
+	pBoundBasic->NumberOfEntries++;
+
+	pBoundBasic->Size += pTLV->Length;
+	pBoundBasic->Size += DiffX;
+
+	return pTLV_data+NameLen;
+}
+
+uchar* AddSidTLV(_BOUNDARY_DESCRIPTOR_INPUT_BASIC* pBoundBasic,
+				_BOUNDARY_DESCRIPTOR_INPUT_TLV* pTLV,
+				PSID pSid)
+{
+	if(!pBoundBasic) return 0;
+	if(!pTLV) return 0;
+	if(!pSid) return 0;
+	//----------------
+	ulonglong DiffX = 0;
+	if( ((ulonglong)pTLV) & 0x7)
+	{
+		//printf("Realigning\r\n");
+		
+		ulonglong xTLV = 
+		((((ulonglong)pTLV) + 7) & 0xFFFFFFFFFFFFFFF8);
+		
+		DiffX = xTLV - ((ulonglong)pTLV);
+
+		pTLV = (_BOUNDARY_DESCRIPTOR_INPUT_TLV*)xTLV;
+	}
+
+
+	pTLV->Type = 2;
+
+
+
+	ulong SidSize = GetLengthSid(pSid);
+	if(!SidSize) return 0;
+
+	pTLV->Length = sizeof(_BOUNDARY_DESCRIPTOR_INPUT_TLV) + SidSize;
+
+	uchar* pTLV_data = ((uchar*)pTLV) + sizeof(_BOUNDARY_DESCRIPTOR_INPUT_TLV);
+
+	memcpy(pTLV_data,pSid,SidSize);
+
+	pBoundBasic->NumberOfEntries++;
+
+	pBoundBasic->Size += pTLV->Length;
+	pBoundBasic->Size += DiffX;
+
+	return pTLV_data+SidSize;
+}
+
+uchar* AddObjectIdTLV(_BOUNDARY_DESCRIPTOR_INPUT_BASIC* pBoundBasic,
+				_BOUNDARY_DESCRIPTOR_INPUT_TLV* pTLV,
+				PSID pSid)
+{
+	if(!pBoundBasic) return 0;
+	if(!pTLV) return 0;
+	if(!pSid) return 0;
+	//----------------
+	ulonglong DiffX = 0;
+	if( ((ulonglong)pTLV) & 0x7)
+	{
+		//printf("Realigning\r\n");
+		
+		ulonglong xTLV = 
+		((((ulonglong)pTLV) + 7) & 0xFFFFFFFFFFFFFFF8);
+		
+		DiffX = xTLV - ((ulonglong)pTLV);
+
+		pTLV = (_BOUNDARY_DESCRIPTOR_INPUT_TLV*)xTLV;
+	}
+
+	pTLV->Type = 3;
+
+
+
+	ulong SidSize = GetLengthSid(pSid);
+	if(!SidSize) return 0;
+
+	pTLV->Length = sizeof(_BOUNDARY_DESCRIPTOR_INPUT_TLV) + SidSize;
+
+	uchar* pTLV_data = ((uchar*)pTLV) + sizeof(_BOUNDARY_DESCRIPTOR_INPUT_TLV);
+
+	memcpy(pTLV_data,pSid,SidSize);
+
+	pBoundBasic->NumberOfEntries++;
+
+	pBoundBasic->Size += pTLV->Length;
+	pBoundBasic->Size += DiffX;
+
+	return pTLV_data+SidSize;
+}
 
 //------------------
-HANDLE mCreateLpcPort(wchar_t* BaseName,ulong Rx,bool bPrint)
+HANDLE mCreateLpcPort(wchar_t* BaseName,ulong Rx,bool bInherit,bool bPrint)
 {
 	wchar_t ObjectName_All[MAX_PATH+1]={0};
 
@@ -129,6 +310,7 @@ HANDLE mCreateLpcPort(wchar_t* BaseName,ulong Rx,bool bPrint)
 
 	_OBJECT_ATTRIBUTES ObjAttr = {sizeof(ObjAttr)};
 	ObjAttr.Attributes=OBJ_CASE_INSENSITIVE;
+	if(bInherit)	ObjAttr.Attributes |= OBJ_INHERIT;
 	ObjAttr.ObjectName=&UniS;
 	
 	HANDLE hLpc_l = 0;
@@ -143,7 +325,7 @@ HANDLE mCreateLpcPort(wchar_t* BaseName,ulong Rx,bool bPrint)
 	return hLpc_l;
 }
 
-HANDLE mCreateDebug(wchar_t* BaseName,ulong Rx,bool bPrint)
+HANDLE mCreateDebug(wchar_t* BaseName,ulong Rx,bool bInherit,bool bPrint)
 {
 	wchar_t ObjectName_All[MAX_PATH+1]={0};
 
@@ -164,6 +346,7 @@ HANDLE mCreateDebug(wchar_t* BaseName,ulong Rx,bool bPrint)
 	_OBJECT_ATTRIBUTES ObjAttrDebug={0};
 	ObjAttrDebug.Length = sizeof(ObjAttrDebug);
 	ObjAttrDebug.Attributes= OBJ_CASE_INSENSITIVE;
+	if(bInherit)	ObjAttrDebug.Attributes |= OBJ_INHERIT;
 	ObjAttrDebug.ObjectName = & UniSec;
 
 	
@@ -180,7 +363,7 @@ HANDLE mCreateDebug(wchar_t* BaseName,ulong Rx,bool bPrint)
 	return hDebug_l;
 }
 
-HANDLE mCreateObjDir(wchar_t* BaseName,ulong Rx,bool bPrint)
+HANDLE mCreateObjDir(wchar_t* BaseName,ulong Rx,bool bInherit,bool bPrint)
 {
 	wchar_t ObjectName_All[MAX_PATH+1]={0};
 	wcscpy(ObjectName_All,BaseName);
@@ -200,6 +383,7 @@ HANDLE mCreateObjDir(wchar_t* BaseName,ulong Rx,bool bPrint)
 	_OBJECT_ATTRIBUTES ObjAttrDir={0};
 	ObjAttrDir.Length = sizeof(ObjAttrDir);
 	ObjAttrDir.Attributes= OBJ_CASE_INSENSITIVE;
+	if(bInherit)	ObjAttrDir.Attributes |= OBJ_INHERIT;
 	ObjAttrDir.ObjectName = & UniSD;
 
 	HANDLE hDir_l = 0;
@@ -212,6 +396,121 @@ HANDLE mCreateObjDir(wchar_t* BaseName,ulong Rx,bool bPrint)
 	}
 	if(bPrint)	printf("hDirectory: %X\r\n",hDir_l);
 	return hDir_l;
+}
+
+
+HANDLE mCreatePrivateNameSpaceDirectory(wchar_t* BaseName,ulong Rx,bool bInherit,bool bPrint)
+{
+	//Object Directories for namespaces can't be named objects.
+	_OBJECT_ATTRIBUTES ObjAttrX = {0};
+	ObjAttrX.Length = sizeof(_OBJECT_ATTRIBUTES);
+	if(bInherit)	ObjAttrX.Attributes |= OBJ_INHERIT;
+
+
+	_BOUNDARY_DESCRIPTOR_INPUT_BASIC* inBoundaryDescriptor = 
+	(_BOUNDARY_DESCRIPTOR_INPUT_BASIC*)VirtualAlloc(0,0x10000,MEM_COMMIT,PAGE_READWRITE);
+
+
+
+	uchar* pRunner = FillBasic(inBoundaryDescriptor);
+	if(!pRunner)
+	{
+		VirtualFree(inBoundaryDescriptor,0,MEM_RELEASE);
+		return 0;
+	}
+
+	//Insert name
+	wchar_t ObjectName_All[MAX_PATH+1]={0};
+	wcscpy(ObjectName_All,BaseName);
+	ulong LenX = wcslen(ObjectName_All);
+	_ultow(Rx,&ObjectName_All[LenX],0x10);
+	if(bPrint) wprintf(L"NameSpace: %s\r\n",ObjectName_All);
+
+
+
+	pRunner = AddNameTLV(inBoundaryDescriptor,
+		(_BOUNDARY_DESCRIPTOR_INPUT_TLV*)pRunner,
+		ObjectName_All);
+
+	if(!pRunner) 
+	{
+		VirtualFree(inBoundaryDescriptor,0,MEM_RELEASE);
+		return 0;
+	}
+
+	//Insert _SID_INFO
+	ulong SidSize = 0;
+	PSID pSid = GetCurrentUserSID(&SidSize);
+
+	if(!pSid)
+	{
+		VirtualFree(inBoundaryDescriptor,0,MEM_RELEASE);
+		return 0;
+	}
+
+	if(!SidSize)
+	{
+		if(pSid) VirtualFree(pSid,0,MEM_RELEASE);
+		VirtualFree(inBoundaryDescriptor,0,MEM_RELEASE);
+		return 0;
+	}
+
+
+	pRunner = AddSidTLV(inBoundaryDescriptor,
+		(_BOUNDARY_DESCRIPTOR_INPUT_TLV*)pRunner,
+		pSid);
+
+	if(!pRunner)
+	{
+		if(pSid) VirtualFree(pSid,0,MEM_RELEASE);
+		VirtualFree(inBoundaryDescriptor,0,MEM_RELEASE);
+		return 0;
+	}
+
+
+	//Insert ObjectId
+	pRunner = AddObjectIdTLV(inBoundaryDescriptor,
+		(_BOUNDARY_DESCRIPTOR_INPUT_TLV*)pRunner,
+		pSid);
+
+	if(!pRunner)
+	{
+		if(pSid) VirtualFree(pSid,0,MEM_RELEASE);
+		VirtualFree(inBoundaryDescriptor,0,MEM_RELEASE);
+		return 0;
+	}
+	//-------- END ----------
+	
+	HANDLE hName = 0;
+	int ret = NtCreatePrivateNamespace(&hName,GENERIC_ALL,
+									&ObjAttrX,inBoundaryDescriptor);
+	if(bPrint) wprintf(L"NtCreatePrivateNamespace, ret: %X, hName: %X\r\n",ret,hName);
+
+
+	if(ret < 0)
+	{
+		hName = 0;
+	}
+	else
+	{
+		if(bInherit)	ObjAttrX.Attributes |= OBJ_INHERIT;
+		HANDLE hNameZ = 0;
+		int retValue = NtOpenPrivateNamespace(&hNameZ,
+												GENERIC_ALL,
+												&ObjAttrX,
+												inBoundaryDescriptor);
+
+		if(bPrint) wprintf(L"NtOpenPrivateNamespace, ret: %X, hName: %X\r\n",retValue,hNameZ);
+
+		if(retValue >= 0)
+		{
+			ZwClose(hNameZ);
+		}
+	}
+
+	if(pSid) VirtualFree(pSid,0,MEM_RELEASE);
+	VirtualFree(inBoundaryDescriptor,0,MEM_RELEASE);
+	return hName;
 }
 
 HANDLE mCreateEtwRegistration(bool bPrint)
@@ -244,7 +543,7 @@ HANDLE mCreateEtwRegistration(bool bPrint)
 }
 
 
-HANDLE mCreateEvent(wchar_t* BaseName,ulong Rx,bool bPrint)
+HANDLE mCreateEvent(wchar_t* BaseName,ulong Rx,bool bInherit,bool bPrint)
 {
 	wchar_t ObjectName_All[MAX_PATH+1]={0};
 	wcscpy(ObjectName_All,BaseName);
@@ -265,6 +564,7 @@ HANDLE mCreateEvent(wchar_t* BaseName,ulong Rx,bool bPrint)
 	_OBJECT_ATTRIBUTES ObjAttrEV={0};
 	ObjAttrEV.Length = sizeof(ObjAttrEV);
 	ObjAttrEV.Attributes= OBJ_CASE_INSENSITIVE;
+	if(bInherit)	ObjAttrEV.Attributes |= OBJ_INHERIT;
 	ObjAttrEV.ObjectName = & UniSS_ev;
 
 	HANDLE hEvent_l = 0;
@@ -305,7 +605,7 @@ HANDLE mCreateFile(wchar_t* BaseName,ulong Rx,bool bPrint)
 
 
 
-HANDLE mCreateIOCompletion(wchar_t* BaseName,ulong Rx,bool bPrint)
+HANDLE mCreateIOCompletion(wchar_t* BaseName,ulong Rx,bool bInherit,bool bPrint)
 {
 	wchar_t ObjectName_All[MAX_PATH+1]={0};
 	wcscpy(ObjectName_All,BaseName);
@@ -325,6 +625,7 @@ HANDLE mCreateIOCompletion(wchar_t* BaseName,ulong Rx,bool bPrint)
 	_OBJECT_ATTRIBUTES ObjAttrIOCOMP={0};
 	ObjAttrIOCOMP.Length = sizeof(ObjAttrIOCOMP);
 	ObjAttrIOCOMP.Attributes= OBJ_CASE_INSENSITIVE;
+	if(bInherit)	ObjAttrIOCOMP.Attributes |= OBJ_INHERIT;
 	ObjAttrIOCOMP.ObjectName = & UniSS_iocomp;
 
 
@@ -358,7 +659,7 @@ HANDLE mCreateIOCompletionReserve(bool bPrint)
 }
 
 
-HANDLE mCreateJob(wchar_t* BaseName,ulong Rx,bool bPrint)
+HANDLE mCreateJob(wchar_t* BaseName,ulong Rx,bool bInherit,bool bPrint)
 {
 	wchar_t ObjectName_All[MAX_PATH+1]={0};
 
@@ -379,6 +680,7 @@ HANDLE mCreateJob(wchar_t* BaseName,ulong Rx,bool bPrint)
 	_OBJECT_ATTRIBUTES ObjAttrZZZ={0};
 	ObjAttrZZZ.Length = sizeof(ObjAttrZZZ);
 	ObjAttrZZZ.Attributes= OBJ_CASE_INSENSITIVE;
+	if(bInherit)	ObjAttrZZZ.Attributes |= OBJ_INHERIT;
 	ObjAttrZZZ.ObjectName = & uniZZZ;
 
 	HANDLE hJob_l = 0;
@@ -395,16 +697,45 @@ HANDLE mCreateJob(wchar_t* BaseName,ulong Rx,bool bPrint)
 	return hJob_l;
 }
 
+HANDLE GetPartitionJob(bool bInherit,bool bPrint)
+{
+	wchar_t* JobName = L"\\RPC Control\\waliedj";
+	_UNICODE_STRING UniStr={0};
+	UniStr.Length = wcslen(JobName) * 2;
+	UniStr.MaxLength = UniStr.Length + 2;
+	UniStr.Buffer = JobName;
+
+	_OBJECT_ATTRIBUTES ObjAttr = {0};
+	ObjAttr.Length = sizeof(ObjAttr);
+	ObjAttr.Attributes = OBJ_CASE_INSENSITIVE;
+	if(bInherit)	ObjAttr.Attributes |= OBJ_INHERIT;
+	ObjAttr.ObjectName = &UniStr;
+
+	HANDLE hJob = 0;
+	int ret = ZwOpenJobObject(&hJob,0x1 /* Desired */,&ObjAttr);
+	if(bPrint) printf("ZwOpenJobObject, ret: %X\r\n",ret);
+
+	if(ret >= 0)
+	{
+		return hJob;
+	}
+
+	return 0;
+}
+
+
 HKEY mCreateKey(wchar_t* BaseName,ulong Rx,bool bPrint)
 {
 	wchar_t ObjectName_All[MAX_PATH+1]={0};
-
-	wcscpy(ObjectName_All,BaseName);
+	wcscpy(ObjectName_All,L"software\\AppDataLow\\");
+	wcscat(ObjectName_All,BaseName);
 	ulong LenX = wcslen(ObjectName_All);
 	_ultow(Rx,&ObjectName_All[LenX],0x10);
 	LenX = wcslen(ObjectName_All);
 	ulong Rxx = GetRandomValue();
 	_ultow(Rxx,&ObjectName_All[LenX],0x10);
+
+	if(bPrint) wprintf(L"Key: %s\r\n",ObjectName_All);
 
 	HKEY hKey_l = 0;
 	if( RegCreateKey(HKEY_CURRENT_USER,ObjectName_All,&hKey_l) != ERROR_SUCCESS)
@@ -417,7 +748,7 @@ HKEY mCreateKey(wchar_t* BaseName,ulong Rx,bool bPrint)
 	return hKey_l;
 }
 
-HANDLE mCreateKeyedEvent(wchar_t* BaseName,ulong Rx,bool bPrint)
+HANDLE mCreateKeyedEvent(wchar_t* BaseName,ulong Rx,bool bInherit,bool bPrint)
 {
 	wchar_t ObjectName_All[MAX_PATH+1]={0};
 	wcscpy(ObjectName_All,BaseName);
@@ -440,6 +771,7 @@ HANDLE mCreateKeyedEvent(wchar_t* BaseName,ulong Rx,bool bPrint)
 	_OBJECT_ATTRIBUTES ObjAttr_keyed={0};
 	ObjAttr_keyed.Length = sizeof(ObjAttr_keyed);
 	ObjAttr_keyed.Attributes= OBJ_CASE_INSENSITIVE;
+	if(bInherit)	ObjAttr_keyed.Attributes |= OBJ_INHERIT;
 	ObjAttr_keyed.ObjectName = & UniSS_keyed;
 
 	HANDLE hKeyedEvent_l = 0;
@@ -456,7 +788,7 @@ HANDLE mCreateKeyedEvent(wchar_t* BaseName,ulong Rx,bool bPrint)
 	return hKeyedEvent_l;
 }
 
-HANDLE mCreateMutex(wchar_t* BaseName,ulong Rx,bool bPrint)
+HANDLE mCreateMutex(wchar_t* BaseName,ulong Rx,bool bInherit,bool bPrint)
 {
 	wchar_t ObjectName_All[MAX_PATH+1]={0};
 	wcscpy(ObjectName_All,BaseName);
@@ -477,7 +809,8 @@ HANDLE mCreateMutex(wchar_t* BaseName,ulong Rx,bool bPrint)
 
 	_OBJECT_ATTRIBUTES ObjAttr_mx={0};
 	ObjAttr_mx.Length = sizeof(ObjAttr_mx);
-	ObjAttr_mx.Attributes= OBJ_CASE_INSENSITIVE;
+	ObjAttr_mx.Attributes = OBJ_CASE_INSENSITIVE;
+	if(bInherit)	ObjAttr_mx.Attributes |= OBJ_INHERIT;
 	ObjAttr_mx.ObjectName = &UniSS_mx;
 
 
@@ -524,12 +857,13 @@ HANDLE mCreateProcess(HANDLE* phThread,bool bPrint)
 
 	wchar_t Path_All[MAX_PATH+1] = {0};
 	GetSystemDirectory(Path_All,MAX_PATH);
-	wcscat(Path_All,L"\\calc.exe");
+	wcscat(Path_All,L"\\charmap.exe");
 
 	PROCESS_INFORMATION PI = {0};
 	STARTUPINFO SI = {sizeof(SI)};
 
-	if(!CreateProcess(Path_All,0,0,0,FALSE,CREATE_SUSPENDED,0,0,&SI,&PI))
+	
+	if(!CreateProcess(Path_All,0,0,0,TRUE /* bInheritHandles */,CREATE_SUSPENDED,0,0,&SI,&PI))
 	{
 		if(bPrint)	printf("Error creating process\r\n");
 		ZwSuspendProcess(GetCurrentProcess());
@@ -602,7 +936,7 @@ HANDLE mCreateSection(bool bPrint)
 
 
 
-HANDLE mCreateSemaphore(wchar_t* BaseName,ulong Rx,bool bPrint)
+HANDLE mCreateSemaphore(wchar_t* BaseName,ulong Rx,bool bInherit,bool bPrint)
 {
 	wchar_t ObjectName_All[MAX_PATH+1]={0};
 	wcscpy(ObjectName_All,BaseName);
@@ -624,6 +958,7 @@ HANDLE mCreateSemaphore(wchar_t* BaseName,ulong Rx,bool bPrint)
 	_OBJECT_ATTRIBUTES ObjAttr_smph={0};
 	ObjAttr_smph.Length = sizeof(ObjAttr_smph);
 	ObjAttr_smph.Attributes= OBJ_CASE_INSENSITIVE;
+	if(bInherit)	ObjAttr_smph.Attributes |= OBJ_INHERIT;
 	ObjAttr_smph.ObjectName = &UniSS_smph;
 
 
@@ -642,7 +977,7 @@ HANDLE mCreateSemaphore(wchar_t* BaseName,ulong Rx,bool bPrint)
 	return hSemaphore_l;
 }
 
-HANDLE mCreateSymLink(wchar_t* BaseName,ulong Rx,bool bPrint)
+HANDLE mCreateSymLink(wchar_t* BaseName,ulong Rx,bool bInherit,bool bPrint)
 {
 	wchar_t ObjectName_All[MAX_PATH+1]={0};
 
@@ -664,6 +999,7 @@ HANDLE mCreateSymLink(wchar_t* BaseName,ulong Rx,bool bPrint)
 	_OBJECT_ATTRIBUTES ObjAttr_sl={0};
 	ObjAttr_sl.Length = sizeof(ObjAttr_sl);
 	ObjAttr_sl.Attributes= OBJ_CASE_INSENSITIVE;
+	if(bInherit)	ObjAttr_sl.Attributes |= OBJ_INHERIT;
 	ObjAttr_sl.ObjectName = & UniSS_sl;
 
 
@@ -692,7 +1028,7 @@ HANDLE mCreateSymLink(wchar_t* BaseName,ulong Rx,bool bPrint)
 	return hSymLink_l;
 }
 
-HANDLE mCreateTimer(wchar_t* BaseName,ulong Rx,bool bPrint)
+HANDLE mCreateTimer(wchar_t* BaseName,ulong Rx,bool bInherit,bool bPrint)
 {
 	wchar_t ObjectName_All[MAX_PATH+1]={0};
 	wcscpy(ObjectName_All,BaseName);
@@ -713,6 +1049,7 @@ HANDLE mCreateTimer(wchar_t* BaseName,ulong Rx,bool bPrint)
 	_OBJECT_ATTRIBUTES ObjAttrTi={0};
 	ObjAttrTi.Length = sizeof(ObjAttrTi);
 	ObjAttrTi.Attributes= OBJ_CASE_INSENSITIVE;
+	if(bInherit)	ObjAttrTi.Attributes |= OBJ_INHERIT;
 	ObjAttrTi.ObjectName = & UniSS_ti;
 
 	HANDLE hTimer_l = 0;
@@ -730,7 +1067,7 @@ HANDLE mCreateTimer(wchar_t* BaseName,ulong Rx,bool bPrint)
 
 
 
-HANDLE mCreateTm(wchar_t* BaseName,ulong Rx,bool bPrint)
+HANDLE mCreateTm(wchar_t* BaseName,ulong Rx,bool bInherit,bool bPrint)
 {
 	wchar_t TmLogName[MAX_PATH]={0};
 	wcscpy(TmLogName,L"\\??\\");
@@ -742,7 +1079,7 @@ HANDLE mCreateTm(wchar_t* BaseName,ulong Rx,bool bPrint)
 	_ultow(Rx,&TmLogName[LenX],0x10);
 	wcscat(TmLogName,L".log");
 
-	wprintf(L"TmTm: %s\r\n",TmLogName);
+	if(bPrint) wprintf(L"TmTm: %s\r\n",TmLogName);
 	
 	_UNICODE_STRING UniTmLog = {0};
 	UniTmLog.Length = wcslen(TmLogName)*2;
@@ -751,6 +1088,7 @@ HANDLE mCreateTm(wchar_t* BaseName,ulong Rx,bool bPrint)
 
 	_OBJECT_ATTRIBUTES ObjAttrTmTm = {0};
 	ObjAttrTmTm.Length = sizeof(ObjAttrTmTm);
+	if(bInherit)	ObjAttrTmTm.Attributes |= OBJ_INHERIT;
 
 	HANDLE hTmTm_l = 0;
 	int retValue = ZwCreateTransactionManager(	&hTmTm_l,
@@ -773,7 +1111,7 @@ HANDLE mCreateTm(wchar_t* BaseName,ulong Rx,bool bPrint)
 	return hTmTm_l;
 }
 
-HANDLE mCreateRm(wchar_t* BaseName,ulong Rx,HANDLE hTmTmX,bool bPrint)
+HANDLE mCreateRm(wchar_t* BaseName,ulong Rx,HANDLE hTmTmX,bool bInherit,bool bPrint)
 {
 	wchar_t ObjectName_All[MAX_PATH+1]={0};
 	wcscpy(ObjectName_All,BaseName);
@@ -800,6 +1138,7 @@ HANDLE mCreateRm(wchar_t* BaseName,ulong Rx,HANDLE hTmTmX,bool bPrint)
 	_OBJECT_ATTRIBUTES ObjAttrRm = {0};
 	ObjAttrRm.Length = sizeof(ObjAttrRm);
 	ObjAttrRm.Attributes = OBJ_CASE_INSENSITIVE;
+	if(bInherit)	ObjAttrRm.Attributes |= OBJ_INHERIT;
 	ObjAttrRm.ObjectName = &uniRmName;
 
 
@@ -822,7 +1161,7 @@ HANDLE mCreateRm(wchar_t* BaseName,ulong Rx,HANDLE hTmTmX,bool bPrint)
 	return hTmRm_l;
 }
 
-HANDLE mCreateEn(wchar_t* BaseName,ulong Rx,HANDLE hTmRmX,HANDLE hTmTxX,bool bPrint)
+HANDLE mCreateEn(wchar_t* BaseName,ulong Rx,HANDLE hTmRmX,HANDLE hTmTxX,bool bInherit,bool bPrint)
 {
 	wchar_t ObjectName_All[MAX_PATH+1]={0};
 	wcscpy(ObjectName_All,BaseName);
@@ -842,6 +1181,7 @@ HANDLE mCreateEn(wchar_t* BaseName,ulong Rx,HANDLE hTmRmX,HANDLE hTmTxX,bool bPr
 	_OBJECT_ATTRIBUTES ObjAttrEn = {0};
 	ObjAttrEn.Length = sizeof(ObjAttrEn);
 	ObjAttrEn.Attributes = OBJ_CASE_INSENSITIVE;
+	if(bInherit)	ObjAttrEn.Attributes |= OBJ_INHERIT;
 	ObjAttrEn.ObjectName = &uniEnName;
 
 	HANDLE hTmEn_l = 0;
@@ -858,7 +1198,7 @@ HANDLE mCreateEn(wchar_t* BaseName,ulong Rx,HANDLE hTmRmX,HANDLE hTmTxX,bool bPr
 }
 
 
-HANDLE mCreateTx(wchar_t* BaseName,ulong Rx,HANDLE hTmTmX,bool bPrint)
+HANDLE mCreateTx(wchar_t* BaseName,ulong Rx,HANDLE hTmTmX,bool bInherit,bool bPrint)
 {
 	wchar_t ObjectName_All[MAX_PATH+1]={0};
 	wcscpy(ObjectName_All,BaseName);
@@ -878,6 +1218,7 @@ HANDLE mCreateTx(wchar_t* BaseName,ulong Rx,HANDLE hTmTmX,bool bPrint)
 	_OBJECT_ATTRIBUTES ObjAttrTx = {0};
 	ObjAttrTx.Length = sizeof(ObjAttrTx);
 	ObjAttrTx.Attributes = OBJ_CASE_INSENSITIVE;
+	if(bInherit)	ObjAttrTx.Attributes |= OBJ_INHERIT;
 	ObjAttrTx.ObjectName = &uniTxName;
 
 	wchar_t* Descri = L"walied assar desc";
@@ -911,7 +1252,7 @@ HANDLE mCreateTx(wchar_t* BaseName,ulong Rx,HANDLE hTmTmX,bool bPrint)
 
 
 
-HANDLE mCreateToken(HANDLE hProcessX,bool bPrint)
+HANDLE mOpenTokenProcess(HANDLE hProcessX,bool bPrint)
 {
 	HANDLE hToken_l = 0;
 	if(!	OpenProcessToken(hProcessX,TOKEN_ALL_ACCESS,&hToken_l) )
@@ -924,7 +1265,20 @@ HANDLE mCreateToken(HANDLE hProcessX,bool bPrint)
 	return hToken_l;
 }
 
-HANDLE mCreateTP(wchar_t* BaseName,ulong Rx,HANDLE hIoCompletionX,bool bPrint)
+
+HANDLE mCreateTokenLogon(wchar_t* UserName,wchar_t* Pass,bool bPrint)
+{
+	HANDLE hToken_l = 0;
+	if(!LogonUser(UserName,0,Pass,LOGON32_LOGON_INTERACTIVE,LOGON32_PROVIDER_DEFAULT,&hToken_l))
+	{
+		if(bPrint) printf("LogonUser failed, err: %X\r\n",GetLastError());
+		return 0;
+	}
+	if(bPrint) printf("hToken (LogonUser): %I64X\r\n",hToken_l);
+	return hToken_l;
+}
+
+HANDLE mCreateTP(wchar_t* BaseName,ulong Rx,HANDLE hIoCompletionX,bool bInherit,bool bPrint)
 {
 	wchar_t ObjectName_All[MAX_PATH+1]={0};
 	wcscpy(ObjectName_All,BaseName);
@@ -946,6 +1300,7 @@ HANDLE mCreateTP(wchar_t* BaseName,ulong Rx,HANDLE hIoCompletionX,bool bPrint)
 	_OBJECT_ATTRIBUTES ObjAttrTP={0};
 	ObjAttrTP.Length = sizeof(ObjAttrTP);
 	ObjAttrTP.Attributes= OBJ_CASE_INSENSITIVE;
+	if(bInherit)	ObjAttrTP.Attributes |= OBJ_INHERIT;
 	ObjAttrTP.ObjectName = & UniSS_tp;
 
 
@@ -988,7 +1343,7 @@ HANDLE mCreateUserApcReserve(bool bPrint)
 
 
 //requires SeLockMemoryPrivilege
-HANDLE mCreatePartition(wchar_t* BaseName,ulong Rx,bool bPrint)
+HANDLE mCreatePartition(wchar_t* BaseName,ulong Rx,bool bInherit,bool bPrint)
 {
 	wchar_t ObjectName_All[MAX_PATH+1]={0};
 	wcscpy(ObjectName_All,BaseName);
@@ -1010,6 +1365,7 @@ HANDLE mCreatePartition(wchar_t* BaseName,ulong Rx,bool bPrint)
 	_OBJECT_ATTRIBUTES ObjAttr={0};
 	ObjAttr.Length = sizeof(ObjAttr);
 	ObjAttr.Attributes = OBJ_CASE_INSENSITIVE;
+	if(bInherit)	ObjAttr.Attributes |= OBJ_INHERIT;
 	ObjAttr.ObjectName = &UniStr;
 
 
@@ -1027,12 +1383,42 @@ HANDLE mCreatePartition(wchar_t* BaseName,ulong Rx,bool bPrint)
 		if(bPrint) wprintf(L"%s created successfully\r\n",ObjectName_All);
 		return hNewPartition;
 	}
-	ZwSuspendProcess(GetCurrentProcess());
+	else
+	{
+		ZwSuspendProcess(GetCurrentProcess());
+	}
 	return 0;
 }
 
 
+//Opens 
+HANDLE mOpenPartition(wchar_t* PartName,bool bInherit,bool bPrint)
+{
+	if(bPrint)	wprintf(L"Opening Partition: %s\r\n",PartName);
+	_UNICODE_STRING uniPart = {0};
+	uniPart.Length = wcslen(PartName) * 2;
+	uniPart.MaxLength = uniPart.Length + 2;
+	uniPart.Buffer = PartName;
 
+	_OBJECT_ATTRIBUTES ObjAttr = {0};
+	ObjAttr.Length = sizeof(ObjAttr);
+	ObjAttr.Attributes = OBJ_CASE_INSENSITIVE;
+	if(bInherit)	ObjAttr.Attributes |= OBJ_INHERIT;
+	ObjAttr.ObjectName = &uniPart;
+
+	HANDLE hPart_l = 0;
+	int ret = NtOpenPartition(&hPart_l,GENERIC_ALL,&ObjAttr);
+	if(bPrint) printf("NtOpenPartition, ret: %X, hPart_l: %I64X\r\n",ret,hPart_l);
+	if(ret >= 0)
+	{
+		return hPart_l;
+	}
+	else
+	{
+		ZwSuspendProcess(GetCurrentProcess());
+	}
+	return 0;
+}
 
 //Major Code change in latest Win10, please update
 //Requires an admin
@@ -1091,7 +1477,7 @@ HANDLE mCreateEtwConsumer(bool bPrint)
 
 
 
-HANDLE mCreateEventPair(wchar_t* BaseName,ulong Rx,bool bPrint)
+HANDLE mCreateEventPair(wchar_t* BaseName,ulong Rx,bool bInherit,bool bPrint)
 {
 	wchar_t ObjectName_All[MAX_PATH+1]={0};
 	wcscpy(ObjectName_All,BaseName);
@@ -1112,6 +1498,7 @@ HANDLE mCreateEventPair(wchar_t* BaseName,ulong Rx,bool bPrint)
 	_OBJECT_ATTRIBUTES ObjAttrEP={0};
 	ObjAttrEP.Length = sizeof(ObjAttrEP);
 	ObjAttrEP.Attributes= OBJ_CASE_INSENSITIVE;
+	if(bInherit)	ObjAttrEP.Attributes |= OBJ_INHERIT;
 	ObjAttrEP.ObjectName = & UniSS_ep;
 
 	HANDLE hEventPair_l = 0;
@@ -1130,12 +1517,7 @@ HANDLE mCreateEventPair(wchar_t* BaseName,ulong Rx,bool bPrint)
 
 
 
-
-
-
-
-
-HANDLE mOpenSession(bool bPrint)
+HANDLE mOpenSession(bool bInherit,bool bPrint)
 {
 	wchar_t ObjectName_All[MAX_PATH+1]={0};
 	wcscpy(ObjectName_All,L"\\KernelObjects\\session");
@@ -1153,6 +1535,7 @@ HANDLE mOpenSession(bool bPrint)
 		_OBJECT_ATTRIBUTES ObjAttrSession={0};
 		ObjAttrSession.Length = sizeof(ObjAttrSession);
 		ObjAttrSession.Attributes= OBJ_CASE_INSENSITIVE;
+		if(bInherit)	ObjAttrSession.Attributes |= OBJ_INHERIT;
 		ObjAttrSession.ObjectName = & UniSS_session;
 
 
@@ -1169,6 +1552,80 @@ HANDLE mOpenSession(bool bPrint)
 }
 
 
+HANDLE mCreateWaitCompletionPacket(wchar_t* BaseName,ulong Rx,bool bInherit,bool bPrint)
+{
+	wchar_t ObjectName_All[MAX_PATH+1]={0};
+	wcscpy(ObjectName_All,BaseName);
+	ulong LenX = wcslen(ObjectName_All);
+	_ultow(Rx,&ObjectName_All[LenX],0x10);
+	LenX = wcslen(ObjectName_All);
+	ulong Rxx = GetRandomValue();
+	_ultow(Rxx,&ObjectName_All[LenX],0x10);
+	
+	if(bPrint)	wprintf(L"WaitCompletionPacket: %s\r\n",ObjectName_All);
+
+	_UNICODE_STRING UniSS_wcp = {0};
+	UniSS_wcp.Length = wcslen(ObjectName_All)*2;
+	UniSS_wcp.MaxLength = UniSS_wcp.Length + 2;
+	UniSS_wcp.Buffer = ObjectName_All;
+
+
+	_OBJECT_ATTRIBUTES ObjAttrWCP={0};
+	ObjAttrWCP.Length = sizeof(ObjAttrWCP);
+	ObjAttrWCP.Attributes= OBJ_CASE_INSENSITIVE;
+	if(bInherit)	ObjAttrWCP.Attributes |= OBJ_INHERIT;
+	ObjAttrWCP.ObjectName = & UniSS_wcp;
+
+	HANDLE hWaitCompletionPacket_l = 0;
+	int retValue = ZwCreateWaitCompletionPacket(&hWaitCompletionPacket_l,GENERIC_ALL,&ObjAttrWCP);
+	if(bPrint) printf("ZwCreateWaitCompletionPacket, ret: %X, hWaitCompletionPacket_l: %I64X\r\n",retValue,hWaitCompletionPacket_l);
+	if(retValue < 0)
+	{
+		if(bPrint)	printf("Error creating kernel WaitCompletionPacket\r\n");
+		ZwSuspendProcess(GetCurrentProcess());
+		return 0;
+	}
+	if(bPrint)	printf("hWaitCompletionPacket: %X\r\n",hWaitCompletionPacket_l);
+	return hWaitCompletionPacket_l;
+}
+
+
+HANDLE mCreateRegistryTransaction(wchar_t* BaseName,ulong Rx,bool bInherit,bool bPrint)
+{
+	wchar_t ObjectName_All[MAX_PATH+1]={0};
+	wcscpy(ObjectName_All,BaseName);
+	ulong LenX = wcslen(ObjectName_All);
+	_ultow(Rx,&ObjectName_All[LenX],0x10);
+	LenX = wcslen(ObjectName_All);
+	ulong Rxx = GetRandomValue();
+	_ultow(Rxx,&ObjectName_All[LenX],0x10);
+	
+	if(bPrint)	wprintf(L"RegistryTransaction: %s\r\n",ObjectName_All);
+
+	_UNICODE_STRING UniSS_RT = {0};
+	UniSS_RT.Length = wcslen(ObjectName_All)*2;
+	UniSS_RT.MaxLength = UniSS_RT.Length + 2;
+	UniSS_RT.Buffer = ObjectName_All;
+
+
+	_OBJECT_ATTRIBUTES ObjAttrRT={0};
+	ObjAttrRT.Length = sizeof(ObjAttrRT);
+	ObjAttrRT.Attributes= OBJ_CASE_INSENSITIVE;
+	if(bInherit)	ObjAttrRT.Attributes |= OBJ_INHERIT;
+	ObjAttrRT.ObjectName = & UniSS_RT;
+
+	HANDLE hRegistryTransaction_l = 0;
+	int retValue = NtCreateRegistryTransaction(&hRegistryTransaction_l,GENERIC_ALL,&ObjAttrRT,0);
+	if(bPrint) printf("NtCreateRegistryTransaction, ret: %X, hRegistryTransaction_l: %I64X\r\n",retValue,hRegistryTransaction_l);
+	if(retValue < 0)
+	{
+		if(bPrint)	printf("Error creating kernel RegistryTransaction object\r\n");
+		ZwSuspendProcess(GetCurrentProcess());
+		return 0;
+	}
+	if(bPrint)	printf("hRegistryTransaction: %X\r\n",hRegistryTransaction_l);
+	return hRegistryTransaction_l;
+}
 
 int InitKernelObjects(bool bPrint)
 {
@@ -1189,8 +1646,10 @@ int InitKernelObjects(bool bPrint)
 	//-------------- Random Name Parts ------------------------------------
 	unsigned long Rx = GetRandomValue();
 	unsigned long Rxx;
+
+	bool bInherit = Rand()%2;
 	//---------------- ALPC ----------------------------------------------
-	HANDLE hLpc_l= mCreateLpcPort(FullName,Rx,bPrint);
+	HANDLE hLpc_l= mCreateLpcPort(FullName,Rx,bInherit,bPrint);
 	//if(bPrint) printf("LPC: %X\r\n",hLpc_l);
 	hLpc = hLpc_l;
 
@@ -1199,7 +1658,7 @@ int InitKernelObjects(bool bPrint)
 	AllKernelObjectsUsed++;
 	ObjectName_All[0]=0;
 	//--------------------------- Debug -----------------------------------
-	HANDLE hDebug_l = mCreateDebug(FullName,Rx,bPrint);
+	HANDLE hDebug_l = mCreateDebug(FullName,Rx,bInherit,bPrint);
 	//if(bPrint) printf("hDebugObject: %X\r\n",hDebug_l);
 	hDebugObject = hDebug_l;
 	AllKernelObject[AllKernelObjectsUsed] = (ulonglong)hDebug_l;
@@ -1207,13 +1666,21 @@ int InitKernelObjects(bool bPrint)
 	ObjectName_All[0] = 0;
 	
 	//------------------------ Directory ---------------------------------
-	HANDLE hDir_l = mCreateObjDir(FullName,Rx,bPrint);
+	HANDLE hDir_l = mCreateObjDir(FullName,Rx,bInherit,bPrint);
 	//if(bPrint)	printf("hDirectory: %X\r\n",hDir_l);
 	hDirectory = hDir_l;
 	AllKernelObject[AllKernelObjectsUsed] = (ulonglong)hDir_l;
 	AllKernelObjectsUsed++;
 	ObjectName_All[0] = 0;
-	
+	//------------- Private NameSpace Directory --------
+
+	HANDLE hNameSpaceDirectory_l = mCreatePrivateNameSpaceDirectory(Name,Rx,bInherit,bPrint);
+	if(bPrint)	printf("hNameSpaceDirectory: %X\r\n",hNameSpaceDirectory_l);
+
+	hNameSpaceDirectory = hNameSpaceDirectory_l;
+	AllKernelObject[AllKernelObjectsUsed] = (ulonglong)hNameSpaceDirectory_l;
+	AllKernelObjectsUsed++;
+	ObjectName_All[0] = 0;
 	//------------------------ ETW --------------------------------------------------
 	//----------------------EtwConsumer -------------- Requires admin----------------
 	//mCreateEtwConsumer(bPrint);
@@ -1227,7 +1694,7 @@ int InitKernelObjects(bool bPrint)
 	ObjectName_All[0]=0;
 	//ExitProcess(0);
 	//-------------------------Event--------------------------------------------
-	HANDLE hEvent_l = mCreateEvent(FullName,Rx,bPrint);
+	HANDLE hEvent_l = mCreateEvent(FullName,Rx,bInherit,bPrint);
 	if(bPrint)	printf("Event: %X\r\n",hEvent_l);
 	hEvent = hEvent_l;
 	AllKernelObject[AllKernelObjectsUsed] = (ulonglong)hEvent_l;
@@ -1236,7 +1703,7 @@ int InitKernelObjects(bool bPrint)
 	//-------------------- Event Pair -------------------------------------
 	if(OSVer == 0) //Event pair not implemented in windows 10
 	{
-		HANDLE hEventPair_l = mCreateEventPair(FullName,Rx,bPrint);
+		HANDLE hEventPair_l = mCreateEventPair(FullName,Rx,bInherit,bPrint);
 		if(bPrint)	printf("hEventPair: %X\r\n",hEventPair_l);
 		hEventPair = hEventPair_l;
 		AllKernelObject[AllKernelObjectsUsed] = (ulonglong)hEventPair_l;
@@ -1251,7 +1718,7 @@ int InitKernelObjects(bool bPrint)
 	AllKernelObjectsUsed++;
 	ObjectName_All[0]=0;
 	//----------------------- IO Completion ------------------------------
-	HANDLE hIoCompletion_l = mCreateIOCompletion(FullName,Rx,bPrint);
+	HANDLE hIoCompletion_l = mCreateIOCompletion(FullName,Rx,bInherit,bPrint);
 	if(bPrint)	printf("hIOCompletion: %X\r\n",hIoCompletion_l);
 	hIoCompletion = hIoCompletion_l;
 
@@ -1289,7 +1756,7 @@ int InitKernelObjects(bool bPrint)
 	AllKernelObjectsUsed++;
 	ObjectName_All[0] = 0;
 	//---------------------- Job ------------------------------------------
-	HANDLE hJob_l = mCreateJob(FullName,Rx,bPrint);
+	HANDLE hJob_l = mCreateJob(FullName,Rx,bInherit,bPrint);
 	if(!hJob_l)
 	{
 		if(bPrint)	printf("Error creating job object, Err: %X\r\n",GetLastError());
@@ -1307,6 +1774,20 @@ int InitKernelObjects(bool bPrint)
 	//	if(bPrint)	printf("Error assigning to  job object, process already a job object\r\n");
 	//	return -5;
 	//}
+	//---------------------- ----------
+	HANDLE hPartitionJob_l = GetPartitionJob(bInherit,bPrint);
+	if(!hPartitionJob_l)
+	{
+		if(bPrint)	printf("Error creating job object, Err: %X\r\n",GetLastError());
+		if(bPrint) printf("Please launch PartitionCreator.exe first\r\n");
+		return -5;
+	}
+	if(bPrint)	printf("PartitionJob: %X\r\n",hPartitionJob_l);
+	hPartitionJob = hPartitionJob_l;
+	
+	AllKernelObject[AllKernelObjectsUsed] = (ulonglong)hPartitionJob_l;
+	AllKernelObjectsUsed++;
+	ObjectName_All[0] = 0;
 	//---------------------- Key ---------------------------------------------
 	HKEY hKey_l = mCreateKey(Name,Rx,bPrint);
 	if(bPrint)	printf("hKey: %X\r\n",hKey_l);
@@ -1317,7 +1798,7 @@ int InitKernelObjects(bool bPrint)
 	AllKernelObjectsUsed++;
 	ObjectName_All[0] = 0;
 	//-------------------------- Keyed Event --------------------------------
-	HANDLE hKeyedEvent_l = mCreateKeyedEvent(FullName,Rx,bPrint);
+	HANDLE hKeyedEvent_l = mCreateKeyedEvent(FullName,Rx,bInherit,bPrint);
 	if(bPrint)	printf("hKeyedEvent: %X\r\n",hKeyedEvent_l);
 
 	hKeyedEvent = hKeyedEvent_l;
@@ -1326,7 +1807,7 @@ int InitKernelObjects(bool bPrint)
 	AllKernelObjectsUsed++;
 	ObjectName_All[0] = 0;
 	//---------------- Mutex / Mutant ---------------------------
-	HANDLE hMutex_l = mCreateMutex(FullName,Rx,bPrint);
+	HANDLE hMutex_l = mCreateMutex(FullName,Rx,bInherit,bPrint);
 	if(bPrint)	printf("hMutext: %I64X\r\n",hMutex_l);
 	hMutex = hMutex_l;
 	ObjectName_All[0]=0;
@@ -1341,16 +1822,6 @@ int InitKernelObjects(bool bPrint)
 
 	
 	AllKernelObject[AllKernelObjectsUsed] = (ulonglong)hPowerRequest_l;
-	AllKernelObjectsUsed++;
-	ObjectName_All[0]=0;
-	
-	//------------------------- Process ---------------------------------
-	HANDLE hThread_P = 0;
-	HANDLE hProcess_l = mCreateProcess(&hThread_P,bPrint);
-	if(bPrint)	printf("hProcess: %I64X\r\n",hProcess_l);
-	hProcess = hProcess_l;
-
-	AllKernelObject[AllKernelObjectsUsed] = (ulonglong)hProcess_l;
 	AllKernelObjectsUsed++;
 	ObjectName_All[0]=0;
 	//------------------- Profile ----------------------------
@@ -1396,7 +1867,7 @@ int InitKernelObjects(bool bPrint)
 	ObjectName_All[0]=0;
 
 	//------------------------- Semaphore ---------------------
-	HANDLE hSemaphore_l = mCreateSemaphore(FullName,Rx,bPrint);
+	HANDLE hSemaphore_l = mCreateSemaphore(FullName,Rx,bInherit,bPrint);
 	if(bPrint)	printf("hSemaphore: %I64X\r\n",hSemaphore_l);
 	
 	hSemaphore = hSemaphore_l;
@@ -1405,16 +1876,15 @@ int InitKernelObjects(bool bPrint)
 	AllKernelObjectsUsed++;
 	ObjectName_All[0]=0;
 	//---------------------- Session -----------Requires priv, try NtCreateUserProcess
-	HANDLE hSession_l = mOpenSession(bPrint);
+	HANDLE hSession_l = mOpenSession(bInherit,bPrint);
 	if(bPrint)	printf("hSession: %I64X\r\n",hSession_l);
 	
 	hSession = hSession_l;
-	AllKernelObject[AllKernelObjectsUsed] = (ulonglong)hSession_l;
-
-	AllKernelObjectsUsed++;
+	//AllKernelObject[AllKernelObjectsUsed] = (ulonglong)hSession_l;
+	//AllKernelObjectsUsed++;
 	ObjectName_All[0]=0;
 	//-----------------------  SymLink ---------------
-	HANDLE hSymLink_l = mCreateSymLink(L"\\RPC Control\\walied",Rx,bPrint);
+	HANDLE hSymLink_l = mCreateSymLink(L"\\RPC Control\\walied",Rx,bInherit,bPrint);
 
 	if(bPrint)	printf("hSymLink: %I64X\r\n",hSymLink_l);
 	hSymLink = hSymLink_l;
@@ -1424,16 +1894,8 @@ int InitKernelObjects(bool bPrint)
 	AllKernelObject[AllKernelObjectsUsed] = (ulonglong)hSymLink_l;
 	AllKernelObjectsUsed++;
 	ObjectName_All[0]=0;
-	
-	//----------------------- Thread --------------------------
-	HANDLE hThread_l = hThread_P;
-	if(bPrint)	printf("hThread: %I64X\r\n",hThread_l);
-
-	hThread = hThread_l;
-	AllKernelObject[AllKernelObjectsUsed] = (ulonglong)hThread_l;
-	AllKernelObjectsUsed++;
 	//--------------------- Timer ----------------------
-	HANDLE hTimer_l = mCreateTimer(FullName,Rx,bPrint);
+	HANDLE hTimer_l = mCreateTimer(FullName,Rx,bInherit,bPrint);
 	if(bPrint)	printf("hTimer: %I64X\r\n",hTimer_l);
 
 	hTimer = hTimer_l;
@@ -1442,23 +1904,7 @@ int InitKernelObjects(bool bPrint)
 	AllKernelObjectsUsed++;
 	ObjectName_All[0]=0;
 	//------------------------------- TmTm Transaction Manager ------------------------
-	/*
-	_UNICODE_STRING UniTmLog = {0};
-	UniTmLog.Length = wcslen(pTmLog)*2;
-	UniTmLog.MaxLength = UniTmLog.Length + 2;
-	UniTmLog.Buffer = pTmLog;
-
-	retValue = ZwCreateTransactionManager(&hTmTm_l,GENERIC_ALL,0,0,1,0);
-
-	
-	if(bPrint)	printf("ZwCreateTransactionManager, ret: %X\r\n",retValue);
-	if(retValue < 0)
-	{
-		if(bPrint)	printf("Error creating TmTm Transaction Manager\r\n");
-		return -17;
-	}
-	*/
-	HANDLE hTmTm_l = mCreateTm(Name,Rx,bPrint);
+	HANDLE hTmTm_l = mCreateTm(Name,Rx,bInherit,bPrint);
 	if(bPrint)	printf("hTmTm: %I64X\r\n",hTmTm_l);
 
 	hTmTm = hTmTm_l;
@@ -1466,7 +1912,7 @@ int InitKernelObjects(bool bPrint)
 	AllKernelObjectsUsed++;
 	ObjectName_All[0]=0;
 	//-------------------------- TmRm  Resource Manager ------------------------------
-	HANDLE hTmRm_l = mCreateRm(FullName,Rx,hTmTm_l,bPrint);
+	HANDLE hTmRm_l = mCreateRm(FullName,Rx,hTmTm_l,bInherit,bPrint);
 	if(bPrint)	printf("hTmRm: %I64X\r\n",hTmRm_l);
 
 	hTmRm = hTmRm_l;
@@ -1474,30 +1920,30 @@ int InitKernelObjects(bool bPrint)
 	AllKernelObjectsUsed++;
 	ObjectName_All[0]=0;
 	//----------------------- TmTx ------------------------
-	HANDLE hTmTx_l = mCreateTx(FullName,Rx,hTmTm_l,bPrint);
+	HANDLE hTmTx_l = mCreateTx(FullName,Rx,hTmTm_l,bInherit,bPrint);
 	if(bPrint)	printf("hTmTx: %I64X\r\n",hTmTx_l);
 	hTmTx = hTmTx_l;
 	AllKernelObject[AllKernelObjectsUsed] = (ulonglong)hTmTx_l;
 	AllKernelObjectsUsed++;
 	ObjectName_All[0]=0;
 	//---------------------- TmEn Enlistment --------------------------
-	HANDLE hTmEn_l = mCreateEn(FullName,Rx,hTmRm_l,hTmTx_l,bPrint);
+	HANDLE hTmEn_l = mCreateEn(FullName,Rx,hTmRm_l,hTmTx_l,bInherit,bPrint);
 	if(bPrint)	printf("hTmEn: %I64X\r\n",hTmEn_l);
 	hTmEn = hTmEn_l;
 	AllKernelObject[AllKernelObjectsUsed] = (ulonglong)hTmEn_l;
 	AllKernelObjectsUsed++;
 	ObjectName_All[0]=0;
-	//---------------------- Token ------------------------------------
-	HANDLE hToken_l = mCreateToken(hProcess_l,bPrint);
-	if(bPrint)	printf("hToken: %I64X\r\n",hToken_l);
+	//------------- Token from Logon --------------------------
+	HANDLE hToken2_l = mCreateTokenLogon(L"fuzz",L"Fuzz123",bPrint);
+	if(bPrint)	printf("hToken (LogonUser): %I64X\r\n",hToken2_l);
 	
-	AllKernelObject[AllKernelObjectsUsed] = (ulonglong)hToken_l;
+	hToken2 = hToken2_l;
+	AllKernelObject[AllKernelObjectsUsed] = (ulonglong)hToken2_l;
 	AllKernelObjectsUsed++;
 
 	ObjectName_All[0]=0;
-	
 	//---------------------- Thread Pool ----------------------
-	HANDLE hTpWorkerFactory_l = mCreateTP(FullName,Rx,hIoCompletion_l,bPrint);
+	HANDLE hTpWorkerFactory_l = mCreateTP(FullName,Rx,hIoCompletion_l,bInherit,bPrint);
 	if(bPrint)	printf("hTpWorkerFactory: %X\r\n",hTpWorkerFactory_l);
 	hTpWorkerFactory = hTpWorkerFactory_l;
 
@@ -1534,7 +1980,7 @@ int InitKernelObjects(bool bPrint)
 	}
 	else
 	{
-		hPartition_l = mCreatePartition(FullName,Rx,bPrint);
+		hPartition_l = mCreatePartition(FullName,Rx,bInherit,bPrint);
 		if(!hPartition_l)
 		{
 			if( Rand()%2 == 1)
@@ -1555,6 +2001,71 @@ int InitKernelObjects(bool bPrint)
 	AllKernelObject[AllKernelObjectsUsed] = (ulonglong)hPartition_l;
 	AllKernelObjectsUsed++;
 	ObjectName_All[0]=0;
+	//------------------------------
+	HANDLE hPartition2_l = mOpenPartition(wPartName,bInherit,bPrint);
+	if(!hPartition2_l)
+	{
+			if( Rand()%2 == 1)
+			{
+				hPartition2_l = (HANDLE)-1;//Current Partition
+			}
+			else
+			{
+				hPartition2_l = (HANDLE) -2;//System Partition
+			}
+	}
+
+	if(bPrint) printf("hPartition2: %X\r\n",hPartition2_l);
+
+
+	hPartition2 = hPartition2_l;
+	AllKernelObject[AllKernelObjectsUsed] = (ulonglong)hPartition2_l;
+	AllKernelObjectsUsed++;
+	ObjectName_All[0]=0;
+	//--------------- Wait Completion Packet -------
+	HANDLE hWaitCompletionPacket_l = mCreateWaitCompletionPacket(FullName,Rx,bInherit,bPrint);
+	if(bPrint)	printf("hWaitCompletionPacket: %X\r\n",hWaitCompletionPacket_l);
+	hWaitCompletionPacket = hWaitCompletionPacket_l;
+
+	AllKernelObject[AllKernelObjectsUsed] = (ulonglong)hWaitCompletionPacket_l;
+	AllKernelObjectsUsed++;
+	ObjectName_All[0] = 0;
+	//------------- Registry Transaction -------
+	HANDLE hRegistryTransaction_l = mCreateRegistryTransaction(FullName,Rx,bInherit,bPrint);
+	if(bPrint)	printf("hRegistryTransaction: %X\r\n",hRegistryTransaction_l);
+	hRegistryTransaction = hRegistryTransaction_l;
+
+	AllKernelObject[AllKernelObjectsUsed] = (ulonglong)hRegistryTransaction_l;
+	AllKernelObjectsUsed++;
+	ObjectName_All[0] = 0;
+	//------------------------- Process ---------------------------------
+	HANDLE hThread_P = 0;
+	HANDLE hProcess_l = mCreateProcess(&hThread_P,bPrint);
+	if(bPrint)	printf("hProcess: %I64X\r\n",hProcess_l);
+	hProcess = hProcess_l;
+
+	AllKernelObject[AllKernelObjectsUsed] = (ulonglong)hProcess_l;
+	AllKernelObjectsUsed++;
+	ObjectName_All[0]=0;
+	//----------------------- Thread --------------------------
+	HANDLE hThread_l = hThread_P;
+	if(bPrint)	printf("hThread: %I64X\r\n",hThread_l);
+
+	hThread = hThread_l;
+	AllKernelObject[AllKernelObjectsUsed] = (ulonglong)hThread_l;
+	AllKernelObjectsUsed++;
+	//---------------------- Token ------------------------------------
+	HANDLE hToken_l = mOpenTokenProcess(hProcess_l,bPrint);
+	if(bPrint)	printf("hToken: %I64X\r\n",hToken_l);
+	
+	hToken = hToken_l;
+	AllKernelObject[AllKernelObjectsUsed] = (ulonglong)hToken_l;
+	AllKernelObjectsUsed++;
+
+	ObjectName_All[0]=0;
+	//--------------
+	AllKernelObject[0] = -1; //GetCurrentProcess();
+	AllKernelObject[0] = AllKernelObject[Rand()%AllKernelObjectsUsed];
 	return 0;
 }
 
@@ -1564,7 +2075,7 @@ void ObjCreatorDestroyerThread()
 	srand(time(NULL));
 	while(1)
 	{
-		Sleep(50000);
+		Sleep(10 * 60 * 1000);
 		if(hProcess)
 		{
 			/*
@@ -1578,8 +2089,19 @@ void ObjCreatorDestroyerThread()
 			int retX = ZwTerminateProcess(hProcess,GetRandomNTStatusCode());
 			if(retX < 0)
 			{
-				printf("ZwTerminateProcess, ret: %X (hProcess: %I64X)\r\n",retX,hProcess);
-				ExitProcess(0);
+				//printf("ZwTerminateProcess, ret: %X (hProcess: %I64X)\r\n",retX,hProcess);
+
+				if(retX != 0xC000010A)
+				{
+					ExitProcess(0);
+				}
+				else
+				{
+					HANDLE hThread_P = 0;
+					HANDLE hProcess_l = mCreateProcess(&hThread_P,false);
+					hProcess = hProcess_l;
+					hThread = hThread_P;
+				}
 			}
 		}
 
@@ -1607,39 +2129,27 @@ void ObjCreatorDestroyerThread()
 	}
 }
 
-void ObjDestroyerThread()
+
+void ProcessCreatorDestroyer()
 {
 	srand(time(NULL));
 	while(1)
 	{
-		Sleep(2000);
-
-		if(hThread)
-		{
-			int retX = ZwTerminateThread(hThread,GetRandomNTStatusCode());
-			if(retX < 0)
-			{
-				//printf("ZwTerminateThread, ret: %X (hThread: %I64X)\r\n",retX,hThread);
-				//ExitProcess(0);
-			}
-		}
-
+		Sleep(1000);
 		if(hProcess)
 		{
-			int retX = ZwTerminateProcess(hProcess,GetRandomNTStatusCode());
+			int retX = ZwResumeProcess(hProcess);
 			if(retX < 0)
 			{
-				//printf("ZwTerminateProcess, ret: %X (hProcess: %I64X)\r\n",retX,hProcess);
-				//ExitProcess(0);
-			}
-		}
+				//0xC000010A
+				printf("ZwResumeProcess, ret: %X (hProcess: %I64X)\r\n",retX,hProcess);
+				
 
-		ulong var_AllKernelObjectsUsed = AllKernelObjectsUsed;
-		ulong i = 0;
-		while(i < var_AllKernelObjectsUsed)
-		{
-			ZwClose( (HANDLE) (AllKernelObject[i]) );
-			i++;
+				HANDLE hThread_P = 0;
+				HANDLE hProcess_l = mCreateProcess(&hThread_P,false);
+				hProcess = hProcess_l;
+				hThread = hThread_P;
+			}
 		}
 	}
 }

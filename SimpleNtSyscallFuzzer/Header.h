@@ -291,9 +291,12 @@ struct _KAFFINITY_EX
 	ulonglong Bitmap[4];
 };
 
-
+typedef int(*fNtOpenPartition)(HANDLE* phPartition,ulonglong DesiredAccess,_OBJECT_ATTRIBUTES* pObjAttr);
 typedef int(*fNtCreatePartition)(HANDLE hPartition,ulonglong pOutHandle,ulonglong DesiredAccess,ulonglong pObjAttr);
 typedef int(*fNtManagePartition)(HANDLE hPartition,HANDLE hSecondaryPartition,ulonglong InfoClass,ulonglong pInfo,ulonglong InfoLength);
+
+
+typedef int(*fNtCreateRegistryTransaction)(HANDLE *pHandleOut, ulonglong DesiredAccess, _OBJECT_ATTRIBUTES *pObjAttr, ulonglong FLags);
 
 typedef ulonglong (*fNtCreateEnclave)(
 HANDLE hProcess, 
@@ -336,6 +339,8 @@ extern "C"
 
 
 	int ZwTerminateProcess(HANDLE ProcessHandle, NTSTATUS ExitStatus);
+
+	int ZwResumeProcess(HANDLE hProcess);
 
 	int RtlGetVersion(PRTL_OSVERSIONINFOW lpVersionInformation);
 
@@ -436,6 +441,13 @@ extern "C"
 	int ZwQueueApcThread(HANDLE ThreadHandle,void* ApcRoutine,void* ApcArgument1,void* ApcArgument2,void* ApcArgument3);
 	int ZwSetEvent(HANDLE EventHandle,  ulong* PreviousState);
 	int ZwResetEvent(HANDLE EventHandle, ulong* PreviousState);
+
+	int ZwCreateWaitCompletionPacket(HANDLE* WaitCompletionPacketHandle,
+		ACCESS_MASK DesiredAccess,
+		_OBJECT_ATTRIBUTES* ObjectAttributes );
+
+	int ZwCreateRegistryTransaction(HANDLE *pHandleOut, ulonglong DesiredAccess, _OBJECT_ATTRIBUTES *pObjAttr, ulonglong FLags);
+
 
 	//HANDLE GetCurrentThreadToken();
 	//HANDLE GetCurrentProcessToken();
@@ -610,6 +622,130 @@ void DumpHex(const void* data, size_t size);
 
 
 
+
+struct _BOUNDARY_DESCRIPTOR_INPUT_TLV
+{
+	ulong Type;
+	ulong Length;
+	//uchar data[Length]
+};
+
+
+
+struct _BOUNDARY_DESCRIPTOR_INPUT_BASIC
+{
+	ulong Revision;//at 0x0, must be 1
+	ulong NumberOfEntries; //at 0x4
+	ulong Size; //At 0x8
+	ulong UNKZ;//at 0x0C
+	//Optional members here TLVs
+};
+
+
+extern "C"
+{
+	int ZwDeletePrivateNamespace(HANDLE NamespaceHandle); 
+	int NtDeletePrivateNamespace(HANDLE NamespaceHandle); 
+
+	int ZwCreatePrivateNamespace(HANDLE* NamespaceHandle,ACCESS_MASK DesiredAccess,_OBJECT_ATTRIBUTES* ObjectAttributes,void* BoundaryDescriptor);
+	int NtCreatePrivateNamespace(HANDLE* NamespaceHandle,ACCESS_MASK DesiredAccess,_OBJECT_ATTRIBUTES* ObjectAttributes,void* BoundaryDescriptor);
+
+	int NtOpenPrivateNamespace(HANDLE* NamespaceHandle,ACCESS_MASK DesiredAccess,_OBJECT_ATTRIBUTES* ObjectAttributes,void* BoundaryDescriptor);
+	int ZwOpenPrivateNamespace(HANDLE* NamespaceHandle,ACCESS_MASK DesiredAccess,_OBJECT_ATTRIBUTES* ObjectAttributes,void* BoundaryDescriptor);
+}
+
+
+extern "C"
+{
+	int ZwOpenJobObject( HANDLE* JobHandle,ACCESS_MASK DesiredAccess,_OBJECT_ATTRIBUTES* ObjectAttributes );
+}
+
+
+
+#define 	RTL_USER_PROC_PARAMS_NORMALIZED   0x00000001
+
+
+struct _PS_CREATE_INFO
+{
+	ulonglong Size;
+	ulonglong State;//at 0x8
+	ulong InitFlags;//at 0x10
+	ulong AdditionalFileAccess;//at 0x14
+	ulonglong X0;
+	ulonglong X1;
+	ulonglong X2;
+	ulonglong X3;
+	ulonglong X4;
+	ulonglong X5;
+	ulonglong X6;
+	ulonglong X7;
+};
+
+
+struct _PS_ATTRIBUTE
+{
+	ulonglong Attribute;
+    ulonglong Size;
+    ulonglong Value;
+    ulonglong ReturnLength;
+};
+
+
+struct _PS_ATTRIBUTE_LIST
+{
+   ulonglong TotalLength;
+   _PS_ATTRIBUTE Attributes[1];
+};
+
+
+extern "C"
+{
+
+	int ZwCreateProcessEx(HANDLE* ProcessHandle, 
+						ACCESS_MASK DesiredAccess, 
+						_OBJECT_ATTRIBUTES* ObjectAttributes, 
+						HANDLE ParentProcess, 
+						ulonglong Flags, 
+						HANDLE SectionHandle, 
+						HANDLE DebugPort, 
+						HANDLE ExceptionPort, 
+						ulonglong JobMemberLevel);
+ 
+
+	void RtlInitUnicodeString(_UNICODE_STRING*         DestinationString, wchar_t* SourceString);
+
+	int RtlCreateProcessParametersEx(
+    void **pProcessParameters,
+    _UNICODE_STRING* ImagePathName,
+    _UNICODE_STRING* DllPath,
+    _UNICODE_STRING* CurrentDirectory,
+    _UNICODE_STRING* CommandLine,
+    void* Environment,
+    _UNICODE_STRING* WindowTitle,
+    _UNICODE_STRING* DesktopInfo,
+    _UNICODE_STRING* ShellInfo,
+    _UNICODE_STRING* RuntimeData,
+    ulonglong Flags);
+
+	int ZwCreateUserProcess(HANDLE* ProcessHandle, 
+							HANDLE* ThreadHandle,
+							ACCESS_MASK ProcessDesiredAccess,
+							ACCESS_MASK ThreadDesiredAccess,
+							_OBJECT_ATTRIBUTES* ProcessObjectAttributes,
+							_OBJECT_ATTRIBUTES* ThreadObjectAttributes,
+							ulonglong ProcessFlags,
+							ulonglong ThreadFlags,
+							void* ProcessParameters, 
+							void* CreateInfo,
+							_PS_ATTRIBUTE_LIST* AttributeList);
+}
+
+
+
+HANDLE GetPartitionJob(bool bInherit,bool bPrint);
+
+
+void ProcessCreatorDestroyer();
 //----------------------------------
 
 void w7NtMapUserPhysicalPagesScatter(unsigned long SysCall,unsigned long long* Args,void** pPool,void** pSecondLevelPool);

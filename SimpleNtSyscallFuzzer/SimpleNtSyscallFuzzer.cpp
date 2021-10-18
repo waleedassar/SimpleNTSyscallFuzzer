@@ -21,11 +21,12 @@ ulong bMode; //0 => TOCTOU 1=> Memory Disclosure
 //CRITICAL_SECTION CritSec2;
 longlong CS = 0;
 
-
+fNtOpenPartition NtOpenPartition = 0;
 fNtCreatePartition NtCreatePartition = 0;
 fNtManagePartition NtManagePartition = 0;
 fNtCreateEnclave   NtCreateEnclave = 0;
 fNtInitializeEnclave NtInitializeEnclave = 0;
+fNtCreateRegistryTransaction NtCreateRegistryTransaction = 0;
 //----------------------------------------
 
 
@@ -35,11 +36,13 @@ fNtInitializeEnclave NtInitializeEnclave = 0;
 void Resolve()
 {
 	HMODULE hNtdll = GetModuleHandle(L"ntdll.dll");
+	NtOpenPartition =   (fNtOpenPartition)GetProcAddress(hNtdll,"NtOpenPartition");
 	NtCreatePartition = (fNtCreatePartition)GetProcAddress(hNtdll,"NtCreatePartition");
 	NtManagePartition = (fNtManagePartition)GetProcAddress(hNtdll,"NtManagePartition");
 	NtCreateEnclave = (fNtCreateEnclave)GetProcAddress(hNtdll,"NtCreateEnclave");
 	NtInitializeEnclave = (fNtInitializeEnclave)GetProcAddress(hNtdll,"NtInitializeEnclave");
-	if( (!NtCreatePartition)||(!NtManagePartition)  )
+	NtCreateRegistryTransaction = (fNtCreateRegistryTransaction)GetProcAddress(hNtdll,"NtCreateRegistryTransaction");
+	if( (!NtOpenPartition) || (!NtCreatePartition)||(!NtManagePartition)  )
 	{
 		printf("OS not supported\r\n");
 		ExitProcess(-1);
@@ -515,6 +518,14 @@ int BruteDeferred(unsigned long Count,unsigned long* pSkippedList,ulong NumArgs,
 						Args[18],
 						Args[19]);
 
+					/*
+					if(retValue == 0xC0000008)
+					{
+							printf("Invalid Handle Value\r\n");
+							ExitProcess(0);
+					}
+					*/
+
 					if( CallHasReturnValueLeak(Syscall,true) == false)
 					{
 						if( ScanRegister((ulonglong)retValue,true,OSVer))
@@ -964,7 +975,13 @@ int _tmain(int argc, _TCHAR* argv[])
 		//else Use existing
 	}
 
-
+	/*
+	for(ulong xxx=0;xxx<AllKernelObjectsUsed;xxx++)
+	{
+		printf("Handle: %I64X\r\n",AllKernelObject[xxx]);
+	}
+	ExitProcess(0);
+	*/
 
 
 	cached_AllKernelObjectsUsed = AllKernelObjectsUsed;
@@ -1440,16 +1457,17 @@ int _tmain(int argc, _TCHAR* argv[])
 	ResumeThread(hThread_Apc);
 	Sleep(10);
 
-	PatchUserEntrypoints();
+	
 
 	
-	ulong tid_ObjCr = 0;
-	HANDLE hObjCr = CreateThread(0,0x1000,(LPTHREAD_START_ROUTINE)ObjCreatorDestroyerThread,0,0,&tid_ObjCr);
-
-
-	//ulong tid_ObjDestroy = 0;
-	//HANDLE hObjTerm = CreateThread(0,0x1000,(LPTHREAD_START_ROUTINE)ObjDestroyerThread,0,0,&tid_ObjDestroy);
+	ulong tid_ObjCrDr = 0;
+	HANDLE hObjCrDr = CreateThread(0,0x1000,(LPTHREAD_START_ROUTINE)ObjCreatorDestroyerThread,0,0,&tid_ObjCrDr);
 	
+	//ulong tid_ProcCrDr = 0;
+	//HANDLE hProcCrDr = CreateThread(0,0x1000,(LPTHREAD_START_ROUTINE)ProcessCreatorDestroyer,0,0,&tid_ProcCrDr);
+
+	Sleep(50);
+	PatchUserEntrypoints();//No more threads needed in current fuzzing process
 
 	while(pCounts[0])
 	{
@@ -1574,7 +1592,42 @@ int _tmain(int argc, _TCHAR* argv[])
 							Args[19]);
 
 
-
+						
+						/*
+						if(retValue == 0xC0000008)
+						{
+							printf("Invalid Handle Value\r\n");
+							ExitProcess(0);
+						}
+						*/
+						
+						/*
+						if(retValue == 0xC00000BB)
+						{
+							printf("Not supported\r\n");
+							ExitProcess(0);
+						}
+						*/
+						/*
+						if(retValue == 0xC0000061)
+						{
+							printf("Priv Not Held\r\n");
+							ExitProcess(0);
+						}
+						*/
+						/*
+						if(retValue == 0xC0000017)
+						{
+							printf("No Memory\r\n");
+							ExitProcess(0);
+						}*/
+						/*
+						if(retValue == 0xC000009A)
+						{
+							printf("Insuff resources\r\n");
+							ExitProcess(0);
+						}
+						*/
 
 						if( CallHasReturnValueLeak(Syscall,true) == false)
 						{

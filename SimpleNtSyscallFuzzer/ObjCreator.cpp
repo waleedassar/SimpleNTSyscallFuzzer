@@ -53,8 +53,9 @@ HANDLE hTimer;
 HANDLE hTmRm;
 HANDLE hTmTm;
 HANDLE hTmTx;
-HANDLE hToken;
-HANDLE hToken2;
+HANDLE hToken;//Process Token
+HANDLE hThreadToken;//Thread Token
+HANDLE hToken2;//Token from Logon User
 HANDLE hTmEn;
 HANDLE hTpWorkerFactory;
 //Type
@@ -1272,11 +1273,42 @@ HANDLE mCreateTokenLogon(wchar_t* UserName,wchar_t* Pass,bool bPrint)
 	if(!LogonUser(UserName,0,Pass,LOGON32_LOGON_INTERACTIVE,LOGON32_PROVIDER_DEFAULT,&hToken_l))
 	{
 		if(bPrint) printf("LogonUser failed, err: %X\r\n",GetLastError());
+		ZwSuspendProcess(GetCurrentProcess());
 		return 0;
 	}
 	if(bPrint) printf("hToken (LogonUser): %I64X\r\n",hToken_l);
 	return hToken_l;
 }
+
+
+HANDLE mOpenTokenThread(HANDLE hThreadX,SECURITY_IMPERSONATION_LEVEL Level,bool bPrint)
+{
+	_SECURITY_QUALITY_OF_SERVICE QOS = {0};
+	QOS.Length = sizeof(QOS);
+	QOS.ImpersonationLevel = Level;
+
+	//Asking remote thread to impersonate our thread
+	int retY = ZwImpersonateThread( hThreadX,GetCurrentThread(),&QOS);
+	if(bPrint) printf("ZwImpersonateThread, ret: %X\r\n",retY);
+	if(retY < 0)
+	{
+		ZwSuspendProcess(GetCurrentProcess());
+		return 0;
+	}
+
+	HANDLE hToken_l = 0;
+
+	int retX = ZwOpenThreadToken(hThreadX,GENERIC_ALL,TRUE,&hToken_l);
+	if(bPrint) printf("ZwOpenThreadToken, ret: %X\r\n",retX);
+	if(retX < 0)
+	{
+		ZwSuspendProcess(GetCurrentProcess());
+		return 0;
+	}
+	if(bPrint)	printf("hThreadToken: %I64X\r\n",hToken_l);
+	return hToken_l;
+}
+
 
 HANDLE mCreateTP(wchar_t* BaseName,ulong Rx,HANDLE hIoCompletionX,bool bInherit,bool bPrint)
 {
@@ -2054,14 +2086,29 @@ int InitKernelObjects(bool bPrint)
 	hThread = hThread_l;
 	AllKernelObject[AllKernelObjectsUsed] = (ulonglong)hThread_l;
 	AllKernelObjectsUsed++;
-	//---------------------- Token ------------------------------------
+	ObjectName_All[0]=0;
+	//---------------------- Process Token --------------------
 	HANDLE hToken_l = mOpenTokenProcess(hProcess_l,bPrint);
 	if(bPrint)	printf("hToken: %I64X\r\n",hToken_l);
 	
 	hToken = hToken_l;
 	AllKernelObject[AllKernelObjectsUsed] = (ulonglong)hToken_l;
 	AllKernelObjectsUsed++;
+	ObjectName_All[0]=0;
+	//---------------------- Thread Token ---------------------
+	SECURITY_IMPERSONATION_LEVEL Levels[3] = {  SECURITY_IMPERSONATION_LEVEL::SecurityDelegation,
+												SECURITY_IMPERSONATION_LEVEL::SecurityIdentification,
+												SECURITY_IMPERSONATION_LEVEL::SecurityImpersonation};
 
+
+	SECURITY_IMPERSONATION_LEVEL Level = Levels[Rand()%3];
+
+	HANDLE hThreadToken_l = mOpenTokenThread(hThread_l,Level,bPrint);
+	if(bPrint)	printf("hThreadToken: %I64X\r\n",hThreadToken_l);
+	
+	hThreadToken = hThreadToken_l;
+	AllKernelObject[AllKernelObjectsUsed] = (ulonglong)hThreadToken_l;
+	AllKernelObjectsUsed++;
 	ObjectName_All[0]=0;
 	//--------------
 	AllKernelObject[0] = -1; //GetCurrentProcess();

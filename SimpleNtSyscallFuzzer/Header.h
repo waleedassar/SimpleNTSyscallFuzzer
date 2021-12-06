@@ -698,6 +698,9 @@ struct _PS_ATTRIBUTE_LIST
 };
 
 
+ulonglong GetRandomDesiredAccess();
+void FillRandomObjectAttributes(void* p,ulong Size);
+
 extern "C"
 {
 
@@ -740,7 +743,11 @@ extern "C"
 							_PS_ATTRIBUTE_LIST* AttributeList);
 }
 
-
+extern "C"
+{
+	int ZwImpersonateThread(HANDLE ServerThreadHandle, HANDLE ClientThreadHandle, PSECURITY_QUALITY_OF_SERVICE SecurityQos);
+	int ZwOpenThreadToken(HANDLE ThreadHandle,ACCESS_MASK DesiredAccess,bool OpenAsSelf, HANDLE* TokenHandle);
+}
 
 HANDLE GetPartitionJob(bool bInherit,bool bPrint);
 

@@ -53,6 +53,7 @@ extern HANDLE hTmRm;
 extern HANDLE hTmTm;
 extern HANDLE hTmTx;
 extern HANDLE hToken;
+extern HANDLE hThreadToken;
 extern HANDLE hToken2;
 extern HANDLE hTpWorkerFactory;
 //Type
@@ -1249,8 +1250,8 @@ unsigned long long* Args,
 void** pPool,
 void** pSecondLevelPool)
 {
-  	Args[0] = (ulonglong)hToken;
-	if( Rand()%2 == 1)	Args[0] = (ulonglong)hToken2;
+	HANDLE Tokens[3] = {hToken,hThreadToken,hToken2};
+  	Args[0] = (ulonglong)(Tokens[Rand()%3]);
 
 	unsigned long long Classes[0x29]={0x1,0x2,0x3,0x4,0x5,0x6,0x7,0x8,0x9,0xa,0xb,0xc,0xd,0xf,0x10,0x11,0x12,0x13,0x14,0x15,0x16,0x17,0x18,0x19,0x1a,0x1b,0x1c,0x1d,0x1e,0x1f,0x20,0x21,0x22,0x25,0x27,0x28,0x29,0x2a,0x2b,0x2c,0x2f};
 	*(ulong*)(&Args[1]) = Classes[Rand()%0x29];
@@ -2107,8 +2108,8 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
-   Args[0] = (ulonglong)hToken;
-   if( Rand()%2 == 1)	Args[0] = (ulonglong)hToken2;
+	HANDLE Tokens[3] = {hToken,hThreadToken,hToken2};
+  	Args[0] = (ulonglong)(Tokens[Rand()%3]);
 }
 
 void w7NtDuplicateToken
@@ -2118,8 +2119,8 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
-   Args[0] = (ulonglong)hToken;
-   if( Rand()%2 == 1)	Args[0] = (ulonglong)hToken2;
+	HANDLE Tokens[3] = {hToken,hThreadToken,hToken2};
+  	Args[0] = (ulonglong)(Tokens[Rand()%3]);
 }
 
 void w7NtContinue
@@ -2224,10 +2225,18 @@ unsigned long long* Args,
 void** pPool,
 void** pSecondLevelPool)
 {
-   DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+
+   Args[0] = (ulonglong)(pPool[0]);
+
+   if( Rand()%2 == 1) *(ulong*)(&Args[1]) = GetRandomDesiredAccess();
+
+   Args[2] = (ulonglong)(pPool[2]);
+   FillRandomObjectAttributes((void*)(pPool[2]),RANDOM_PAGE_SIZE);
 
    Args[3] = (ulonglong)hProcess;
    if( Rand()%3 == 1) Args[3] = 0;
+
+   *(ulong*)(&Args[4]) &= (~0xFFF94040);
 
    Args[5] = (ulonglong)hSection;
    if( Rand()%3 == 1) Args[5] = 0;
@@ -2235,7 +2244,7 @@ void** pSecondLevelPool)
    Args[6] = (ulonglong)hDebugObject;
    if( Rand()%3 == 1) Args[6] = 0;
 
-   Args[7] = (ulonglong)hLpc;
+   Args[7] = (ulonglong)hToken;
    if( Rand()%3 == 1) Args[7] = 0;
 }
 
@@ -2534,8 +2543,8 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
-   Args[0] = (ulonglong)hToken;
-   if( Rand()%2 == 1)	Args[0] = (ulonglong)hToken2;
+	HANDLE Tokens[3] = {hToken,hThreadToken,hToken2};
+  	Args[0] = (ulonglong)(Tokens[Rand()%3]);
 }
 
 void w7NtAlertResumeThread
@@ -2901,11 +2910,11 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
-   Args[0] = (ulonglong)hToken;
-   if( Rand()%2 == 1)	Args[0] = (ulonglong)hToken2;
+	HANDLE Tokens[3] = {hToken,hThreadToken,hToken2};
+  	Args[0] = (ulonglong)(Tokens[Rand()%3]);
 
-   Args[1] = (ulonglong)hToken;
-   if( Rand()%2 == 1)	Args[1] = (ulonglong)hToken2;
+	
+  	Args[1] = (ulonglong)(Tokens[Rand()%3]);
 }
 
 void w7xHalGetInterruptTranslator
@@ -3418,8 +3427,8 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
-   Args[0] = (ulonglong)hToken;
-   if( Rand()%2 == 1)	Args[0] = (ulonglong)hToken2;
+	HANDLE Tokens[3] = {hToken,hThreadToken,hToken2};
+  	Args[0] = (ulonglong)(Tokens[Rand()%3]);
 }
 
 void w7NtFlushInstallUILanguage
@@ -4633,9 +4642,8 @@ void** pSecondLevelPool)
 	}
 	//else Random
 
-	Args[5]=(ulonglong)hToken;
-	if( Rand()%2 == 1)	Args[5] = (ulonglong)hToken2;
-	if(Rand()%5 == 1)  Args[5]=0;
+	HANDLE Tokens[4] = {hToken,hThreadToken,hToken2,0};
+  	Args[5] = (ulonglong)(Tokens[Rand()%4]);
 
 
 
@@ -5336,8 +5344,8 @@ unsigned long long* Args,
 void** pPool,
 void** pSecondLevelPool)
 {
-	Args[0] = (ulonglong)hToken;
-	if( Rand()%2 == 1)	Args[0] = (ulonglong)hToken2;
+	HANDLE Tokens[3] = {hToken,hThreadToken,hToken2};
+  	Args[0] = (ulonglong)(Tokens[Rand()%3]);
 
 	ulong R = Rand()%3;
 	if(R==0)
@@ -5389,9 +5397,8 @@ void** pSecondLevelPool)
 	
 	if( Rand()%5 == 1) Args[1] = (Rand()%3) - 2;
 
-	Args[2]=(ulonglong)hToken;
-	if( Rand()%5 == 1 )   Args[2]=0;
-	if( Rand()%2 == 1 )	Args[2] = (ulonglong)hToken2;
+	HANDLE Tokens[4] = {hToken,hThreadToken,hToken2,0};
+  	Args[2] = (ulonglong)(Tokens[Rand()%4]);
 
 	ulong Desireds[4]={GENERIC_READ,GENERIC_WRITE,GENERIC_EXECUTE,GENERIC_ALL};
 	R = Rand()%4;
@@ -5461,9 +5468,8 @@ void** pSecondLevelPool)
 	}
 	//else Random
 
-	Args[2]=(ulonglong)hToken;
-	if(Rand()%5 == 1)  Args[2]=0;
-	if( Rand()%2 == 1)	Args[2] = (ulonglong)hToken2;
+	HANDLE Tokens[4] = {hToken,hThreadToken,hToken2,0};
+  	Args[2] = (ulonglong)(Tokens[Rand()%4]);
 
 
 	R = Rand()%3;
@@ -5983,8 +5989,8 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
-   Args[0] = (ulonglong)hToken;
-   if( Rand()%2 == 1)	Args[0] = (ulonglong)hToken2;
+	HANDLE Tokens[3] = {hToken,hThreadToken,hToken2};
+  	Args[0] = (ulonglong)(Tokens[Rand()%3]);
 }
 
 void w7NtQuerySecurityObject
@@ -6567,8 +6573,8 @@ void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
 
-   Args[0] = (ulonglong)hToken;
-   if( Rand()%2 == 1)	Args[0] = (ulonglong)hToken2;
+	HANDLE Tokens[3] = {hToken,hThreadToken,hToken2};
+  	Args[0] = (ulonglong)(Tokens[Rand()%3]);
 
    unsigned long long Classes[0x10]={0x4,0x5,0x6,0xc,0xe,0x10,0x11,0x13,0x17,0x18,0x19,0x1a,0x1b,0x27,0x2a,0x2d};
    *(ulong*)(&Args[1]) = Classes[Rand()%0x10];
@@ -7459,8 +7465,8 @@ void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
 
-   Args[1] = (ulonglong)hToken;
-   if( Rand()%2 == 1)	Args[1] = (ulonglong)hToken2;
+	HANDLE Tokens[3] = {hToken,hThreadToken,hToken2};
+  	Args[1] = (ulonglong)(Tokens[Rand()%3]);
 }
 
 void w10NtCreateIRTimer 
@@ -7773,8 +7779,8 @@ void** pPool,
 void** pSecondLevelPool)
 {
    DummyPre(SysCall,Args,pPool,pSecondLevelPool);
-   Args[0] = (ulonglong)hToken;
-   if( Rand()%2 == 1)	Args[0] = (ulonglong)hToken2;
+	HANDLE Tokens[3] = {hToken,hThreadToken,hToken2};
+  	Args[0] = (ulonglong)(Tokens[Rand()%3]);
 }
 
 
@@ -7832,7 +7838,26 @@ unsigned long long* Args,
 void** pPool,
 void** pSecondLevelPool)
 {
-   DummyPre(SysCall,Args,pPool,pSecondLevelPool);
+  
+   Args[0] = (ulonglong)hProcess;
+   if( Rand()%3 == 1) Args[0] = -1;
+
+
+   //Base Address
+   Args[1] = GetRandomValue()%(0x7FFFFFFEFFFF+0x1);
+
+   //pInfo
+   Args[2] = (ulonglong)(pPool[2]);
+   ulong Flags[3]={1,2,3};
+   *(ulong*)(pPool[2]) = Flags[Rand()%3];
+   
+
+   //InfoLength
+   Args[3] = 0x10 + GetClassicRandomValue();
+
+   //pResultLength
+   Args[4] = (ulonglong)(pPool[4]);
+   if( Rand()%3 == 1) Args[4] = 0;
 }
 
 
